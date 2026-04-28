@@ -1,7 +1,7 @@
 # Pokemon Ultimate Custom Night (name TBD)
 Justin Wildman
 
-Last updated: 04/27/2026 @ 10:29 p.
+Last updated: 04/27/2026 @ 10:29 p.  
 Current progress: Third character of twenty is almost complete (TODO: add unique jumpscare for each evoluationary stage of this Pokemon)
 
 ## Project Overview
