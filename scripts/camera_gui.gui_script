@@ -1,0 +1,391 @@
+-- import the module with the dictionary mapping camera numbers to location names
+local cams = require "scripts.camera_mapping"
+-- import the module that lets us generate lists and dicts that use character names
+local characters = require "scripts.character_lists"
+local props = require "scripts.prop_lists"
+
+
+local function contains(iterable, element)
+	-- function to determine if element is present in the passed iterable
+	-- it does this by iterating through the iterable with a for loop and breaking 
+	-- to return true if any element in the iterable is equal to the param 'element'
+	-- @param iterable: table, gets iterated through to find a given element
+	-- @param element: the str, int, float, bool, table getting searched for
+	-- @return: true if element is present in the iterable, false if it can't be found
+
+	-- iterate through the elements of the iterable
+	for __, item in ipairs(iterable) do
+		-- check if the current item is the specified element
+		if item == element then
+			-- since the specified element was found, return true
+			return true
+			
+		end
+	end
+
+	-- the only way we make it out of the for loop is if the specified element can't be found
+	return false
+	
+end
+
+
+local function message_characters(message_id, message)
+	-- function to send a message with the given ID and table to all characters in the cast
+	-- @param message_id: str, the message ID  to be hashed
+	-- @param message: OPTIONAL table, the values that are being passed in the message
+	-- @return: none, just posts like 20 messages lmao
+
+	-- iterate through all the characters in the cast
+	for curr_character, curr_url in pairs(characters.get_character_urls()) do
+		msg.post(curr_url, message_id, message)
+	end
+end
+
+
+local function message_props(message_id, message)
+	-- function to send a message with the given ID and table to all props in the camera
+	-- @param message_id: str, the message ID  to be hashed
+	-- @param message: OPTIONAL table, the values that are being passed in the message
+	-- @return: none, just posts like 20 messages lmao
+
+	-- iterate through all the characters in the cast
+	for curr_prop, curr_url in pairs(props.get_prop_urls()) do
+		msg.post(curr_url, message_id, message)
+	end
+end
+
+
+local function get_camera_nodes_table()
+	-- function to automatically generate a list of all the camera button nodes
+
+	-- initialize the list to return
+	local nodes_list = {}
+
+	-- iterate over the number of cameras (11)
+	for i = 1, 11 do
+
+		-- check if the current number is single-digit
+		if i < 10 then
+			-- format as "Cam 01 Button" instead of "Cam 1 Button"
+			table.insert(nodes_list, string.format("Cam 0%d Button", i))
+
+		else
+			-- for double digit camera numbers, format as "Cam 10 Button" instead of "Cam 010 Button"
+			table.insert(nodes_list, string.format("Cam %d Button", i))
+
+		end
+	end
+
+	-- now that the list is generated, return it
+	return nodes_list
+end
+
+
+function init(self)
+	-- function that runs on app startup
+
+	-- get a list of the camera button node names
+	self.camera_buttons_list = get_camera_nodes_table()
+
+	-- import the dictionary mapping the camera numbers to the locations' names
+	self.camera_names = cams.get_camera_dict()
+	
+	-- initialize a variable tracking if the radar debug option is active
+	self.is_radar = false
+
+	-- define a dicitonary mapping camera numbers to the coordinates the text needs
+	-- to be at to be aligned properly on the HUD
+	self.left_aligned = {
+		["Cam 01"] = 1057,
+		["Cam 02"] = 1072,
+		["Cam 03"] = 1052,
+		["Cam 04"] = 1007,
+		["Cam 05"] = 1007,
+		["Cam 06"] = 1077,
+		["Cam 07"] = 1079,
+		["Cam 08"] = 1057,
+		["Cam 09"] = 1002,
+		["Cam 10"] = 1003,
+		["Cam 11"] = 1025
+	}
+
+	self.center_aligned = {
+		["Cam 01"] = 1057,
+		["Cam 02"] = 1057,
+		["Cam 03"] = 1057,
+		["Cam 04"] = 1057,
+		["Cam 05"] = 1057,
+		["Cam 06"] = 1057,
+		["Cam 07"] = 1057,
+		["Cam 08"] = 1057,
+		["Cam 09"] = 1057,
+		["Cam 10"] = 1057,
+		["Cam 11"] = 1025
+	}
+
+	self.right_aligned = {
+		["Cam 01"] = 1057,
+		["Cam 02"] = 1043,
+		["Cam 03"] = 1065,
+		["Cam 04"] = 1109,
+		["Cam 05"] = 1108,
+		["Cam 06"] = 1042,
+		["Cam 07"] = 1039,
+		["Cam 08"] = 1059,
+		["Cam 09"] = 1113,
+		["Cam 10"] = 1116,
+		["Cam 11"] = 987
+	}
+
+
+	-- define the list of character names
+	self.char_list = characters.get_character_list()
+
+	-- define the 2d table mapping character + camera location combos to xy coords to place their icons at
+	self.radar_positions = characters.get_radar_positions(vmath)
+
+	-- make the rapid spin button invisible
+	gui.set_enabled(gui.get_node("rapid_spin_button"), false)
+
+	print("camera_GUI.gui_script init function ran")
+
+end
+
+
+local function move_room_text(self)
+	-- function to set the position of the text indicating the room name
+	-- based on which camera the player is looking at
+	-- this is to ensure that the text is in the right position
+	-- @param self: 
+	-- @return: none
+
+	-- calculate the new position for the text (only the x coordinate needs to change)
+	local text_position = vmath.vector3(self.right_aligned[self.camera_location], 305, 0)
+
+	-- set the text to the right position
+	gui.set_position(gui.get_node("camera location"), text_position)
+
+end
+
+
+local function start_night(self)
+	-- function to reset this game object for the start of a night
+	
+	-- initialize (or reset) the camera location to camera 1
+	self.camera_location = "Cam 01"
+
+	-- reset the position of the text indicating what room the player is looking at
+	move_room_text(self)
+
+	-- reset the camera 1 button to have its button be highlighted
+	gui.play_flipbook(gui.get_node("Cam 01 Button"), "Cam 01 Button Selected")
+
+	-- reset the camera location's text to make sure it is set to the text for camera 1
+	gui.play_flipbook(gui.get_node("camera location"), "show stage text")
+
+	-- reset the camera's background sprite to be the background for camera 1
+	msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location })
+
+	-- make the rapid spin button invisible
+	gui.set_enabled(gui.get_node("rapid_spin_button"), false)
+
+	-- get a list of all camera button node names
+	local cameras = get_camera_nodes_table()
+
+	-- iterate over all of the other cameras (2-11) and make sure they correctly
+	-- display that they're not selected at start of night
+	for index = 1, #cameras do
+		
+		-- skip the first index, since we don't want to display cam 01 as being
+		-- deselected
+		if index ~= 1 then
+			
+			-- set the current camera button node to display its greyed out sprite
+			gui.play_flipbook(gui.get_node(cameras[index]), cameras[index])
+
+		end
+	end
+end
+
+
+function update(self, dt)
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	print("camera GUI received a message: " .. message_id .. " from sender:" .. sender)
+
+	-- check if the message says to show the GUI
+	if message_id == hash("show") then
+
+		-- post messages to the system to enable this object
+		-- and to acquire input focus
+		msg.post(".", "enable")
+		msg.post(".", "acquire_input_focus")
+		print("camera gui enabled and acquired input focus")
+
+		-- check if the message says to hide the GUI
+	elseif message_id == hash("hide") then
+
+		-- post messages to the system to disable this object
+		-- and release input focus
+		msg.post(".", "disable")
+		msg.post(".", "release_input_focus")
+		print("camera gui disabled and released input focus")
+
+	elseif message_id == hash("new_night") then
+
+		-- call the function that resets this game object and all its
+		-- variables for the start of a new night
+		start_night(self)
+
+	elseif message_id == hash("update_debug") then
+
+		-- check whether the radar debug option is on
+		self.is_radar = contains(message.debug_options, "radar")
+
+		print("Radar debug option is: " .. tostring(self.is_radar))
+		print(self.char_list[1])
+
+		-- enable or disable the gui nodes with the character icons indicating their positions
+		for __, curr_char in ipairs(self.char_list) do
+			-- set the current character's icon to be visible or not
+			print(curr_char)
+			gui.set_enabled(gui.get_node(curr_char .. "_icon"), self.is_radar)
+		end
+
+	elseif message_id == hash("move_character") then
+
+		-- this message moves the position of the named character's icon on the minimap
+		-- but the way we have to access the positions dictionary is different depending on if
+		-- the character is in the office
+		if message.new_pos == "office" then
+			-- if the character has moved to the doors of the office, move them to the appropriate
+			-- position on the minimap to reflect that
+			pprint(message)
+			gui.set_position(gui.get_node(message.char_name .. "_icon"), self.radar_positions[message.char_name][message.new_pos][message.side])
+			
+		else
+			-- since the character is just at a normal camera, just put them in their spot in that room
+			gui.set_position(gui.get_node(message.char_name .. "_icon"),self.radar_positions[message.char_name][message.new_pos])
+		end
+
+	end
+
+end
+
+
+local function get_clicked_cam(self, mouse_x, mouse_y)
+	-- function that iterates over all camera nodes' names to idenitfy which 
+	-- of the camera buttons got clicked
+
+	-- iterate over a list of the camera button node names
+	-- yes, this is the lua version of "for item in list:"
+	for __, curr_node in ipairs(self.camera_buttons_list) do
+
+		-- check if the current one is being selected with get_node()
+		if gui.pick_node(gui.get_node(curr_node), mouse_x, mouse_y) then
+			
+			-- return the name of the node that's at the mouse's x and y coords
+			return curr_node
+			
+		end
+	end
+
+	-- this only runs if no node was clicked, return that no node was clicked 
+	-- (this avoids returning a nil value)
+	return "none"
+end
+
+
+local function try_change_cameras(self, action_id, action)
+	print("mouse 1 clicked while in cameras!")
+	-- identify the camera button node that was clicked
+	local clicked_node = get_clicked_cam(self, action.x, action.y)
+	print("Clicked node is " .. clicked_node)
+
+	-- only proceed with string processing and updating the camera if a camera button
+	-- node was actually clicked, i.e. the clicked node isn't "No camera clicked"
+	if clicked_node ~= "none" then
+
+		-- get the number of the clicked camera button by slicing the number from the string
+		-- since all camera nodes' strings are formatted as "Cam XX Button" so the number is
+		-- always on indices 4 and 5
+		local clicked_camera = string.sub(clicked_node, 0, 6)
+		print("Clicked camera is " .. clicked_camera)
+
+		-- make the previous camera's button grey out
+		gui.play_flipbook(gui.get_node(self.camera_location .. " Button"), self.camera_location .. " Button")
+
+		-- update the camera location
+		self.camera_location = clicked_camera
+		msg.post("/camera/camera", "change to " .. clicked_camera)
+
+		-- change the new camera's button to be highlighted
+		gui.play_flipbook(gui.get_node(self.camera_location .. " Button"), self.camera_location .. " Button Selected")
+
+		-- change the text indicating the room name
+		local location_name = self.camera_names[self.camera_location]
+		gui.play_flipbook(gui.get_node("camera location"), location_name .. " text")
+		
+		-- move the text indicating the room name so it's aligned correctly
+		move_room_text(self)
+
+		-- make the generator's rapid spin button visible or not depending on if cam 8 is selected
+		gui.set_enabled(gui.get_node("rapid_spin_button"), self.camera_location == "Cam 08")
+		
+		-- send a message to the camera background object to change its sprite to the new location
+		msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location })
+
+		-- send a message to all characters indicating the new camera location
+		message_characters("change_camera_location", { new_cam = self.camera_location })
+		-- print("player is now looking at: " .. self.camera_location)
+
+		-- send a message to all props indicating the new camera location
+		message_props("change_camera_location", { new_cam = self.camera_location })
+		
+	end
+end
+
+
+local function try_rapid_spin(mouse_x, mouse_y)
+	-- function to recognize if the rapid spin button has been clicked and spin the generator
+	-- if it has been
+
+	-- check if the spin button has been clicked	
+	if gui.pick_node(gui.get_node("rapid_spin_button"), mouse_x, mouse_y) then
+
+		-- since the player has clicked the rapid spin button, animate the button
+		gui.play_flipbook(gui.get_node("rapid_spin_button"), "rapid spin button selected", function()
+			-- when the animation is done, reset to the original sprite
+			gui.play_flipbook(gui.get_node("rapid_spin_button"), "rapid spin button")
+		end)
+
+		-- tell the office GUI to remove the seeded effect from the generator
+		msg.post("/office_GUI", "spin_generator")
+
+		-- also tell the generator prop to run its animation
+		-- TODO: make a second animation for the generator when it isn't seeded
+		msg.post("/camera/generator", "animate_prop", { animation_name = "generator_spinning", return_when_done = true } )
+
+	end
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- check if mouse 1 has been clicked
+	
+	if action_id == hash("mouse1")  and action.released then
+		-- check if a camera button's node was clicked, and update cameras if yes
+		try_change_cameras(self, action_id, action)
+
+		-- check if the rapid spin button was clicked, and spin the generator if yes
+		try_rapid_spin(action.x, action.y)
+		
+	end
+	
+end

@@ -1,0 +1,194 @@
+local function get_tips_dict()
+	-- function to construct a dictionary mapping character names to the tips
+	-- also includes a tip for greenrunning if the player powers out
+	-- @return: a dictionary, keys are all strings, values are all strings
+
+	return {
+		powerout = "Powerout tip",
+		bulbasaur = "bulbasaur tip",
+		charmander = "charmander tip",
+		squirtle = "squirtle tip",
+		abra = "abra tip",
+		tauros = "tauros tip",
+		magikarp = "magikarp tip",
+		snorlax = "snorlax tip",
+		pichu = "pichu tip",
+		misdreavus = "misdreavus tip",
+		peliper = "peliper tip",
+		ninetales = "ninetales tip",
+		lucario = "lucario tip",
+		croagunk = "croagunk tip",
+		rotom = "rotom tip",
+		giratina = "giratina tip",
+		klinklang = "klinklang tip",
+		["a-tales"] = "alolan ninetales tip",
+		primarina = "primarina tip",
+		dragapult = "dragapult tip",
+		gimmighoul = "gimmighoul tip"
+	}
+
+
+end
+
+
+local function get_challengemode_tips_dict()
+	-- function to construct a dictionary mapping character names to the tips
+	-- for how to deal with them in the challenge mode
+	-- also includes a tip for greenrunning if the player powers out
+	-- @return: a dictionary, keys are all strings, values are all strings
+
+	return {
+		powerout = "tera Powerout tip",
+		-- bulbasaur = "Remember she goes back and forth between your\noffice and the generator directly, so she\n appears much more frequently than in vanilla",
+		bulbasaur = "'Sucked!'\n-Imported Cheese",
+		-- charmander = "He appears one camera behind where he actually\nis along his path. So close the door\nwhen you see him in the hall.",
+		charmander = "You let his tail go out",
+		-- squirtle = "He camps out at your door for longer the more time\nyou've spent looking at him in the camera.\nOnly look at him for as long as you need\nto know which way he's going.",
+		squirtle = "I got thirsrty",
+		abra = "tera abra tip",
+		-- tauros = "They now have a chance to break out of a pokeball\nor dodge it as you throw it. Remember to\ncheck again after you throw to see if it stays\nin the ball",
+		tauros = "Isn't it cool they now have all the RNG that makes\nreal Pokemon Go so annoying?",
+		magikarp = "'Imagine you are a seagull...'",
+		snorlax = "I eated it",
+		pichu = "tera pichu tip",
+		misdreavus = "How did you like budget Rat & Cat All Challenges?",
+		peliper = "I'd put a joke here, but you know that using the heater\nmakes ninetales more likely to spawn, right?\nSame for the AC and alolan ninetales",
+		ninetales = "tera ninetales tip",
+		lucario = "Gamble responsibly >:)",
+		croagunk = "You blinked",
+		rotom = "tera rotom tip",
+		giratina = "tera giratina tip",
+		klinklang = "Honestly the fact a door character didn't kill you\nfirst is impressive",
+		["a-tales"] = "tera alolan ninetales tip",
+		primarina = "tera primarina tip",
+		dragapult = "tera dragapult tip",
+		gimmighoul = "Please deposit five coins",
+		ditto = "Remember to check if a character has a :) face like a ditto clone before clicking on them"
+	}
+
+
+end
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- assign a variable to track the mapping of character names to their tips
+	self.tips = get_tips_dict()
+
+	-- get the dictionary mapping character names to tips for the challenge mode as well
+	self.challenge_tips = get_challengemode_tips_dict()
+
+	-- make a dicitonary mapping whether or not the player was in the challenge mode
+	-- to which dictionary of tips to pull from
+	self.which_tips = {
+		[true] = self.challenge_tips,
+		[false] = self.tips
+	}
+
+	-- initialize the variable tracking if the player is in the challenge mode or not
+	self.is_tera = false
+
+	-- disable the node showing the fade to black
+	gui.set_enabled(gui.get_node("fade to black"), false)
+	
+end
+
+
+local function update_time(time_to_display)
+	-- function to change the text of the time to display
+	-- @param time_to_display: str, formatted as "mm:ss" or "m:ss", the time to be displayed
+	-- @return: nothing, just updates a sprite
+
+	-- set the string to do the funny
+	local string_to_display = "Time of death: " .. time_to_display
+
+	-- update the text node displaying the time of death
+	gui.set_text(gui.get_node("death time"), string_to_display)
+
+end
+
+
+local function update_cause_of_death(self, character_name)
+	-- function to update the text displaying the character the player lost to and the tip
+	-- that should be shown for dealing with that character
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @param character: str, the name of the character the player died to
+	-- @param is_challenge_mode: bool, indicates if the player was in the challenge mode (true)
+	-- 							 or if they were in the vanilla mode (false)
+	-- @return: none, just updates text nodes
+
+	-- update the text node displaying the cause of death
+	local cause_of_death = "Cause of death: " .. character_name
+	gui.set_text(gui.get_node("cause of death"), cause_of_death)
+
+	-- access the dictionary to know which tip to display
+	local tips_dict = self.which_tips[self.is_tera]
+	gui.set_text(gui.get_node("tip"), tips_dict[character_name])
+
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	print("game_over screen received a message: " .. message_id .. " from sender:" .. sender)
+
+	-- to be lazy, i'm just going to have the fade to black node get disabled ANY time
+	-- this GUI is sent a message
+	gui.set_enabled(gui.get_node("fade to black"), false)
+	
+	-- check if the message says to show the GUI
+	if message_id == hash("show") then
+
+		-- post messages to the system to enable this object
+		-- and to acquire input focus
+		msg.post(".", "enable")
+		msg.post(".", "acquire_input_focus")
+		print("enabled and acquired input focus")
+
+		-- check if the message says to hide the GUI
+	elseif message_id == hash("hide") then
+
+		-- post messages to the system to disable this object
+		-- and release input focus
+		msg.post(".", "disable")
+		msg.post(".", "release_input_focus")
+		print("game_over screen disabled and released input focus")
+
+	elseif message_id == hash("update_challenge_mode") then
+
+		-- update the local variable tracking if the player was playing the challenge mode
+		self.is_tera = message.is_tera
+
+	elseif message_id == hash("update_time") then
+
+		-- update the listed time of death
+		update_time(message.time)
+
+	elseif message_id == hash("update_cause_of_death") then
+
+		-- update the variables indicating the character that killed the player
+		-- and the tip to display
+		if message.powerout then
+			update_cause_of_death(self, "powerout")
+		else
+			update_cause_of_death(self, message.character)
+		end
+		
+	end
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+
+	-- check if the player left clicks
+	if action_id == hash("mouse1") and action.released then
+		-- play the fade to black animation
+		gui.set_enabled(gui.get_node("fade to black"), true)
+		gui.play_flipbook(gui.get_node("fade to black"), "fade to black", function() 
+			-- send the player back to the main menu once the fade to black finishes
+			msg.post("controller", "show_main_menu") 
+		end)
+		
+	end
+end

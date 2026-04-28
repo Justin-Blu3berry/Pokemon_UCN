@@ -1,0 +1,61 @@
+name: "main"
+collection_instances {
+  id: "office"
+  collection: "/main/office.collection"
+}
+collection_instances {
+  id: "camera"
+  collection: "/main/camera.collection"
+}
+scale_along_z: 0
+embedded_instances {
+  id: "controller"
+  data: "components {\n"
+  "  id: \"controller\"\n"
+  "  component: \"/scripts/controller.script\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "main_menu"
+  data: "components {\n"
+  "  id: \"main_menu\"\n"
+  "  component: \"/main/main_menu.gui\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "office_GUI"
+  data: "components {\n"
+  "  id: \"office\"\n"
+  "  component: \"/main/office.gui\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "game_over"
+  data: "components {\n"
+  "  id: \"game_over\"\n"
+  "  component: \"/main/game_over.gui\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.5
+  }
+}
+embedded_instances {
+  id: "camera_GUI"
+  data: "components {\n"
+  "  id: \"camera_gui\"\n"
+  "  component: \"/main/camera_gui.gui\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "win_screen"
+  data: "components {\n"
+  "  id: \"win_screen\"\n"
+  "  component: \"/main/win_screen.gui\"\n"
+  "}\n"
+  ""
+}

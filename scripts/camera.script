@@ -1,0 +1,190 @@
+-- import the module with the dictionary mapping camera numbers to location names
+local cams = require "scripts.camera_mapping"
+
+function init(self)
+	-- initialize a variable for tracking the mouse's position
+	-- needs to be initialized here because the update() function might check its value before
+	-- an input is received from the mouse (so it can't be initialized in on_input())
+	self.mouse_position = vmath.vector3(0, 0, 0)
+
+	-- assign a variable to track the sprite's initial position
+	self.init_position = go.get_position()
+	-- print(self.init_position)
+
+	-- define the farthest left or right the office/object in office should move before stopping
+	-- left and right bounds need to be relative to the object's starting position
+	-- office starts at x = 790, left bound is 500 and right is 800
+	self.left_bound = self.init_position.x - 290
+	self.right_bound = self.init_position.x + 10
+
+	-- initialize the variable managing the direction of the camera's panning
+	-- by determining its change in x coordinates
+	self.pan_dx = 0.5
+
+	-- import the dictionary mapping the camera numbers to the locations' names
+	self.camera_names = cams.get_camera_dict()
+
+	-- initialize a variable tracking if the player is in the cameras
+	self.is_in_camera = false
+end
+
+
+local function make_cams_invisible()
+	-- function to make the camera invisible by moving it out of the renderable
+	-- space.  Renderable space is between z = -1 and z = 1
+
+	-- get the current position of the office collection
+	local curr_position = go.get_position()
+
+	-- calculate its new position (keeping x and y the same, but changing z
+	-- to a large value outside the render distance)
+	local new_position = vmath.vector3(curr_position.x, curr_position.y, 100)
+
+	-- update the position
+	go.set_position(new_position)
+
+end
+
+
+local function make_cams_visible()
+	-- function to make the camera invisible by moving it into the renderable
+	-- space.  Renderable space is between z = -1 and z = 1
+
+	-- get the current position of the office collection
+	local curr_position = go.get_position()
+
+	-- calculate its new position (keeping x and y the same, but changing z
+	-- to a value inside the renderable distance
+	local new_position = vmath.vector3(curr_position.x, curr_position.y, 0)
+
+	-- update the position
+	go.set_position(new_position)
+
+end
+
+
+
+local function start_night(self)
+	-- function to reset this object for the start of a night
+
+	-- reset the camera sprite to its original position
+	go.set_position(self.init_position)
+	print("camera's initial x: " .. self.init_position.x)
+
+	-- reset the direction of the camera pan
+	self.pan_dx = 0.5
+
+	-- reset the variable tracking if the player is in the cameras
+	self.is_in_camera = false
+
+	-- make the cameras invisible
+	make_cams_invisible()
+
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	print("camera received a message: " .. message_id .. " from sender:" .. sender)
+	
+	-- check if the message says to show the GUI
+	if message_id == hash("show") then
+
+		-- post messages to the system to enable this object
+		-- and to acquire input focus
+		msg.post(".", "enable")
+		-- msg.post(".", "acquire_input_focus")
+
+		-- check if the message says to hide the GUI
+	elseif message_id == hash("hide") then
+
+		-- post messages to the system to disable this object
+		-- and release input focus
+		msg.post(".", "disable")
+		-- msg.post(".", "release_input_focus")
+
+	elseif message_id == hash("new_night") then
+
+		-- call the function that resets this game object and all its
+		-- variables for the start of a new night
+		start_night(self)
+
+	elseif message_id == hash("change_camera_location") then
+
+		-- this message ID will be accompanied by a message containing a table
+		-- that maps a key: new_cam, to a camera number, formatted as "Cam XX"
+		print("New camera: " .. message.new_cam)
+
+		-- use the dictionary of camera numbers and location names to convert
+		-- the camera number passed in the message to the name of the new location
+		local new_location = self.camera_names[message.new_cam]
+		print("New location: " .. new_location)
+
+		-- assign a variable to track the name of the lighting overlay to use
+		-- for the new camera location
+		local new_lighting = new_location .. " lighting"
+		
+		-- change the sprite for the camera background to the sprite for the new location
+		sprite.play_flipbook("#camera location", hash(new_location))
+
+		-- change teh sprite for the lighting overlay to the lighting for the new camera
+		sprite.play_flipbook("#camera lighting", hash(new_lighting))
+
+	elseif message_id == hash("update_camera_status") then
+
+		-- update the variable indicating whether the player is in the camera
+		self.is_in_camera = message.is_in_camera
+
+		print("Camera has now switched self.is_in_camera to: " .. tostring(self.is_in_camera))
+
+		-- check if the player is in the camera
+		if self.is_in_camera then
+			-- the camera collection becomes visible because the player is in the camera
+			make_cams_visible()
+
+		else
+			-- the camera collection becomes invisible because the player isn't in the camera
+			make_cams_invisible()
+		end
+
+	end
+end
+
+
+local function move_camera(self)
+	-- function to handle the effect of the camera panning
+	-- actually updates the position of the object, returns nothing
+
+	-- check if the camera's sprite has reached its left or right bounds
+	if self.curr_position.x <= self.left_bound then
+		-- if the sprite has reached its left bound, the camera needs to move right
+		self.pan_dx = 0.5
+
+	elseif self.curr_position.x >= self.right_bound then
+		-- if the sprite has reached its right bound, the camera needs to move left
+		self.pan_dx = -0.5
+
+	end
+
+	-- now that the direction of camera panning has been resolved, we can add the
+	-- change in x to the current x to get the new x coordinate
+	local new_x = self.curr_position.x + self.pan_dx
+
+	-- set the coordinates of the new position with the new x value
+	local new_position = vmath.vector3(new_x, self.curr_position.y, self.curr_position.z)
+
+	-- finally, update the office's position to the new value
+	go.set_position(new_position)
+	
+end
+
+function update(self, dt)
+	-- Add update code here
+
+	-- get the camera sprite's current position
+	self.curr_position = go.get_position()
+
+	-- move the camera
+	move_camera(self)
+	
+end

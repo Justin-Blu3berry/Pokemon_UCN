@@ -1,0 +1,760 @@
+-- forward-declare the driver function so it can be mutually recurred by restart_path()
+local driver
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- initialize character name
+	self.name = "squirtle"
+
+	-- initialize AI level
+	self.level = 0
+
+	-- initialize movement interval
+	self.interval = 15
+
+	-- initialize if the player is in the challenge mode
+	self.is_tera = false
+
+	-- initialize his location on screen
+	self.location = "Cam 01"
+
+	-- initialize the lists of locations in this character's movement paths
+	local left_path = {"Cam 01", "Cam 02", "Cam 04", "Cam 05", "Cam 09", "office"}
+	local right_path = {"Cam 01", "Cam 02", "Cam 06", "Cam 11", "Cam 10", "office"}
+
+	-- initialize the dictionary that will get used to get the character's location
+	self.path = {
+		left = left_path,
+		right = right_path
+	}
+
+	-- initialize a variable tracking which path the character is on
+	self.my_path = "left"
+
+	-- initialize a variable tracking what step of his path he's on
+	self.movement_step = 1
+
+	-- initialize the dictionary mapping camera locations to his position on screen
+	self.position_dict = {
+		["Cam 01"] = vmath.vector3(-157.0, -87.0, 0.0),
+		["Cam 02"] = vmath.vector3(-276.0, 116.0, 0.0),
+		["Cam 04"] = vmath.vector3(-321.0, -213.0, 0.0),
+		["Cam 05"] = vmath.vector3(0, 0, 0.0),
+		["Cam 06"] = vmath.vector3(0, 0, 0.0),
+		["Cam 09"] = vmath.vector3(0, 0, 0.0),
+		["Cam 10"] = vmath.vector3(0, 0, 0.0),
+		["Cam 11"] = vmath.vector3(0, 0, 0.0),
+		["office"] = vmath.vector3(0, 0, 0.0)  -- note that this one doesn't matter because of the dummy squirtle sprite in the office
+	}
+	
+	-- initialize the dictionary mapping camera locations to this character's sprite names
+	self.sprite_dict = {
+		["Cam 01"] = "squirtle",
+		["Cam 02"] = "squirtle",
+		["Cam 04"] = "squirtle",
+		["Cam 05"] = "squirtle",
+		["Cam 06"] = "squirtle",
+		["Cam 09"] = "squirtle",
+		["Cam 10"] = "squirtle",
+		["Cam 11"] = "squirtle",
+		["office"] = "squirtle"  -- note that this one doesn't matter because of the dummy squirtle sprite in the office
+	}
+
+	-- initialize values to track if the player is in the cameras
+	self.is_in_camera = false
+
+	-- initialize a value to track which camera is currently selected
+	self.selected_camera = "Cam 01"
+
+	-- initialize variables to know if either door is open
+	self.doors_closed = {
+		right = false, 
+		left = false
+	}
+
+	-- initialize all timers
+	self.movement_timer = timer.delay(0, false, function() print("squirtle move timer initialized") end)
+	self.door_timer = timer.delay(0, false, function() print("squirtle door timer initialized") end)
+	self.look_timer = timer.delay(0, false, function() print("squirtle tera mode timer initialized") end)
+	self.kill_timer = timer.delay(0, false, function() print("squirtle kill timer initialized") end)
+	
+	-- become invisible
+	local curr_position = go.get_position()
+	go.set_position(vmath.vector3(curr_position.x, curr_position.y, 100))
+
+	-- initialize the variable tracking how much time squirtle should wait at the door
+	self.max_door_time = 0.5
+
+	-- initialize the variable tracking how much time squirtle has left to wait at the door
+	self.remaining_door_time = self.max_door_time
+
+	-- initialize the variable tracking how much time squirtle's kill timer has left on it
+	self.remaining_kill_time = 5
+end
+
+
+local function update_displayed_time(timer_name, time_remaining, is_running)
+	-- function to ping the Office GUI telling it to update the time it displays for the named timer
+	-- when the interval_timers debug option is active
+	-- This function also indicates if the pie node should indicate if the timer is currently active
+	-- @param timer_name: str, the name of the timer being updated
+	-- @param time_ramining: float, the amount of time remaining on the timer
+	-- @param start_timer: bool, indicates whether the timer is currently running
+
+	-- send the message to the office GUI
+	print(timer_name .. " time_remaining:" .. tostring(time_remaining))
+	msg.post("/office_GUI", "update_debug_display", { character_name = "squirtle", 
+	value_name = timer_name, 
+	new_value = string.format("%.2f", time_remaining),
+	start_timer = is_running } )
+	
+end
+
+
+local function calculate_nonrandom_interval(ai_level, fastest, slowest)
+	-- function to calculate the character's movement interval (how long between movements)
+	-- as a function of its AI level
+	-- @param ai_level: int between 0 and 20 (inclusive), indicates the difficulty
+	-- 					level of this character
+	-- @param fastest: float, the character's movement interval at 20 AI
+	-- @param slowest: float, the character's movement interval at 1 AI
+	-- @return: float, the time (in seconds) between this character's movements
+
+	-- default values for fastest and slowest intervals this character can have
+	-- (not accounting for the random number that gets added later)
+	fastest = fastest or 5 -- interval at 20 ai
+	slowest = slowest or 45 -- interval at 1 ai
+
+	-- use a linear function because it's easiest to fuck around with right now
+	-- todo: use a funnier equation?
+	local slope = (fastest - slowest) / 19
+	local y_intercept = fastest - (slope * 20)
+	local non_random = slope * ai_level + y_intercept
+	-- print("squirtle ai equation: y = " .. slope .. " x + " .. y_intercept)
+
+	-- now add or subtract a random value from it so the interval isn't the same every time
+	return non_random
+
+end
+
+
+local function calculate_interval(non_random)
+	-- function to add a random amount between -20% and 20% to the given non_random base interval
+	-- @param non_random: int or float, the time that is having a random amount added/subtracted to it
+	-- @return: float, the time (in seconds) between this character's movements
+
+	-- calculate a random float to add to the interval (it is below 0 half the time)
+	-- have to divide afterwards because math.random() only generates integers
+	local random_float = math.random(-20, 20) / 100
+	print("Non-random component: " .. tostring(non_random) .. " + random component: " .. tostring(random_float))
+
+	-- send a message to the office GUI to update the displayed interval time
+	update_displayed_time("move_time", (non_random + random_float * non_random), true)
+	
+	-- now add or subtract a random value from it so the interval isn't the same every time
+	return non_random + random_float * non_random
+
+end
+
+
+local function get_player_view(is_in_camera, camera_location)
+	-- function to determine what the player is looking at
+	-- @param is_in_camera: bool, indicates if the player is in the camera
+	-- @param camera_location: str, indicates which camera is currently selected
+	-- @return: string, either "Cam XX" or "Office" indicating which camera
+	-- 			the player is looking at or indicating that the player
+	--  		is in the office
+
+	-- check if the player is in the camera
+	if is_in_camera then
+		-- return that the player is looking at whatever camera is currently selected
+		return camera_location
+
+	elseif not is_in_camera then
+		-- indicate that the palyer is in the office
+		return "office"
+		
+	end
+
+end
+
+
+local function become_invisible()
+	-- function to make the character invisible by moving it out of the renderable
+	-- space.  Renderable space is between z = -1 and z = 1
+
+	-- get the current position of the character on screen
+	local curr_position = go.get_position()
+
+	-- calculate its new position (keeping x and y the same, but changing z
+	-- to a large value outside the render distance)
+	local new_position = vmath.vector3(curr_position.x, curr_position.y, 100)
+
+	-- update the position
+	go.set_position(new_position)
+
+end
+
+
+local function become_visible()
+	-- function to make the character visible by moving it into the renderable
+	-- space.  Renderable space is between z = -1 and z = 1
+
+	-- get the current position of the character on screen
+	local curr_position = go.get_position()
+
+	-- calculate its new position (keeping x and y the same, but changing z
+	-- to 0)
+	local new_position = vmath.vector3(curr_position.x, curr_position.y, 0)
+
+	-- update the position
+	go.set_position(new_position)
+
+end
+
+
+local function add_door_time(self)
+	-- function to increase squirtle's time spent waiting for the door to be closed 
+	-- when he's in the doorway
+	-- this this function is run by a looping timer that runs every 0.1 seconds
+	-- so squirtle adds 0.5 seconds of door wait time per 1.0 seconds spent looking at him
+	-- @param self: 
+	-- @return: nothing, just sets a timer and aliases in the self.<variable> namespace
+	
+	-- add 0.05 seconds to the door timer
+	self.max_door_time = self.max_door_time + 0.05
+	
+	-- update this character's remaining door time too
+	self.remaining_door_time = self.max_door_time
+
+	print("squirtle door time increased to " .. self.max_door_time)
+
+	-- send a message to the gui to update how much time squirtle's door time has on it
+	update_displayed_time("door_time", self.max_door_time, false)
+	
+	-- print(self.location)
+
+end
+
+-- despite being VERY similar to the one in character_utils.lua, this one has to stay
+-- because of the code for Squirtle's Tera mechanic being called in this function
+local function update_visibility(self)
+	-- function to determine if this character should be visible on screen
+	-- @param self: allows this function to access self.<variable> variables
+	-- @return: nothing, just runs functions to either make the character visible or invisible
+
+	-- determine what the player is looking at
+	local player_location = get_player_view(self.is_in_camera, self.selected_camera)
+	print("Squirtle thinks the player is looking at: " .. player_location)
+
+	-- check if this character is in the location the player is in
+	if self.location == player_location then
+
+		-- make the character become visible
+		become_visible()
+
+		print("Squirtle is now visible at " .. self.location)
+
+		-- if the player is in the challenge mode, activate a timer that adds to the
+		-- door timer for every frame you spent looking at him
+		if self.is_tera and self.location ~= "office" then
+			self.look_timer = timer.delay(0.1, true, add_door_time)
+		end
+
+	else
+
+		-- make the character become invisible
+		become_invisible()
+
+		print("squirtle is now invisible at " .. self.location)
+
+		-- if the player is in the challenge mode, stop adding time to the door timer
+		if self.is_tera then
+			local result = timer.cancel(self.look_timer)
+			print("Result of cancelling Squirtle's additional_door_time timer: " .. tostring(result))
+		end
+		print("Squirtle door time is: " .. self.max_door_time)
+
+	end
+
+end
+
+
+local function update_coords(position_dict, location)
+	-- function to update this character's location on the screen based on
+	-- what location in the building they're in
+	-- @param self: 
+	-- @param position_dict: dict mapping camera locations to the coordinates that this
+	-- 						 character occupies on screen when at those cameras
+	-- @param location: str, the camera name (CAM XX) that this character is at
+	-- returns: nothing, just updates the position of this character's game object
+
+	-- calculate this character's new position on the screen
+
+	-- get the current position
+	local old_z = go.get_position().z
+
+	-- access the correct x-y coords for the character's current camera location
+	local new_position = position_dict[location]
+
+	-- change the z-coord of this character's new position to match the old one
+	new_position.z = old_z
+
+	-- now send the character to their new position on screen
+	go.set_position(new_position)
+
+	print("Squirtle's new position on screen is (" .. new_position.x .. ", " .. new_position.y .. ", " .. new_position.z .. ")")
+
+end
+
+
+local function progress_movement(self)
+	-- function to increment the character's movement step and update their
+	-- location and position accordingly
+	-- @param self: 
+	-- @return: nothing probably
+
+	-- add 1 to the character's movement step
+	self.movement_step = self.movement_step + 1
+
+	-- update the character's location
+	-- first access the correct sequence of rooms from self.path by keying it with
+	-- the character's current path (self.my_path). Then access the right room in
+	-- the list by keying it with the current step of this character's movement progression
+	self.location = self.path[self.my_path][self.movement_step]
+	print("Squirtle moved to " .. self.location .. " along " .. self.my_path .. " path")
+
+	-- tell the camera GUI to move the squirtle icon on the minimap (only visible if radar is on)
+	msg.post("/camera_GUI", "move_character", 
+		{char_name = "squirtle", 
+		new_pos = self.location, 
+		side = self.my_path
+	})
+
+	-- have this character check if they're visible
+	update_visibility(self)
+
+	-- update this character's position on screen
+	update_coords(self.position_dict, self.location)
+	
+end
+
+
+local function cancel_all_timers(self)
+	-- function to cancel all of this character's timers
+	-- @param self:
+	-- @return: nothing, just cancels timers
+
+	timer.cancel(self.movement_timer)
+	timer.cancel(self.door_timer)
+	timer.cancel(self.look_timer)
+	timer.cancel(self.kill_timer)
+
+end
+
+
+local function pause_timer(timer_alias)
+	-- function to stop a timer and return how much time is remaining on it
+	-- should be called as: remaining_time = pause_timer(timer_alias) or <starting time>
+	-- to make calls resilent against being called on timers that aren't running
+	-- @param timer_alias: str, the name of the timer being cancelled
+	-- @return: time remaining when the timer was cancelled successfully
+	-- 			if the timer wasn't running, then this returns None
+
+	-- get the information on the timer
+	local timer_info = timer.get_info(timer_alias)
+
+	-- attempt to stop the timer
+	local result = timer.cancel(timer_alias)
+
+	-- check if the timer was cancelled successfully
+	if result then
+		-- since the timer was running and is now cancelled, return the time remaining
+		return(timer_info.time_remaining)
+	else
+		-- this returns nil if the timer wasn't cancelled successfully
+		return nil
+	end
+end
+
+
+local function play_directional_sound(url, direction, speed)
+	-- function to play the sound specified by the url parameter in a direction determined
+	-- by self.my_path
+	-- @param url: str, the url for the sound file to play
+	-- @param direction: str, the direction in which the sound should be panned
+	-- 					 expect "left", "right", or "center"
+	-- 					 default is "center"
+	-- @param speed: int or float, the speed with which the sound should be played
+	-- @return: nothing, just plays a sound
+
+	-- load the default value for the direction and speed
+	direction = direction or "center"
+	speed = speed or 1.00
+
+	-- make a lookup table mapping the direction to a pan value (-1 to 1)
+	-- pan=-1 means 45 degrees left, pan=1 means 45 degrees right
+	local pan_dict = {left = -1, center = 0, right = 1}
+
+	-- convert the string indicating the direction to the numerical value for the pan
+	local pan = pan_dict[direction]
+
+	-- play the sound
+	sound.play(url, { pan = pan, speed = speed })
+	print("Squirtle played sound: " .. url .. " with direction: " .. direction .. " pan: " .. pan)
+
+end
+
+
+local function attack_door(self)
+	-- function to check if the door is closed, and kills the player if not
+	print("kill player ran, " .. self.my_path .. " door is closed: " .. tostring(self.doors_closed[self.my_path]))
+	-- check if the door is closed
+	if not self.doors_closed[self.my_path] then
+		-- if the door isn't closed, start by playing the sound for the jumpscare
+		play_directional_sound("#squirtle_cry")
+
+		-- send a message to the office gui to kill the player
+		msg.post("/office_GUI", "kill_player", { character_name = "squirtle" })
+
+		-- tell the dummy squirtle in the office to become invisible so it isn't visible during the jumpscare
+		msg.post("/office/squirtle_dummy", "become_invisible")
+		
+		-- cancel this character' timers
+		cancel_all_timers(self)
+	end
+	
+end
+
+
+local function enter_kill_state(self)
+	-- function to set a timer that is used to determine if this character
+	-- should kill the player while this character is in the office
+	-- also tells the dummy model in the office what coords to go to and tells it to become
+	-- visible
+	-- @param self:
+	-- @return: none, sets timers and maps them to self.<variable> variables
+
+	-- set the initial timer for the character appearing in the door before being a threat
+	self.kill_timer = timer.delay(self.interval, false, attack_door)
+	update_displayed_time("kill_time", self.interval, true)
+
+	-- tell the dummy squirtle model in the office to become visible and which door to go to
+	msg.post("/office/squirtle_dummy", "become_visible", { my_path = self.my_path })
+
+end
+
+
+local function restart_path(self)
+	-- function to reset this character's movement path 
+
+	-- pick a new path
+	local which_path = { "left", "right" }
+	self.my_path = which_path[math.random(1,2)]
+	-- reset movement to step 0
+	self.movement_step = 0
+	-- go to the show stage (this function will increment the movement step to 1, which is the 
+	-- show stage in both paths)
+	progress_movement(self)
+	-- recalculate this character's movement interval
+	self.interval = calculate_interval(self.non_random)
+	-- start the timer for the next movement
+	self.movement_timer = timer.delay(self.interval, false, driver)
+
+	print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+end
+
+
+local function leave_kill_state(self)
+	-- function to handle this character leaving their kill state at the door
+	-- Includes: cancelling door timer and kill timer, resetting position variable
+	-- telling the dummy sprite in the office to become invisible, picking a new movement path, 
+	-- and restarting the movement timer
+	-- @param self:
+	-- @return: nothing, just cancels a timer
+
+	-- reset this character's kill timer
+	self.remaining_kill_time = self.interval
+
+	-- reset this character's door timer
+	self.remaining_door_time = self.max_door_time
+	update_displayed_time("door_time", self.max_door_time, false)
+
+	-- cancel this character's kill timer
+	local result = timer.cancel(self.kill_timer)
+	print("Leaving kill state, Result of cancelling Squirtle's kill timer: " .. tostring(result))
+
+	-- cancel this character's timer to leave the door
+	result = timer.cancel(self.door_timer)
+	print("Leaving kill state, Result of cancelling Squirtle's door timer: "  .. tostring(result))
+
+	-- tell the dummy squirtle model in the office to become invisible
+	msg.post("/office/squirtle_dummy", "become_invisible")
+
+	-- play the sound effect for squirtle leaving the door
+	play_directional_sound("#run_away", self.my_path, 1.00)
+
+	-- use message passing to call the driver function because it's not defined yet at the time
+	-- of this function getting compiled
+	restart_path(self)
+
+end
+
+
+local function update_sprite(name, sprite_dict, location)
+	-- function to change the character's current sprite to whichever sprite is associated
+	-- with the passed position
+	-- @param name: str, the character's name (used to find IDs for sprites)
+	-- @param sprite_dict: dict, dictionary mapping location in the building to sprite names
+	-- @param location: str, indicates which location the character is in so the right sprite
+	-- 					gets selected
+	-- @return: nothing, just changes sprites
+
+	sprite.play_flipbook("#" .. name .. "_sprite", sprite_dict[location])
+	print(name .. " just switched to sprite; '" .. sprite_dict[location] .. "' sprite at " .. location)
+
+end
+
+
+function driver(self)
+	-- driver function to be called by the timer
+
+	-- move to the next location
+	progress_movement(self)
+
+	-- check if the character is in the office
+	if self.location == "office" and not self.doors_closed[self.my_path] then
+		-- run the function for the character to enter his kill state at the door
+		print("Reached office, door was open. Squirtle entering kill state.")
+		enter_kill_state(self)
+
+		-- check if the door is closed when the character gets there
+	elseif self.location == "office" and self.doors_closed[self.my_path] then
+		-- set the door timer to leave the kill state if the door stays closed
+		print("Reached office, door was closed. Squirtle starting door timer: " .. self.remaining_door_time .. " seconds")
+		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
+		update_displayed_time("door_time", self.remaining_door_time, true)
+
+	else
+
+		-- update this character's sprite
+		update_sprite(self.name, self.sprite_dict, self.location)
+
+		-- update this character's movement interval
+		self.interval = calculate_interval(self.non_random)
+
+		-- start the timer for the next movement
+		-- this is recursive, but can be broken if the timer is canceled
+		self.movement_timer = timer.delay(self.interval, false, driver)
+
+	end
+
+	print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+end
+
+
+	local function set_door_timers(self)
+	-- function to check if squirtle is in the office when a door is closed
+	-- and either start or cancel this character's door timer (depending on whether
+	-- the door this character is at has been opened or closed)
+
+	-- make a couple booleans to shorten the next if statements
+	local is_in_office = self.location == "office"
+	local my_door_closed = self.doors_closed[self.my_path]
+
+	print("set_door_timers ran: is_in_office = " .. tostring(is_in_office) .. " // my_door_closed = " .. tostring(my_door_closed))
+
+	-- check if this character's door is closed
+	if is_in_office and my_door_closed then
+		-- this runs if the door this character is at was closed
+		-- and only if the door timer isn't running
+
+		-- start a counter to leave the door when it's been closed for half a second
+		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
+		update_displayed_time("door_time", self.remaining_door_time, true)
+
+		-- pause the kill timer
+		local remaining_kill_time = pause_timer(self.kill_timer)
+
+		-- check if the pause function returned a nil value
+		if remaining_kill_time then
+			-- only overwrite the remaining kill time if the kill timer was successfully paused
+			self.remaining_kill_time = remaining_kill_time
+			update_displayed_time("kill_time", self.remaining_kill_time, false)
+		end
+		
+		print("Door closed, result of cancelling squirtle's kill timer: " .. tostring(remaining_kill_time) .. ". " .. self.remaining_kill_time .. " sec left on it")
+
+	elseif is_in_office and not my_door_closed then
+		-- this runs if the door this character was at was opened while he was there
+		-- and only if the kill timer has been paused
+
+		-- pause the door timer
+		local remaining_door_time = pause_timer(self.door_timer)
+
+		-- check if the pause function returned a nil value
+		if remaining_door_time then
+			-- only overwrite the remaining door time if the pause function returned a number for the amount of time remaining
+			self.remaining_door_time = remaining_door_time
+			update_displayed_time("door_time", self.remaining_door_time, false)
+		end
+		
+		print("Door opened, result of cancelling squirtle's door timer: " .. tostring(remaining_door_time).. ". " .. self.remaining_door_time .. " seconds left on it")
+
+		print("Restarting Squirtle's kill timer with " .. self.remaining_kill_time .. " sec remaining.")
+		-- resume the kill timer
+		self.kill_timer = timer.delay(self.remaining_kill_time, false, attack_door)
+		update_displayed_time("kill_time", self.remaining_kill_time, true)
+
+	end
+
+end
+
+
+function final(self)
+	-- Add finalization code here
+	cancel_all_timers(self) --putting this here so we don't accidentally cause memory leaks
+end
+
+
+local function start_night(self)
+	-- function to reset all variables, timers, and sprites when the night starts
+	-- @param self: 
+	-- @return: nothing, just resets self.<variable> variables, sprites, position, and timers
+
+	-- reset movement interval
+	self.non_random = calculate_nonrandom_interval(self.level, 5, 45)
+	self.interval = calculate_interval(self.non_random)
+
+	-- reset his location on screen
+	self.location = "Cam 01"
+
+	-- reset the variable tracking which path the character is on
+	self.my_path = "right"
+
+	-- reset he variable tracking what step of his path he's on
+	self.movement_step = 1
+
+	-- reset values to track if the player is in the cameras
+	self.is_in_camera = false
+
+	-- reset the value to track which camera is currently selected
+	self.selected_camera = "Cam 01"
+
+	-- reset the variable tracking how much time squirtle should wait at the door
+	self.max_door_time = 0.5
+
+	-- reset the variable tracking how much time squirtle has left to wait at the door
+	self.remaining_door_time = self.max_door_time
+
+	-- reset the variable tracking how much time squirtle's kill timer has left on it
+	self.remaining_kill_time = 5
+
+	-- send the door time and kill time to the office GUI
+	update_displayed_time("door_time", self.max_door_time, false)
+	update_displayed_time("kill_time", self.remaining_kill_time, false)
+
+	-- tell the camera GUI to move the squirtle icon on the minimap (only visible if radar is on)
+	msg.post("/camera_GUI", "move_character", 
+	{char_name = "squirtle", 
+	new_pos = self.location, 
+	side = self.my_path
+	})
+
+	-- reset variables to know if either door is open
+	self.doors_closed = {
+		right = false, 
+		left = false
+	}
+
+	-- reset this character's position
+	go.set_position(self.position_dict[self.location])
+
+	-- become invisible for the start of the night
+	update_visibility(self)
+
+	-- reset sprite
+	sprite.play_flipbook("#squirtle_sprite", "squirtle")
+
+	-- start the timer for a new night
+	print("Squirtle's initial interval: " .. self.interval)
+	self.movement_timer = timer.delay(self.interval, false, driver)
+	
+
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+
+	-- print("squirtle received a message: " .. message_id .. " from sender:" .. sender)
+
+	if message_id == hash("new_night") then
+		-- update this character's AI level
+		self.level = message.ai_level
+		print("Squirtle set to level " .. self.level)
+
+		-- reset the visibility on the dummy sprite in the office
+		msg.post("/office/squirtle_dummy", "become_invisible", { my_path = self.my_path })
+
+		-- update whether the challenge mode is active
+		self.is_tera = message.is_tera
+		print("Squirtle thinks tera mode is on: " .. tostring(self.is_tera))
+
+		-- run the function that resets all timers and variables for the start
+		-- of a new night
+		if self.level ~= 0 then
+			start_night(self)
+		end
+
+	elseif message_id == hash("end_night") then
+		-- cancel all timers
+		cancel_all_timers(self)
+
+	elseif message_id == hash("change_camera_location") then
+
+		-- update this character's variable tracking what camera the player has selected
+		self.selected_camera = message.new_cam
+
+		-- update whether this character is visible
+		update_visibility(self)
+
+	elseif message_id == hash("update_camera_status") then
+
+		-- update this character's variable tracking if the cameras are visible
+		self.is_in_camera = message.is_in_camera
+
+		-- update whether this character is visible
+		update_visibility(self)
+		
+	elseif message_id == hash("update_doors") then
+		-- update the values for which doors are open and which are closed
+		self.doors_closed[message.selected_door] = message.is_closed
+		print("Squirtle has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
+		print("Squirtle thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
+
+		-- update door timers if squirtle is in the office
+		set_door_timers(self)
+
+	end
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- must have acquired input focus:
+	--
+	--    msg.post(".", "acquire_input_focus")
+	--
+	-- All mapped input bindings will be received. Mouse and touch input will
+	-- be received regardless of where on the screen it happened.
+	-- Learn more: https://defold.com/manuals/input/
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end

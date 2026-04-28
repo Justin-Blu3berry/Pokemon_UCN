@@ -1,0 +1,1233 @@
+-- import the module that lets us access the list of character names
+local characters = require "scripts.character_lists"
+local props = require "scripts.prop_lists"
+
+function init(self)
+
+	-- initialize by setting all of the menu elements' textures to use the atlas
+
+	-- initialize the value of the hour to display
+	-- TODO: actually have this reference an hour variable everything else can see
+	self.hour = 12
+
+	-- initialize a variable to know if a camera animation is running
+	self.is_camera_flipping = false
+
+	-- initialize a variable to know if the player is in the camera
+	self.is_in_camera = false
+
+	-- initialize a variable to know if the flashlight is on
+	self.flashlight_is_on = false
+
+	-- initialize variables to know if either door is open
+	self.doors_closed = {
+		right = false, 
+		left = false
+	}
+
+	-- initialize a variable to refer to the GUI node representing the office
+	-- self.office = gui.get_node("office")
+
+	-- initialize a variable for tracking the mouse's position
+	-- needs to be initialized here because the update() function might check its value before
+	-- an input is received from the mouse (so it can't be initialized in on_input())
+	self.mouse_position = vmath.vector3(0, 0, 0)
+
+	-- initialize the variable tracking the power usage
+	self.usage = 1
+
+	-- initialize the power and the start-of night power
+	self.initial_power = 1500
+	self.power = self.initial_power
+	self.power_percent = (self.power / self.initial_power) * 100
+
+	-- initialize the real-time time and the in-game time
+	-- real-time measured in seconds, game time measured in in-game minutes
+	-- 6 in-game minutes = 1 night length worth of seconds
+	self.real_time = 0
+	self.game_time = 0
+
+	-- initialize the night length, in seconds
+	self.night_length = 360
+
+	-- initialize the temperature and change in temperature
+	self.temperature = 75
+	self.default_temp_change = 0.05
+	self.temp_change = self.default_temp_change
+
+	-- initialize values to track if the heater and AC are on
+	self.is_heater_on = false
+	self.is_ac_on = false
+
+	-- initialize values for how each tool affects the real-time change in temperature
+	self.heater_temp_change = 1
+	self.ac_temp_change = -1
+
+	-- initialize variables tracking if any debug options this GUI can use are on
+	self.is_int_timer = false
+	self.is_unlimited_power = false
+
+	-- initialize the table storing characters' timers for the 'view timers' debug option
+	self.debug_timers = characters.get_timer_names()
+
+	-- initialize the table storing the handles for the timers controlling the pie nodes
+	-- displaying the timers for the 'view timers' debug option
+	self.debug_handles = characters.get_timer_names()
+
+	-- initialize the flag tracking if the generator has been leech seeded
+	self.is_generator_seeded = false
+
+	-- set the monitor to be invisible
+	gui.set_enabled(gui.get_node("monitor_up"), false)
+	gui.set_enabled(gui.get_node("monitor_down"), false)
+
+	-- set the jumpscare sprite to be invisible
+	gui.set_enabled(gui.get_node("jumpscare"), false)
+
+	-- set the lighting effect for the office heating up/cooling down to be invisible
+	gui.set_enabled(gui.get_node("temperature lighting"), false)
+
+	-- set the office to be visible
+	-- gui.set_enabled(self.office, true)
+	
+	-- assign all of the menu elments their proper animations
+	-- TODO: actually update all of the numbers on the HUD
+	gui.play_flipbook(gui.get_node("power hundreds place"), "1")
+	gui.play_flipbook(gui.get_node("power tens place"), "0")
+	gui.play_flipbook(gui.get_node("power ones place"), "0")
+	gui.play_flipbook(gui.get_node("in_game hours"), "12")
+	
+
+	print("office_GUI.gui_script init function ran")
+	
+end
+
+
+local function message_characters(message_id, message)
+	-- function to send a message with the given ID and table to all characters in the cast
+	-- @param message_id: str, the message ID  to be hashed
+	-- @param message: OPTIONAL table, the values that are being passed in the message
+	-- @return: none, just posts like 20 messages lmao
+
+	-- iterate through all the characters in the cast
+	for curr_character, curr_url in pairs(characters.get_character_urls()) do
+		msg.post(curr_url, message_id, message)
+	end
+end
+
+
+local function message_props(message_id, message)
+	-- function to send a message with the given ID and table to all props in the camera
+	-- @param message_id: str, the message ID  to be hashed
+	-- @param message: OPTIONAL table, the values that are being passed in the message
+	-- @return: none, just posts like 20 messages lmao
+
+	-- iterate through all the characters in the cast
+	for curr_prop, curr_url in pairs(props.get_prop_urls()) do
+		msg.post(curr_url, message_id, message)
+	end
+end
+
+
+local function update_usage_sprite(self)
+	-- function to change the sprite of the usage bar and change its position
+	-- so it's always left-aligned on the UI
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates a node's sprite on the UI and moves it
+
+
+	-- update the sprite
+	gui.play_flipbook(gui.get_node("usage"), "usage " .. tostring(self.usage))
+
+	-- calculate the new position of the sprite
+	local positions = {
+		[1] = 210,
+		[2] = 218,
+		[3] = 227,
+		[4] = 233,
+		[5] = 241
+	}
+	local new_position = vmath.vector3(positions[self.usage], 49, 0)
+
+	-- update the position of the sprite
+	gui.set_position(gui.get_node("usage"), new_position)
+
+end
+
+
+local function update_usage(self, usage_change)
+	-- function to add or subtract a specified value to the power usage, self.usage
+
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @param usage_change: int, the value to be added or subtracted to self.usage
+	-- @return: nothing, just updates an attribute stored in the GUI
+
+	-- add or subtract the specified value to self.usage
+	self.usage = self.usage + usage_change
+
+	-- update the sprite for the power usage
+	update_usage_sprite(self)
+
+end
+
+
+local function toggle_flashlight(self)
+	-- function to toggle whether the flashlight is on or off by toggling the
+	-- boolean stored in the camera GUI, self.flashlight_is_on, and by
+	-- posting a message to the office collection to tell it whether the flashlight is on
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates an attribute stored in the GUI and sends a message
+
+	-- toggle the boolean stored in the camera gui indicating whether the flashlight is on
+	self.flashlight_is_on = not self.flashlight_is_on
+
+	-- tell the office collection the current flashlight status
+	msg.post("/office/office", "update_flashlight", { flashlight_is_on = self.flashlight_is_on})
+
+	-- check if the flashlight has been turned on or off
+	if self.flashlight_is_on then
+		-- since the flashlight has been turned on, add 1 to the usage
+		update_usage(self, 1)
+
+	elseif not self.flashlight then
+		-- since the flashlight has been turned off, subtract 1 from the usage
+		update_usage(self, -1)
+
+	end
+end
+
+
+local function force_flashlight_off(self)
+	-- function to turn off the flashlight by setting the boolean stored in the 
+	-- camera GUI, self.flashlight_is_on, to false, and by posting a message to the 
+	-- office collection to tell it that the flashlight is now off
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates an attribute stored in the GUI and sends a message
+
+	-- check if the flashlight was already on
+	if self.flashlight_is_on then
+		-- subtract 1 from the usage, since the flashlight is going to get turned off
+		update_usage(self, -1)
+	end
+
+	-- toggle the boolean stored in the camera gui indicating whether the flashlight is on
+	self.flashlight_is_on = false
+
+	-- tell the office collection the current flashlight status
+	msg.post("/office/office", "update_flashlight", { flashlight_is_on = self.flashlight_is_on})
+
+end
+
+
+local function play_monitor_up_animation(self)
+	-- function to play the animation of the monitor flipping up
+	-- @param self: allows this function to use attributes stored as self.<variable>
+	-- @return: nothing, just plays an animation
+
+	-- make the monitor visible
+	gui.set_enabled(gui.get_node("monitor_up"), true)
+	self.is_camera_flipping = true
+
+	-- show the animation of the monitor being pulled up
+	gui.play_flipbook(gui.get_node("monitor_up"), "monitor_up", function() 
+		-- make the monitor invisible once hte animation finishes
+		gui.set_enabled(gui.get_node("monitor_up"), false)
+		self.is_camera_flipping = false
+
+		-- after the animation finishes, make the camera GUI visible
+		msg.post("controller", "show_camera_GUI")
+		
+		-- update the variable indicating that the player is in the camera
+		self.is_in_camera = true
+
+		-- make the camera visible
+		msg.post("/camera/camera", "update_camera_status", { is_in_camera = self.is_in_camera })
+		print("Just told the camera that self.is_in_camera is " .. tostring(self.is_in_camera))
+
+		-- tell all characters that the camera is visible
+		message_characters("update_camera_status", { is_in_camera = self.is_in_camera })
+
+		-- tell all props that the camera is visible
+		message_props("update_camera_status", { is_in_camera = self.is_in_camera })
+
+		-- send the updated variable indicating that the player is in the camera
+		-- to the office collection (this makes the office invisible)
+		msg.post("/office/office", "update_camera_status", { is_in_camera = self.is_in_camera })
+
+		-- add 1 to the power usage
+		update_usage(self, 1)
+		
+		-- force the flashlight to be turned off
+		force_flashlight_off(self)
+	end)
+end
+
+
+local function play_monitor_down_animation(self)
+	-- function to play the animation of the monitor being flipped down
+	-- and make the office visible again
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just plays an animation and makes nodes visible
+
+	-- make the monitor visible
+	gui.set_enabled(gui.get_node("monitor_down"), true)
+	self.is_camera_flipping = true
+
+	-- update the boolean indicating the player being in the camera
+	self.is_in_camera = false
+
+	-- subtract 1 from the power usage
+	update_usage(self, -1)
+
+	-- as the animation starts, make the office visible again
+	-- send the updated variable indicating that the player is in the camera
+	-- to the office collection (makes the office visible again)
+	msg.post("/office/office", "update_camera_status", { is_in_camera = self.is_in_camera })
+	-- gui.set_enabled(self.office, true)
+
+	-- make the camera GUI invisible
+	msg.post("controller", "hide_camera_GUI")
+
+	-- make the camera invisible
+	msg.post("/camera/camera", "update_camera_status", { is_in_camera = self.is_in_camera })
+	print("Just told the camera that self.is_in_camera is " .. tostring(self.is_in_camera))
+
+	-- tell the characters that the player has left the camera
+	message_characters("update_camera_status", { is_in_camera = self.is_in_camera })
+
+	-- tell all props that the player has left the camera
+	message_props("update_camera_status", { is_in_camera = self.is_in_camera })
+	
+	-- show the animation of the monitor being pulled up
+	print("Playing monitor down animation")
+	gui.play_flipbook(gui.get_node("monitor_down"), "monitor_down", function() 
+		-- make the monitor invisible when the animation finishes
+		gui.set_enabled(gui.get_node("monitor_down"), false)
+
+		-- update the boolean for the monitor being up
+		self.is_camera_flipping = false
+
+	end)
+end
+
+
+local function toggle_heater(self)
+	-- function to toggle the heater in the office
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just toggles a boolean and adds or subtracts a value 
+	-- 			from the temp change
+
+	-- update the value indicating whether the heater is on
+	self.is_heater_on = not self.is_heater_on
+
+	-- check if the heater was turned on or off
+	if self.is_heater_on then
+		-- since the heater is now on, we have to add 1 to the usage
+		update_usage(self, 1)
+
+		-- and now the temperature's contribution to the temperature change should be added
+		self.temp_change = self.temp_change + self.heater_temp_change
+
+		-- set the visual effect for the office heating up
+		gui.set_enabled(gui.get_node("temperature lighting"), true)
+		gui.play_flipbook(gui.get_node("temperature lighting"), "heater lighting")
+
+	else
+		-- since the heater is now off, we have to take away 1 from the usage
+		update_usage(self, -1)
+
+		-- and now remove the heater's contribution to the temp change by subtracting it
+		self.temp_change = self.temp_change - self.heater_temp_change
+
+		-- turn off the visual effect for the office heating up
+		gui.set_enabled(gui.get_node("temperature lighting"), false)
+
+	end
+
+	-- print("toggle_heater ran, is_heater_on = " .. tostring(self.is_heater_on) .. " / curr usage: " .. self.usage)
+
+end
+
+
+local function toggle_ac(self)
+	-- function to toggle the air conditioner in the office
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just toggles a boolean and adds or subtracts a value 
+	-- 			from the temp change
+
+	-- update the value indicating whether the heater is on
+	self.is_ac_on = not self.is_ac_on
+
+	-- check if the heater was turned on or off
+	if self.is_ac_on then
+		-- since the heater is now on, we have to add 1 to the usage
+		update_usage(self, 1)
+
+		-- and now the temperature's contribution to the temperature change should be added
+		self.temp_change = self.temp_change + self.ac_temp_change
+
+		-- set the visual effect for the office cooling down
+		gui.set_enabled(gui.get_node("temperature lighting"), true)
+		gui.play_flipbook(gui.get_node("temperature lighting"), "cooling lighting")
+
+	else
+		-- since the heater is now off, we have to take away 1 from the usage
+		update_usage(self, -1)
+
+		-- and now remove the heater's contribution to the temp change by subtracting it
+		self.temp_change = self.temp_change - self.ac_temp_change
+
+		-- turn off the visual effect for the office cooling down
+		gui.set_enabled(gui.get_node("temperature lighting"), false)
+
+	end
+
+	-- print("toggle_ac ran, is_ac_on = " .. tostring(self.is_ac_on) .. " / curr usage: " .. self.usage)
+
+end
+
+
+local function force_heater_off(self)
+	-- function to make sure the heater in the office is turned off
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just toggles a boolean and adds or subtracts a value 
+	-- 			from the temp change
+
+	-- check if the heater is on
+	if self.is_heater_on then
+		-- toggle the heater (turning it off, since it's already on)
+		toggle_heater(self)
+		
+	end
+end
+
+
+local function force_ac_off(self)
+	-- function to make sure the air conditioner in the office is turned off
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just toggles a boolean and adds or subtracts a value 
+	-- 			from the temp change
+
+	-- check if the heater is on
+	if self.is_ac_on then
+		-- toggle the heater (turning it off, since it's already on)
+		toggle_ac(self)
+
+	end
+end
+
+
+local function power_out(self)
+	-- function to run when the player runs out of power
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just takes the player out of the camera and the flashlight
+
+	-- check if the player is in the camera
+	if self.is_in_camera then
+		-- turn off the animation of the monitor being pulled up
+		-- just in case the player tries to pull up the cameras during the power out
+		gui.set_enabled(gui.get_node("monitor_up"), false)
+		
+		-- force the camera down
+		play_monitor_down_animation(self)
+	end
+
+	-- then force the flashlight to turn off
+	force_flashlight_off(self)
+
+	-- force the heater and ac to turn off
+	force_heater_off(self)
+	force_ac_off(self)
+
+	-- tell the office that you have no power
+	msg.post("/office/office", "power_out", {has_power = false} )
+	
+end
+
+
+local function get_given_digit(number, place)
+	-- function to get whatever digit (0-9) is at the indicated digit of the given number
+	-- @param number: float or int, the number from which the given digit is being identified
+	-- @param place: int or float, the digit from the given number that needs to be returned
+	-- 				 the value of this parameter should be a power of 10
+	-- @return: an int between 0 and 9 representing the digit in the given place of the given number
+	-- test case: number = 2987, place = 100 --> the tens digit of 2987 is 9
+
+	-- divide the input number by the given power of ten
+	-- for the test case: 2987 -- > 29.87 at this step
+	local output_digit = number / place
+	-- remove all digits ahead of the desired place by modulus'ing the divided number by 10
+	-- for the test case: 29.87 --> 9.87 at this step
+	output_digit = output_digit % 10
+	-- remove the digits below the desired place by flooring the modulus'd value
+	-- for the test case: 9.87 --> 9
+	output_digit = math.floor(output_digit)
+
+	-- return the final result
+	return output_digit
+	
+end
+
+
+local function update_power_sprite(power_value)
+	-- function to update the sprites for each individual digit of the power
+	-- @param power_value: this is the value for the power that to be displayed
+	-- @return: nothing, just updates power values
+
+	-- calculate the hundreds place for the power
+	local hundreds_place = get_given_digit(power_value, 100)
+	-- calculate the tens place for the power
+	local tens_place = get_given_digit(power_value, 10)
+	-- calculate the ones digit for the power
+	local ones_place = get_given_digit(power_value, 1)
+
+	-- get the nodes for the sprites displaying the power
+	local hundreds_place_node = gui.get_node("power hundreds place")
+	local tens_place_node = gui.get_node("power tens place")
+	local ones_place_node = gui.get_node("power ones place")
+
+	-- check if the hundreds place even needs to be displayed
+	if power_value < 100 and power_value > 10 then
+		-- this runs if the power is between 10 and 100
+		
+		-- since the power is below 100, the hundreds place can be hidden
+		gui.set_enabled(hundreds_place_node, false)
+
+		-- since the power is above 10, the tens digit should be shown
+		gui.set_enabled(tens_place_node, true)
+
+	elseif power_value < 10 then
+		-- if the power is below 10, then the tens digit can be hidden
+		gui.set_enabled(tens_place_node, false)
+
+		-- since the power is below 100, the hundreds place can be hidden
+		gui.set_enabled(hundreds_place_node, false)
+		
+	elseif power_value > 100 then
+		-- this runs if the power is above 100
+		
+		-- since the power is above 100, the hundreds digit should be shown
+		gui.set_enabled(hundreds_place_node, true)
+		-- since the power is above 10, the tens digit should be shown
+		gui.set_enabled(tens_place_node, true)
+	end
+
+	-- update the sprites for the three nodes displaying the power
+	gui.play_flipbook(hundreds_place_node, tostring(hundreds_place))
+	gui.play_flipbook(tens_place_node, tostring(tens_place))
+	gui.play_flipbook(ones_place_node, tostring(ones_place))
+
+	-- print(power_value)
+
+end
+
+
+local function power_drain(self)
+	-- function to be called every half second to drain the power
+	-- while the player is in the night
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates power values
+
+	-- check if the power value would be going below 0
+	if (self.power - self.usage) >= 0 then
+		-- since the power value isn't going negative, change it by the usage
+		self.power = self.power - self.usage
+
+		-- update the variable for the power percentage
+		self.power_percent = (self.power / self.initial_power) * 100
+
+		-- update the power sprite
+		update_power_sprite(self.power_percent)
+
+	else
+		-- this should only run if the power would be sent to a negative value
+		self.power = 0
+
+		-- update the power sprite
+		update_power_sprite(self.power_percent)
+
+		-- run the function for powering out
+		power_out(self)
+		
+	end
+
+end
+
+
+local function update_timer_sprite(which_timer, time)
+	-- function to update the sprites for either the in-game or real-time timers
+	-- @param which_timer: str, indicates whether the in-game or real-time timer
+	-- 					   is having its sprites updated
+	-- 					   expect either "in_game" or "real_time"
+	-- @param time: int or float, the time to be displayed. Either in RT-seconds or in-game minutes
+
+	-- initialize a lookup table to determine which node should be selected, between
+	-- the in-game timer's hours digit and the real-time timer's minutes digit
+	local which_node = {
+		real_time = "real_time minutes",
+		in_game = "in_game hours"
+	}
+	
+	-- get the node for the minute or hour sprite to be updated (have a default value in case of bad input)
+	local minute_hour_node = which_node[which_timer] or which_node["game_time"]
+	minute_hour_node = gui.get_node(minute_hour_node)
+	-- get the nodes for the tens and ones digits on whichever timer is being updated
+	local tens_digit_node = gui.get_node(which_timer .. " tens place")
+	local ones_digit_node = gui.get_node(which_timer .. " ones place")
+	
+	-- calculate the tens and ones digits for the time
+	local tens_digit = get_given_digit(time % 60, 10)
+	local ones_digit = get_given_digit(time % 60, 1)
+	-- calcualte the real-time minutes or in-game hour to be displayed (difference
+	-- is purely based on which time is being displayed)
+	local minute_hour = math.floor(time / 60)
+
+	-- update the sprites for the selected timer
+	-- make sure that the in-game timer displays 12am instead of 0am
+	if which_timer == "in_game" and minute_hour == 0 then
+		-- since it's hour 0, make the clock display 12am
+		gui.play_flipbook(minute_hour_node, "12")
+	else
+		-- since it isn't hour 0, the clock can just display what hour it is
+		gui.play_flipbook(minute_hour_node, tostring(minute_hour))
+	end
+	-- update the tens digit of the selected timer
+	gui.play_flipbook(tens_digit_node, tostring(tens_digit))
+	-- update the ones digit of the selected timer
+	gui.play_flipbook(ones_digit_node, tostring(ones_digit))
+
+end
+	
+
+
+local function progress_timers(self)
+	-- function to tick the timers of the night up
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates power values
+
+	-- add 1 to both the real-time timer
+	self.real_time = self.real_time + 1
+
+	-- update the in-game timer
+	-- since in-game time is tracked as in-game minutes and the night ends
+	-- at 6 AM, so there are always 360 in-game minutes in the night
+	-- therefore, every real-time second that passes 
+	-- equates to (<RT-night length> / <in-game night length>) in-game minutes
+	self.game_time = self.game_time + (360 / self.night_length)
+
+	-- update the sprites showing the real-time and in-game times
+	update_timer_sprite("real_time", self.real_time)
+	update_timer_sprite("in_game", self.game_time)
+
+	-- check if the night is over
+	if self.real_time >= self.night_length then
+		-- send the player to the win screen
+		msg.post("controller", "show_win_screen")
+
+		message_characters("end_night")
+
+	elseif self.game_time % 120 == 0 then
+		-- this means it's either 2 AM (=120) or 4 AM (=240)
+		-- (at game_time = 360, the night ends)
+		-- tell dreepy/drakloak to evolve
+		msg.post("/camera/dragapult", "evolve")
+	end
+
+end
+
+
+local function update_temperature_sprite(self)
+	-- function to change the sprites for the nodes displaying the office temperature
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just changes the sprites on given nodes
+
+	-- assign variables to quickly access the nodes displaying the temperature
+	local hundreds_place_node = gui.get_node("temperature hundreds place")
+	local tens_place_node = gui.get_node("temperature tens place")
+	local ones_place_node = gui.get_node("temperature ones place")
+
+	-- get the hundreds digit of the temperature
+	local hundreds_place = get_given_digit(self.temperature, 100)
+	-- get the tens digit of the temperature
+	local tens_place = get_given_digit(self.temperature, 10)
+	-- get the ones digit of the temperature
+	local ones_place = get_given_digit(self.temperature, 1)
+
+	-- now update the sprites
+	gui.play_flipbook(hundreds_place_node, tostring(hundreds_place))
+	gui.play_flipbook(tens_place_node, tostring(tens_place))
+	gui.play_flipbook(ones_place_node, tostring(ones_place))
+
+	-- check if the hundreds place of the temperature needs to be displayed
+	-- (this is to prevent a temperature of 99 degrees from being displayed as 099)
+	-- here, we set the enabled status for the node to be whatever temp >= 100 evaluates to
+	-- this makes it so the temp being below 100 makes the sprite disappear and reappear if >=100
+	gui.set_enabled(hundreds_place_node, (self.temperature >= 100))
+
+end
+
+
+local function update_temperature(self)
+	-- function to change the temperature of the office, to be called every quarter-second
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just updates the temperature
+
+	-- check if the new temperature would be below 30 or above 120
+	if (self.temperature + self.temp_change < 121) and (self.temperature + self.temp_change > 30) then
+		-- add the change in temperature to the temperature
+		self.temperature = self.temperature + self.temp_change
+	end
+	
+	-- update the sprites displaying the temperature
+	update_temperature_sprite(self)
+
+end
+
+
+local function cancel_debug_timers(self)
+	-- function to iterate through the table of timers governing the pie nodes shown
+	-- on the gui when the interval_timers debug mode is on and cancel all of them
+	-- NOTE: only call this function after checking that the debug mode was active
+	
+	-- @param self: lets this function access self.variable variables
+	-- @return: nothing, just cancels timers
+
+	-- iterate over the timers in the list of pie-node timers for the debug feature
+	for character, handles_dict in pairs(self.debug_handles) do
+
+		-- now iterate through the handles in the handles dictionary mapping timer names to handles
+		for timer_name, curr_handle in pairs(handles_dict) do
+
+			-- now check if this timer is running
+			if timer.trigger(curr_handle) then
+
+				local result = timer.cancel(curr_handle)
+				print("Result of canceling " .. timer_name .. " : " .. tostring(result))
+			end
+		end
+	end
+
+end
+
+
+local function cancel_all_timers(self)
+	-- function to cancel all of the timers that run during the night
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: nothing, just cancels timers
+
+	-- cancel all of the timers
+	local result = timer.cancel(self.power_drain_timer)
+	-- print("result of canceling power drain timer: " .. tostring(result))
+	result = timer.cancel(self.timers_timer)
+	-- print("reseult of canceling in-game/RT timers: " .. tostring(result))
+	result = timer.cancel(self.temperature_timer)
+	-- print("result of canceling temperature timer: " .. tostring(result))
+
+	-- cancel the non-repeating timer that determins when the night ends because
+	-- this function might get called when this function hasn't ended yet (i.e. when
+	-- the player dies or quits to menu)
+	result = timer.cancel(self.end_night_timer)
+	print("result of canceling end of night timer: " .. tostring(result))
+
+
+	-- if the show_timers debug option is on, cancel the timers governing those pie nodes
+	if self.is_int_timer then
+		cancel_debug_timers(self)
+	end
+
+end
+
+
+local function start_night(self)
+	-- function to reset this object for the start of a night
+	-- gui.set_position(self.office, self.init_position)
+
+	-- make the office visible
+	-- gui.set_enabled(self.office, true)
+
+	-- reset the value of the hour to display
+	self.hour = 12
+
+	-- reset the variable to know if a camera animation is running
+	self.is_camera_flipping = false
+
+	-- reset the variable to know if the player is in the camera
+	self.is_in_camera = false
+
+	-- reset the variable to know if the flashlight is on
+	self.flashlight_is_on = false
+
+	-- reset the variables to know if either door is open
+	self.right_door_closed = false
+	self.left_door_closed = false
+
+	-- reset the variable indicating power usage
+	self.usage = 1
+	gui.play_flipbook(gui.get_node("usage"), "usage 1")
+
+	-- reset the power and the start-of night power
+	self.power = self.initial_power * 1.002
+	self.power_percent = (self.power / self.initial_power) * 100
+
+	-- update the sprites displaying the power percentage
+	update_power_sprite(self.power_percent)
+
+	-- reset the real-time time and the in-game time
+	self.real_time = 0
+	self.game_time = 0
+
+	-- reset the sprites for all the timer-based HUD elements
+	update_timer_sprite("real_time", self.real_time)
+	update_timer_sprite("in_game", self.game_time)
+
+	-- reset the temperature and change in temperature
+	-- initialize the temperature and change in temperature
+	self.temperature = 75
+	self.temp_change = self.default_temp_change
+
+	-- reset the sprite for the temperature nodes
+	update_temperature_sprite(self)
+
+	-- reset the variables indicating if the heater and AC are on
+	self.is_heater_on = false
+	self.is_ac_on = false
+
+	-- reset the flag indicating that the generator has been leech seeded
+	self.is_generator_seeded = false
+
+	-- set the visual effect for the office heating up or cooling down to be invisible
+	gui.set_enabled(gui.get_node("temperature lighting"), false)
+
+	-- set the jumpscare sprite to be invisible
+	gui.set_enabled(gui.get_node("jumpscare"), false)
+
+	-- for timer-based things (in-game clock, real-time timer, and power drain)
+	-- THIS is where you would initialize those repeating timers
+	self.power_drain_timer = timer.delay(0.5, true, power_drain)
+	self.timers_timer = timer.delay(1, true, progress_timers)
+	self.temperature_timer = timer.delay(0.25, true, update_temperature)
+	self.end_night_timer = timer.delay(self.night_length, false, function()
+		msg.post("controller", "show_win_screen")
+		cancel_all_timers(self)
+	end)
+
+end
+
+
+local function game_over(self, time_of_death, cause_of_death)
+	-- function to send all of the messages that end the night
+	-- @param self: allows this function to access self.variable variables
+	-- @param time_of_death: indicates the time at which the player died
+	-- @param cause_of_death: indicates the character the player died to (or if the player powered out)
+	-- tell the characters that the night is over
+	message_characters("end_night")
+
+	-- determine if the player died because the power went out
+	if self.power == 0 then
+		-- if the player died with no power, then indicate that the player died to running
+		-- out of power
+		cause_of_death = "powerout"
+	end
+
+	-- next send a message to the game over screen indicating the cause and time of death
+	msg.post("game_over", "update_time", { time = time_of_death })
+	msg.post("game_over", "update_cause_of_death", { character = cause_of_death })
+	msg.post("controller", "show_game_over")
+	
+end
+
+
+local function kill_player(self, character_name)
+	-- function to send the player to the game over screen when they die
+	-- @param self: 
+	-- @param character_name: str, indicates the name of the character that killed the player
+	-- @return: nothing, just sends a message to the controller and to the game over screen
+
+	-- next figure out the time at which the player died (using real-time timer)
+	local minute = tostring(math.floor(self.real_time / 60))
+	local seconds = self.real_time % 60
+	
+	-- check if the seconds is a single-digit number
+	if seconds < 10 then
+		-- append a 0 to the front of the seconds part of the timer
+		seconds = "0" .. tostring(seconds)
+	else
+		-- otherwise just convert the number of seconds into a string
+		seconds = tostring(seconds)
+	end
+	
+	-- assemble the string displaying the time of death
+	local time_of_death = minute .. ":" .. seconds
+
+	-- force the player's cameras down
+	if self.is_in_camera and not self.is_camera_flipping then
+		play_monitor_down_animation(self)
+	end
+
+	-- cancel all the timers that were running during the night
+	cancel_all_timers(self)
+
+	-- jumpscare the player: 
+	-- set the jumpscare sprite to be visible
+	gui.set_enabled(gui.get_node("jumpscare"), true)
+
+	-- set the jumpscare sprite to play the correct animation
+	gui.play_flipbook(gui.get_node("jumpscare"), 
+		character_name .. "_jumpscare", 
+		function()
+			game_over(self, time_of_death, character_name) 
+		end)
+
+	
+
+end
+
+
+local function toggle_timers_text(self)
+	-- function to interate through all of the timers had by all of the characters
+	-- and enable/disable the GUI nodes showing all of them (plus the GUI nodes showing
+	-- the characters' names and the labels for the types of timers)
+	-- @param self: allows this function to call self.<variable> variables
+
+	local lst = {"move_time_text", "door_time_text", "kill_time_text"}
+	for __, curr_text in ipairs(lst) do
+		gui.set_enabled(gui.get_node(curr_text), self.is_int_timer)
+	end
+	-- now enable each of the characters' names and timers
+	for curr_char, char_timers in pairs(self.debug_timers) do
+
+		-- enable the text node for the character's name
+		gui.set_enabled(gui.get_node(curr_char .. "_text"), self.is_int_timer)
+
+		-- now iterate over this character's timer names
+		for curr_timer, value in pairs(char_timers) do
+			-- enable the text node showing this timer's value
+			gui.set_enabled(gui.get_node(curr_char .. "_" .. curr_timer), self.is_int_timer)
+
+			-- and enabel the pie node showing the visual for this timer running
+			gui.set_enabled(gui.get_node(curr_char .. "_" .. curr_timer .. "_pie"), self.is_int_timer)
+			
+		end
+	end
+end
+
+
+local function contains(iterable, element)
+	-- function to determine if element is present in the passed iterable
+	-- it does this by iterating through the iterable with a for loop and breaking 
+	-- to return true if any element in the iterable is equal to the param 'element'
+	-- @param iterable: table, gets iterated through to find a given element
+	-- @param element: the str, int, float, bool, table getting searched for
+	-- @return: true if element is present in the iterable, false if it can't be found
+
+	-- iterate through the elements of the iterable
+	for __, item in ipairs(iterable) do
+		-- check if the current item is the specified element
+		if item == element then
+			-- since the specified element was found, return true
+			return true
+
+		end
+	end
+
+	-- the only way we make it out of the for loop is if the specified element can't be found
+	return false
+
+end
+
+
+local function update_radial(fraction, node)
+	-- function to update the angle that's filled in on the named pie node
+	-- @param fraction: float, the proportion of the pie node that should be filled in
+	-- @param node: str, the name of the pie node to be updated
+	-- @return: none, just updates the node's properties
+
+	-- define local variables to access the node and calculate the angle
+	local pie_node = gui.get_node(node)
+	local angle = fraction * 360
+
+	-- update the pie node's angle
+	gui.set_fill_angle(pie_node, angle)
+
+end
+
+
+local function count_down(self, character, timer_name, start_time, interval)
+	-- function to be called by a repeating timer to tick down from the start_time to zero,
+	-- updating the pie node on the GUI associated with the timer
+	-- This function also cancels the repeating timer once the remaining time is 0
+	
+	-- @param self: allows this function to access self.<variable> variables
+	-- @param character: str, the name of the character whose debug timer is being incremented
+	-- @param timer_name: str, this is the key in the self.debug_handles dictionary
+	-- 					  that's associated with the named timer's handle,
+	-- 					  allowing us to cancel the timer when the count hits 0
+	-- @param start_time: float, the amount of time the pie node is supposed to represent, 
+	-- 					  it's how much time the repeating timer will repeat for
+	-- @param interval: float, the amount of time for each repetition on the repeating timer
+	-- @return: none, just ends a timer
+
+	-- decrease the time remaining for the repeating timer by the interval
+	self.debug_timers[character][timer_name] = self.debug_timers[character][timer_name] - interval
+
+	-- define the name for the pie node
+	local text_node = character .. "_" .. timer_name
+	local pie_node = character .. "_" .. timer_name .. "_pie"
+
+	-- update the pie node for this timer
+	-- print(pie_node .. ": " .. self.debug_timers[character][timer_name] .. " / " .. start_time)
+	update_radial(self.debug_timers[character][timer_name] / start_time, pie_node)
+	gui.set_text(gui.get_node(text_node), string.format("%.2f", self.debug_timers[character][timer_name]))
+	
+	-- cancel the repeating timer if the time remaining is 0
+	-- We can't use 0 here because a new timer will get made the frame this ticks to 0 and
+	-- I don't feel like figuring out how to cancel the timer before starting it because for the 
+	-- first timer in the night, the timer won't exist yet, and it breaks everything
+	-- We have to use 1.5 * interval instead of 1*interval because of how floating point numbers
+	-- get rounded
+	if self.debug_timers[character][timer_name] <= 1.5 * interval then
+		local result = timer.cancel(self.debug_handles[character][timer_name])
+		pprint(self.debug_handles[character])
+		print("Canceling " .. character .. "_" .. timer_name .. " because it reached 0: " .. tostring(result))
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	print("office GUI received a message: " .. message_id .. " from sender:" .. sender)
+	
+	-- check if the message says to show the GUI
+	if message_id == hash("show") then
+
+		-- post messages to the system to enable this object
+		-- and to acquire input focus
+		msg.post(".", "enable")
+		msg.post(".", "acquire_input_focus")
+		print("enabled and acquired input focus")
+
+		-- check if the message says to hide the GUI
+	elseif message_id == hash("hide") then
+
+		-- post messages to the system to disable this object
+		-- and release input focus
+		msg.post(".", "disable")
+		msg.post(".", "release_input_focus")
+		print("office gui disabled and released input focus")
+
+	elseif message_id == hash("new_night") then
+
+		-- call the function that resets this game object and all its
+		-- variables for the start of a new night
+		start_night(self)
+
+	elseif message_id == hash("update_doors") then
+
+		-- update the values for which doors are open and which are closed
+		self.doors_closed[message.selected_door] = message.is_closed
+
+		-- update the power usage based on if the door has been opened
+		-- we're shortcutting this by only checking if the door is NOW open or closed
+		-- instead of checking if it's going from open to closed or closed to open
+		if self.doors_closed[message.selected_door] then
+			-- we know the door is now closed, so add 1 to the power usage
+			update_usage(self, 1)
+		elseif not self.doors_closed[message.selected_door] then
+			-- we know that the door is now opened, so subtract 1 from the power usage
+			update_usage(self, -1)
+		end
+
+		-- pass the new door statuses to the characters
+		message_characters("update_doors", message)
+
+	elseif message_id == hash("seed_generator") and not self.is_generator_seeded then
+		-- this messsage indicates that bulbasaur has used leech seed on the generator
+		-- increase the usage by 1 and set the flag for the generator being seeded
+		update_usage(self, 1)
+		self.is_generator_seeded = true
+
+		-- tell the generator sprite to play the seeded animation
+		msg.post("/camera/generator", "animate_prop", { animation_name = "generator_seeding", return_when_done = false } )
+
+	elseif message_id == hash("spin_generator") and self.is_generator_seeded then
+		-- this message indicates that the generator has used rapid spin to remove
+		-- the leech seed. If the generator is already seeded, the seeds are removed,
+		-- decreasing the usage by 1
+		update_usage(self, -1)
+		self.is_generator_seeded = false
+
+	elseif message_id == hash("update_temperature_change") then
+
+		-- this would be a message from a temperature-changing character to change
+		-- the rate at which the temperature changes
+		self.temp_change = message.temp_change
+
+	elseif message_id == hash("get_temperature") then
+
+		-- this would be a message from a temperature character asking what
+		-- the current temperature is, send a message back to the sender indicating 
+		-- the current temperature value
+		msg.post(sender, "update_temperature", { curr_temperature = self.temperature } )
+
+	elseif message_id == hash("kill_player") then
+
+		-- run the function to send the player to the game over screen when they die
+		kill_player(self, message.character_name)
+
+	elseif message_id == hash("update_debug") then
+
+		-- check whether the the debug options that this script can use are active
+		self.is_int_timer = contains(message.debug_options, "interval_timer")
+		self.is_unlimited_power = contains(message.debug_options, "unlimited_power")
+
+		print("Interval_timer debug option is: " .. tostring(self.is_int_timer))
+		print("Unlimited_power debug option is: " .. tostring(self.is_unlimited_power))
+
+		-- enable or disable the gui nodes with the character names indicating their timers
+
+		-- enable the text headers on the table of interval timers that will be displayed
+		toggle_timers_text(self)
+
+		-- overwrite the starting power value if the unlimited_power option is on
+		if self.is_unlimited_power then
+			-- set the power to an obscenely large number if the unlimited_power debug option is on
+			self.power = 1.5 * 10^8
+		end
+		print("Starting power set to " .. self.power)
+		
+
+	elseif message_id == hash("update_debug_display") and self.is_int_timer then
+
+		-- access the right character and timer and update the value in the table
+		self.debug_timers[message.character_name][message.value_name] = message.new_value
+		print("message: " .. message.character_name .. "_" .. message.value_name .. " = " .. message.new_value)
+		-- print("debug_timers: " .. self.debug_timers[message.character_name][message.value_name])
+
+		-- now update the displayed value on the GUI
+		gui.set_text(gui.get_node(message.character_name .. "_" .. message.value_name),
+		message.new_value)
+
+		-- check if the named timer is actually running on the character's end
+		if message.start_timer then
+
+			-- now update the displayed pie chart for the GUI
+			self.debug_handles[message.character_name][message.value_name] = timer.delay(0.05, true, function() 
+				count_down(self, message.character_name, message.value_name, message.new_value, 0.05)
+			end)
+		else
+			-- Since the timer isn't actually running, this call was just to update the displayed value
+			-- so we can refill the pie node to indicate that the timer isn't actually ticking
+			update_radial(1, message.character_name .. "_" .. message.value_name .. "_pie")
+
+			-- check if the pie node for this timer is currently running
+			if timer.trigger(self.debug_handles[message.character_name][message.value_name]) then
+				-- since the sender indicated that this timer is no longer running, we need to cancel it
+				local result = timer.cancel(self.debug_handles[message.character_name][message.value_name])
+				print("Pie Result of canceling " .. message.character_name .. "_" .. message.value_name .. ": " .. tostring(result))
+			end
+
+		end
+		print("Printing debug handles after message: ")
+		pprint(message)
+		pprint(self.debug_handles[message.character_name])
+		
+		
+	end
+
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+
+	-- check if the mouse moved
+	if action.x and action.y then
+		-- update the mouse position variables
+		self.mouse_position.x = action.x
+		-- print("mouse_position.x: " .. self.mouse_position.x)
+		self.mouse_position.y = action.y
+	end
+
+	-- if action_id == hash("mouse1") and action.pressed then
+	-- print("Touch!")
+	-- end
+
+	if action_id == hash("esc_key") and action.released then
+		-- if the escape key is pressed, send a message to the
+		-- controller to send the player to the main menu
+
+		-- cancel all of the timers
+		cancel_all_timers(self)
+
+		-- tell all characters that the night has ended
+		message_characters("end_night")
+
+		-- message the controller to send the player to the main menu
+		msg.post("controller", "show_main_menu")
+
+	elseif action_id == hash("s_key") and action.released and self.power > 0 then
+		-- if the s key is pressed, the camera should be toggled
+		-- check if the monitor is up
+		if not self.is_in_camera and not self.is_camera_flipping then
+			-- since the camera isn't up, pull up the monitor
+			play_monitor_up_animation(self)
+			
+		elseif self.is_in_camera and not self.is_camera_flipping then
+			-- since the camera is up, pull down the monitor
+			play_monitor_down_animation(self)
+
+		end
+
+	elseif action_id == hash("f_key") and action.released and self.power > 0 then
+		-- if the f key is pressed, the flashlight should be toggled
+		-- as long as the player isn't in the cameras
+
+		-- check if the player is in the camera
+		if not self.is_in_camera then
+			-- toggle the flashlight
+			toggle_flashlight(self)
+		end
+
+	elseif action_id == hash("3_key") and action.released and self.power > 0 then
+		-- if the 3 key is pressed, the heater should be toggled
+		-- first force the AC off
+		force_ac_off(self)
+		
+		-- then toggle the heater
+		toggle_heater(self)
+
+	elseif action_id == hash("4_key") and action.released and self.power > 0 then
+		-- if the 4 key is pressed, the AC should be toggled
+		-- first force off the heater
+		force_heater_off(self)
+		
+		-- then toggle the AC
+		toggle_ac(self)
+
+	end
+
+end
+
+
+-- TODO: actually update all of the numbers on the HUD
+local function fix_hour_position(self)
+	-- determine if the hour is a single-digit number or double-digit
+	if self.hour >= 10 then
+		-- if the hour is a double digit number, shift it slightly left
+		gui.animate(gui.get_node("in_game hours"), "position", vmath.vector3(1034, 649, 0), 0 ,0.016)
+	else
+		-- if the hour is a single-digit number, shift it slightly right
+		gui.animate(gui.get_node("in_game hours"), "position", vmath.vector3(1047, 649, 0), 0, 0.016)
+	end
+end
+
+
+function update(self, dt)
+	-- code to run every frame
+	
+	-- run the function to fix the position of the hour number's node
+	fix_hour_position(self)
+
+	-- TODO: actually update all of the other numbers on the HUD
+	
+end

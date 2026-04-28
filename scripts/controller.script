@@ -1,0 +1,149 @@
+local function hide_screen(url)
+	-- function to hide a screen or UI element by posting an element
+	-- to that screen or UI element's url by posting a message to that
+	-- screen or UI element
+	-- @param url: the url for the screen or UI element to hide
+
+	-- print("running hide_screen() with url = " .. url)
+	
+	-- check if the passed url exists
+	if url then
+
+		-- post a message to the url telling the object to hide
+		msg.post(url, "hide")
+		print("posted message 'hide' to " .. url)
+		
+	end
+end
+
+
+local function show_screen(self, url, hide_existing, message)
+	-- function to show a new screen and hide the previously
+	-- shown screen, if one existed
+	-- @param self: this function uses attributes attached to 
+	-- 				the object calling this function
+	-- @param url: the url of the screen to be shown
+	-- @param message: a string containing a special message for
+	--				   the screen being switched to
+
+	-- hide the existing screen
+	-- if hide_existing then
+		-- hide_screen(self.current_screen)
+		-- print("successfully hid " .. self.current_screen)
+	-- end
+
+	-- update (or set) the variable indicating the current screen
+	self.current_screen = url
+
+	-- post a message telling the new screen to show itself
+	msg.post(self.current_screen, "show", message or {})
+	print("posted a message to " .. self.current_screen .. " to show")
+	
+end
+
+function init(self)
+	-- function to initialize GUI elements and screens
+	-- hide all guis and screens
+	-- print("uloading main menu")
+	hide_screen("main_menu")
+	-- print("uloading camera")
+	hide_screen("/camera/camera")
+	-- print("unloading office")
+	hide_screen("/office/office")
+	-- print("unloading office GUI")
+	hide_screen("office_GUI")
+	-- print("unloading camera GUI")
+	hide_screen("camera_GUI")
+	-- print("unloading game over screen")
+	hide_screen("game_over")
+	-- print("unloading win screen")
+	hide_screen("win_screen")
+
+	-- show the main menu
+	print("loading main menu")
+	show_screen(self, "main_menu", false)
+
+	print("end of controller.script init function")
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- function to handle messages
+	-- we're going to check the message ID to see which screen to show
+	print("controller received a message: " .. message_id)
+
+	-- check if the message says to load the main menu
+	if message_id == hash("show_main_menu") then
+
+		-- show the main menu and make the previous screen disappear
+		hide_screen(self.current_screen)
+		hide_screen("/office/office")
+		hide_screen("/camera/camera")
+		hide_screen("office_GUI")
+		hide_screen("camera_GUI")
+		show_screen(self, "main_menu", true)
+
+	-- check if the message says to load the office
+	elseif message_id == hash("show_office") then
+
+		-- show the office and make the previous screen(s) disappear
+		hide_screen(self.current_screen)
+		hide_screen("/camera/camera")
+		hide_screen("camera_GUI")
+		show_screen(self, "office_GUI", false)
+		show_screen(self, "/office/office", true)
+
+	-- check if the message says to load the office GUI
+	elseif message_id == hash("show_office_GUI") then
+		
+		-- show the office GUI, but don't make the previous screen disappear
+		show_screen(self, "office_GUI", false)
+
+	elseif message_id == hash("show_camera") then
+
+		-- show the office and make the previous screens disappear
+		-- hide_screen(self.current_screen)
+		-- show_screen(self, "camera_GUI", false)
+		show_screen(self, "/camera/camera", true)
+
+	-- check if the message says to load the camera's GUI
+	elseif message_id == hash("show_camera_GUI") then
+
+		-- show the camera GUI, but don't make the previous screen disappear
+		show_screen(self, "camera_GUI", false)
+
+	elseif message_id == hash("hide_camera") then
+
+		-- hide the camera GUI and the camera sprites
+		hide_screen("/camera/camera")
+		hide_screen("camera_GUI")
+
+	elseif message_id == hash("hide_camera_GUI") then
+
+		-- hide the camera GUI and the camera sprites
+		hide_screen("camera_GUI")
+
+	-- check if hte message says to load the game over screen
+	elseif message_id == hash("show_game_over") then
+
+		-- show the game over screen and make the previous screen disappear
+		hide_screen(self.current_screen)
+		hide_screen("/office/office")
+		hide_screen("/camera/camera")
+		hide_screen("office_GUI")
+		hide_screen("camera_GUI")
+		show_screen(self, "game_over", true)
+
+	elseif message_id == hash("show_win_screen") then
+
+		-- show the game over screen and make the previous screen disappear
+		hide_screen(self.current_screen)
+		hide_screen("/office/office")
+		hide_screen("/camera/camera")
+		hide_screen("office_GUI")
+		hide_screen("camera_GUI")
+		show_screen(self, "win_screen", true)
+
+	end
+	
+end

@@ -1,0 +1,143 @@
+-- import the shared helper functions
+local cu = require "scripts.character_scripts.character_utils"
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- initialize the variable storing the name of the character calling the functions
+	-- in this instance of the helper script
+	self.name = nil
+
+	-- initialize the URL to grab the script properties from
+	self.url = nil
+
+	print("initialized shared_character_code for ")
+end
+
+
+local function update_displayed_time(timer_name, time_remaining, is_running, name)
+	-- function to ping the Office GUI telling it to update the time it displays for the named timer
+	-- when the interval_timers debug option is active
+	-- This function also indicates if the pie node should indicate if the timer is currently active
+	-- @param timer_name: str, the name of the timer being updated
+	-- @param time_ramining: float, the amount of time remaining on the timer
+	-- @param start_timer: bool, indicates whether the timer is currently running
+	-- @param name: str, the name of the character whose timer is being updated
+	-- @param msg: module, allows this function to call msg.post
+	-- @param string: module, allows this function to call string.format
+
+	-- send the message to the office GUI
+	-- print(timer_name .. " time_remaining: " .. time_remaining)
+	msg.post("/office_GUI", "update_debug_display", { character_name = name, 
+	value_name = timer_name, 
+	new_value = string.format("%.2f", time_remaining),
+	start_timer = is_running } )
+
+end
+
+
+local function update_visibility(is_in_camera, selected_camera, location, name)
+	-- function to determine if this character should be visible on screen
+	-- @param is_in_camera: bool, indicates if the player is looking at the cameras
+	-- @param camera_location: str ("Cam XX"), indicates the camera location the player has selected
+	-- @param location: str ("Cam XX"), indicates the camera that this character is at
+	-- @param name: str, name of the character calling this function (optional, only used
+	-- 				for print statements for debugging)
+	-- @param go: the game object module
+	-- @param vm: the vmath module
+	-- @return: nothing, just runs functions to either make the character visible or invisible
+
+	-- load the default value for the character's name (used in debugging)
+
+	-- determine what the player is looking at
+	local player_location = cu.get_player_view(is_in_camera, selected_camera)
+	print(name .. " thinks the player is looking at: " .. player_location)
+
+	-- check if this character is in the location the player is in
+	if location == player_location then
+
+		-- make the character become visible
+		cu.become_visible(go, vmath)
+		print(name .. " is now visible at " .. location)
+		print(name .. " is now at " .. go.get_position())
+
+	else
+
+		-- make the character become invisible
+		cu.become_invisible(go, vmath)
+		print(name .. " is now invisible at " .. location)
+		print(name .. " is now at " .. go.get_position())
+
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+
+	if message_id == hash("define_self") then
+		-- this message tells this instance of the script which character script
+		-- to grab the game object properties from
+		self.name = message.name
+
+		-- update the url to grab game object properties from
+		self.url = self.name .. "#" .. self.name
+
+		print("Defined self for: " .. self.name .. " // " .. self.url)
+
+	elseif message_id == hash("update_displayed_time") then
+
+		-- run the update_displayed_time funciton with the arguments listed in the message
+		update_displayed_time(message.timer_name, message.time_remaining, message.is_running, self.name)
+
+	elseif message_id == hash("update_visibility") then
+
+		-- run the update_visibility function with the arguments listed in the message
+		update_visibility(message.is_in_camera, message.camera_location, message.location, self.name)
+		
+	end
+end
+
+
+function final(self)
+	-- Add finalization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function update(self, dt)
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function fixed_update(self, dt)
+	-- This function is called if 'Fixed Update Frequency' is enabled in the Engine section of game.project
+	-- Can be coupled with fixed updates of the physics simulation if 'Use Fixed Timestep' is enabled in
+	-- Physics section of game.project
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- must have acquired input focus:
+	--
+	--    msg.post(".", "acquire_input_focus")
+	--
+	-- All mapped input bindings will be received. Mouse and touch input will
+	-- be received regardless of where on the screen it happened.
+	-- Learn more: https://defold.com/manuals/input/
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end

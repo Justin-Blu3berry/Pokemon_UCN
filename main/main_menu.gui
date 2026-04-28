@@ -1,0 +1,2314 @@
+script: "/scripts/menu_handler.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
+textures {
+  name: "main_menu"
+  texture: "/atlases/main_menu.atlas"
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+    z: -0.5
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "main_menu/Menu background extended"
+  id: "background"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 378.0
+    y: 650.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "bulbasaur slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 14.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Bulbasaur"
+  font: "default"
+  id: "bulbasaur text"
+  parent: "bulbasaur slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/bulbasaur icon greyscale"
+  id: "bulbasaur icon"
+  parent: "bulbasaur slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "bulbasaur arrow down"
+  parent: "bulbasaur slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "bulbasaur arrow up"
+  parent: "bulbasaur slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "bulbasaur level"
+  parent: "bulbasaur slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 628.0
+    y: 650.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "charmander slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Charmander"
+  font: "default"
+  id: "charmander text"
+  parent: "charmander slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/charmander icon greyscale"
+  id: "charmander icon"
+  parent: "charmander slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "charmander arrow down"
+  parent: "charmander slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "charmander arrow up"
+  parent: "charmander slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "charmander level"
+  parent: "charmander slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 878.0
+    y: 650.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "squirtle slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Squirtle"
+  font: "default"
+  id: "squirtle text"
+  parent: "squirtle slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/squirtle icon greyscale"
+  id: "squirtle icon"
+  parent: "squirtle slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "squirtle arrow down"
+  parent: "squirtle slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "squirtle arrow up"
+  parent: "squirtle slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "squirtle level"
+  parent: "squirtle slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 1128.0
+    y: 650.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "abra slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Abra"
+  font: "default"
+  id: "abra text"
+  parent: "abra slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/abra icon greyscale"
+  id: "abra icon"
+  parent: "abra slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "abra arrow down"
+  parent: "abra slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "abra arrow up"
+  parent: "abra slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "abra level"
+  parent: "abra slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 378.0
+    y: 550.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "tauros slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 14.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Tauros"
+  font: "default"
+  id: "tauros text"
+  parent: "tauros slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/tauros icon greyscale"
+  id: "tauros icon"
+  parent: "tauros slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "tauros arrow down"
+  parent: "tauros slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "tauros arrow up"
+  parent: "tauros slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "tauros level"
+  parent: "tauros slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 628.0
+    y: 550.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "magikarp slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Magikarp"
+  font: "default"
+  id: "magikarp text"
+  parent: "magikarp slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/magikarp icon greyscale"
+  id: "magikarp icon"
+  parent: "magikarp slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "magikarp arrow down"
+  parent: "magikarp slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "magikarp arrow up"
+  parent: "magikarp slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "magikarp level"
+  parent: "magikarp slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 878.0
+    y: 550.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "snorlax slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Snorlax"
+  font: "default"
+  id: "snorlax text"
+  parent: "snorlax slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/snorlax icon greyscale"
+  id: "snorlax icon"
+  parent: "snorlax slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "snorlax arrow down"
+  parent: "snorlax slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "snorlax arrow up"
+  parent: "snorlax slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "snorlax level"
+  parent: "snorlax slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 1128.0
+    y: 550.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "pichu slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Pichu"
+  font: "default"
+  id: "pichu text"
+  parent: "pichu slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/pichu icon greyscale"
+  id: "pichu icon"
+  parent: "pichu slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "pichu arrow down"
+  parent: "pichu slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "pichu arrow up"
+  parent: "pichu slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "pichu level"
+  parent: "pichu slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 378.0
+    y: 450.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "misdreavus slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 14.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Misdreavus"
+  font: "default"
+  id: "misdreavus text"
+  parent: "misdreavus slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/misdreavus icon greyscale"
+  id: "misdreavus icon"
+  parent: "misdreavus slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "misdreavus arrow down"
+  parent: "misdreavus slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "misdreavus arrow up"
+  parent: "misdreavus slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "misdreavus level"
+  parent: "misdreavus slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 628.0
+    y: 450.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "peliper slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Peliper"
+  font: "default"
+  id: "peliper text"
+  parent: "peliper slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/peliper icon greyscale"
+  id: "peliper icon"
+  parent: "peliper slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "peliper arrow down"
+  parent: "peliper slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "peliper arrow up"
+  parent: "peliper slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "peliper level"
+  parent: "peliper slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 878.0
+    y: 450.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "ninetales slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Ninetales"
+  font: "default"
+  id: "ninetales text"
+  parent: "ninetales slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 10.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/ninetales icon greyscale"
+  id: "ninetales icon"
+  parent: "ninetales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "ninetales arrow down"
+  parent: "ninetales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "ninetales arrow up"
+  parent: "ninetales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "ninetales level"
+  parent: "ninetales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 1128.0
+    y: 450.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "lucario slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Lucario"
+  font: "default"
+  id: "lucario text"
+  parent: "lucario slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/lucario icon greyscale"
+  id: "lucario icon"
+  parent: "lucario slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "lucario arrow down"
+  parent: "lucario slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "lucario arrow up"
+  parent: "lucario slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "lucario level"
+  parent: "lucario slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 378.0
+    y: 350.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "croagunk slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 14.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Croagunk"
+  font: "default"
+  id: "croagunk text"
+  parent: "croagunk slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/croagunk icon greyscale"
+  id: "croagunk icon"
+  parent: "croagunk slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "croagunk arrow down"
+  parent: "croagunk slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "croagunk arrow up"
+  parent: "croagunk slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "croagunk level"
+  parent: "croagunk slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 628.0
+    y: 350.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "rotom slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Rotom"
+  font: "default"
+  id: "rotom text"
+  parent: "rotom slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/rotom icon greyscale"
+  id: "rotom icon"
+  parent: "rotom slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "rotom arrow down"
+  parent: "rotom slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "rotom arrow up"
+  parent: "rotom slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "rotom level"
+  parent: "rotom slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 878.0
+    y: 350.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "giratina slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Giratina"
+  font: "default"
+  id: "giratina text"
+  parent: "giratina slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 8.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/giratina icon greyscale"
+  id: "giratina icon"
+  parent: "giratina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "giratina arrow down"
+  parent: "giratina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "giratina arrow up"
+  parent: "giratina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "giratina level"
+  parent: "giratina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 1128.0
+    y: 350.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "klinklang slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Klinklang"
+  font: "default"
+  id: "klinklang text"
+  parent: "klinklang slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/klinklang icon greyscale"
+  id: "klinklang icon"
+  parent: "klinklang slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "klinklang arrow down"
+  parent: "klinklang slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "klinklang arrow up"
+  parent: "klinklang slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "klinklang level"
+  parent: "klinklang slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 378.0
+    y: 250.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "a-tales slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 33.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Ninetales-A"
+  font: "default"
+  id: "a-tales text"
+  parent: "a-tales slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 8.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/a-tales icon greyscale"
+  id: "a-tales icon"
+  parent: "a-tales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "a-tales arrow down"
+  parent: "a-tales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "a-tales arrow up"
+  parent: "a-tales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "a-tales level"
+  parent: "a-tales slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 628.0
+    y: 250.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "primarina slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Primarina"
+  font: "default"
+  id: "primarina text"
+  parent: "primarina slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 8.0
+  }
+  scale {
+    x: 2.2
+    y: 2.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/primarina icon greyscale"
+  id: "primarina icon"
+  parent: "primarina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "primarina arrow down"
+  parent: "primarina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "primarina arrow up"
+  parent: "primarina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "primarina level"
+  parent: "primarina slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 878.0
+    y: 250.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "dragapult slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Dragapult"
+  font: "default"
+  id: "dragapult text"
+  parent: "dragapult slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 8.0
+  }
+  scale {
+    x: 1.4
+    y: 1.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/dragapult icon greyscale"
+  id: "dragapult icon"
+  parent: "dragapult slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "dragapult arrow down"
+  parent: "dragapult slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "dragapult arrow up"
+  parent: "dragapult slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "dragapult level"
+  parent: "dragapult slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 1128.0
+    y: 250.0
+  }
+  size {
+    x: 243.0
+    y: 98.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/character menu slate"
+  id: "gimmighoul slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 20.0
+    y: 18.0
+  }
+  scale {
+    x: 1.75
+    y: 1.9
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Gimmighoul"
+  font: "default"
+  id: "gimmighoul text"
+  parent: "gimmighoul slate"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: -78.0
+    y: 40.0
+  }
+  type: TYPE_BOX
+  texture: "main_menu/gimmighoul icon greyscale"
+  id: "gimmighoul icon"
+  parent: "gimmighoul slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 48.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow down transparent"
+  id: "gimmighoul arrow down"
+  parent: "gimmighoul slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 80.0
+    y: -15.0
+  }
+  scale {
+    x: 0.3
+    y: 0.375
+  }
+  type: TYPE_BOX
+  texture: "main_menu/arrow up transparent"
+  id: "gimmighoul arrow up"
+  parent: "gimmighoul slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -6.0
+    y: -15.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
+  type: TYPE_BOX
+  texture: "main_menu/0"
+  id: "gimmighoul level"
+  parent: "gimmighoul slate"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+    z: -0.5
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "main_menu/red menu overlay"
+  id: "red overlay"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 1093.0
+    y: 97.0
+    z: 0.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/go button"
+  id: "go button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 829.0
+    y: 82.0
+    z: 0.5
+  }
+  scale {
+    x: 0.8
+    y: 0.8
+  }
+  type: TYPE_BOX
+  texture: "main_menu/kaizo button"
+  id: "kaizo button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: -124.999985
+    y: 68.25
+  }
+  type: TYPE_BOX
+  texture: "main_menu/Master ball grayscale"
+  id: "master ball"
+  parent: "kaizo button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 285.0
+    y: 68.0
+  }
+  scale {
+    x: 0.6
+    y: 0.6
+  }
+  type: TYPE_BOX
+  texture: "main_menu/set all 0 button"
+  id: "set all 0 button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 445.0
+    y: 68.0
+  }
+  scale {
+    x: 0.6
+    y: 0.6
+  }
+  type: TYPE_BOX
+  texture: "main_menu/add 1 to all button"
+  id: "add 1 to all button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 605.0
+    y: 68.0
+  }
+  scale {
+    x: 0.6
+    y: 0.6
+  }
+  type: TYPE_BOX
+  texture: "main_menu/set all 20 button"
+  id: "set all 20 button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 109.0
+    y: 29.0
+  }
+  scale {
+    x: 1.5
+    y: 1.5
+  }
+  type: TYPE_BOX
+  texture: "main_menu/quit game button"
+  id: "quit game button"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 125.0
+    y: 653.0
+  }
+  type: TYPE_BOX
+  texture: "main_menu/score"
+  id: "score text"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 119.0
+    y: 555.0
+  }
+  scale {
+    x: 10.0
+    y: 10.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "default"
+  id: "score"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 89.0
+    y: 450.0
+  }
+  scale {
+    x: 0.4
+    y: 0.4
+  }
+  type: TYPE_BOX
+  texture: "main_menu/high score"
+  id: "high score text"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 196.0
+    y: 451.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "default"
+  id: "high score"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 122.0
+    y: 390.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Debug options:"
+  font: "default"
+  id: "debug options text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 126.0
+    y: 352.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 215.0
+    y: 20.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Display interval timers"
+  font: "default"
+  id: "interval_timer"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 98.0
+    y: 324.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 170.0
+    y: 20.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Display hitboxes"
+  font: "default"
+  id: "hitbox_viewer"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 110.0
+    y: 293.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 200.0
+    y: 35.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Display characters \n"
+  "on minimap"
+  font: "default"
+  id: "radar"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 110.0
+    y: 248.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 200.0
+    y: 35.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Highlight clickable\n"
+  "characters"
+  font: "default"
+  id: "highlight_clickables"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 113.0
+    y: 203.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 200.0
+    y: 35.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Highlight doors when\n"
+  "characters enter/leave"
+  font: "default"
+  id: "highlight_doors"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 93.0
+    y: 156.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 170.0
+    y: 20.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Unlimited power"
+  font: "default"
+  id: "unlimited_power"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 101.0
+    y: 128.0
+  }
+  scale {
+    y: 1.2
+  }
+  size {
+    x: 180.0
+    y: 35.0
+  }
+  type: TYPE_TEXT
+  text: "[_] Remove Ditto from\n"
+  "Tera mode"
+  font: "default"
+  id: "remove_ditto"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+  }
+  type: TYPE_BOX
+  texture: "main_menu/fade to black"
+  id: "fade to black"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

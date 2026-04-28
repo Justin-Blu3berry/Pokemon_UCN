@@ -1,0 +1,139 @@
+script: "/scripts/win_screen.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
+textures {
+  name: "game_over"
+  texture: "/atlases/game_over.atlas"
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "game_over/fade to black 12"
+  id: "background"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 492.0
+  }
+  scale {
+    x: 7.0
+    y: 7.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Congrats! You Won!"
+  font: "default"
+  id: "win text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 288.0
+  }
+  scale {
+    x: 4.0
+    y: 4.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Score:\n"
+  "<score>"
+  font: "default"
+  id: "score text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 136.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "High Score:\n"
+  "<high score>"
+  font: "default"
+  id: "high score text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 26.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Click to return to main menu"
+  font: "default"
+  id: "click to progress"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 225.0
+    y: 393.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Practice mode options used:\n"
+  "<practice option>\n"
+  "<practice option>"
+  font: "default"
+  id: "debug list"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "game_over/fade to black"
+  id: "fade to black"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

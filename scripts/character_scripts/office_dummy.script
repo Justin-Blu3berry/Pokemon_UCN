@@ -1,0 +1,114 @@
+local function set_sprite_direction(self, direction)
+	-- function to check which direction the sprite is facing and flips it horizontally
+	-- to face the correct direction
+	-- NOTE: set_hflip()'s 'flip' param takes a boolean. If it's true, it flips the sprite
+	-- if it's false, it doesn't flip the sprite. So you can just pass a conditional statement
+	-- insead of putting it inside an if statement
+	-- @param self: allows this function to access self.<variable> variables
+	-- @param direction: str, "left" or "right" determines the direction the sprite should face
+	-- @return: none, just flips the sprite
+
+	-- flip the sprite if it's NOT facing the desired direction
+	sprite.set_hflip("#" .. self.name .. "_sprite", self.curr_direction ~= direction)
+	print(self.name .. "_dummy in office is now facing: " .. direction)
+
+end
+
+
+local function toggle_visibility(self, is_visible, side)
+	-- function to make the dummy visible or invisible and move
+	-- it to the given side of the office
+	-- @param self: allows this function to access self.<variable> variables
+	-- @param is_visible: bool, indicating if the dummy will be visible or not
+	-- @param side: optional str, "left" or "right" indicating which side of the office to go to
+	-- 				default value: "left"
+	-- @return: nothing
+
+	-- load the default value for which side to go to
+	side = side or "left"
+
+	-- get the position on the correct side of the office
+	local new_position = self.position_dict[side]
+
+	-- get the correct z coordinate based on if the dummy needs to be visible or invisible
+	local bool_to_z = {
+		[true] = -0.5,
+		[false] = 100
+	}
+
+	-- set the sprite to be facing the right way if the dummy is visible
+	if is_visible then
+		set_sprite_direction(self, self.facing_directions[side])
+	end
+
+	-- move the sprite to the x,y coords indicated by 'side' and the z-coord to make it visible
+	go.set_position(vmath.vector3(new_position.x, new_position.y, bool_to_z[is_visible]))
+	print(self.name .. "_dummy in office just moved to " .. new_position.x .. ", " .. new_position.y .. " and has visibility status: " .. tostring(is_visible))
+
+end
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- initialize the variable storing the name of the character whose sprite this dummy uses
+	self.name = "character"
+
+	-- initialize the dictionary mapping camera locations to his position on screen
+	self.position_dict = {
+		left = vmath.vector3(-701.0, -120.0, 0.0),
+		right = vmath.vector3(701.0, -120.0, 0.0)
+	}
+
+	-- initialize facing direction to know which way the sprite is facing
+	-- sprite is facing right by default
+	self.curr_direction = "right"
+
+	-- initialize a dictionary that maps office positions to facing directions
+	-- the facing direction and the position in the office are always opposites
+	self.facing_directions = {
+		left = "right",
+		right = "left",
+	}
+
+	-- become invisible
+	toggle_visibility(self, false)
+
+	
+end
+
+
+function final(self)
+	-- Add finalization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+
+	print(self.name .. "_dummy in office received a message: " .. message_id .. " from sender:" .. sender)
+
+	if message_id == hash("define_self") then
+		-- this message indicates what character this dummy is for
+		self.name = message.name
+
+	elseif message_id == hash("become_visible") then
+		-- this means the real squirtle is in the office and needs his dummy to be visible
+		-- need to go to z=0 relative to the office
+		toggle_visibility(self, true, message.my_path)
+
+		-- check if the sprite parameter was passed
+		if message.sprite then
+			-- if it was passed, then switch this dummy to the named sprite
+			sprite.play_flipbook("#" .. self.name .. "_sprite", message.sprite)
+		end
+
+	elseif message_id == hash("become_invisible") then
+		-- this means the real squirtle left the office and needs his dummy to be invisible
+		-- go to z=100 relative to the office
+		toggle_visibility(self, false)
+		
+	end
+end

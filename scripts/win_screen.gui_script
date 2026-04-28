@@ -1,0 +1,186 @@
+function init(self)
+	-- Add initialization code here
+
+	-- initialize the variable tracking if the player is in the challenge mode or not
+	self.is_tera = false
+
+	-- initialize the score and high score
+	self.score = 0
+	self.hi_score = 0
+
+	-- initialize a list of what debug options are active
+	self.debug_optionss = {}
+
+	-- initialize a boolean tracking if the run is valid
+	self.is_valid_run = false
+
+	-- disable the node showing the fade to black
+	gui.set_enabled(gui.get_node("fade to black"), false)
+	
+end
+
+
+local function update_score_text(self)
+	-- function to update the text displaying the score that the player just achieved
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: none, just updates text nodes
+
+	-- check if the run was valid
+	if self.is_valid_run then
+		-- if it is, then set the text displaying the score the player just achieved
+		gui.set_text(gui.get_node("score text"), "Score:\n" .. tostring(self.score))
+	else
+		-- if it isn't, display the score of the night as 0
+		gui.set_text(gui.get_node("score text"), "Score: 0")
+	end
+
+end
+
+
+local function update_hi_score_text(self)
+	-- function to update the text displaying the high score
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: none, just updates text nodes
+
+	-- check if the score the player just achieved is better than the high score
+	if self.score > self.hi_score and self.is_valid_run then
+		-- since the score the player just got is higher than the high score, 
+		-- we need to update the player's high score
+		self.hi_score = self.score
+
+		-- display the new high score
+		gui.set_text(gui.get_node("high score text"), "NEW High Score:\n" .. tostring(self.hi_score))
+
+	else
+		-- since the score the player just achieved isn't actually higher than the high score
+		-- set the text for the high score without actually changing its value
+		gui.set_text(gui.get_node("high score text"), "High Score:\n" .. tostring(self.hi_score))
+	end
+end
+
+
+local function update_debug_text(self)
+	-- function to update the text displaying what debug options are active
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: none, just updates text nodes
+
+	-- assign a variable to refer to the text node showing the debug options used
+	local debug_list_node = gui.get_node("debug list")
+
+	-- set the text node showing the debug options to either be visible or not
+	-- depending on if any debug options are active
+	gui.set_enabled(debug_list_node, (not self.is_valid_run))
+
+	-- initialize the text that will get displayed
+	local text_to_display = "Practice mode options used:\n"
+
+	-- check if any of the debug options were used
+	if not self.is_valid_run then
+
+		-- iterate over the list of active debug options
+		for __, curr_option in ipairs(self.debug_options) do
+			
+			-- append the name of the debug option to the text that will be displayed
+			text_to_display = text_to_display .. curr_option .. "\n"
+			
+		end
+	end
+
+	-- update the text node to display the debug options being used
+	gui.set_text(debug_list_node, text_to_display)
+	
+end
+	
+
+
+local function update_validity(self)
+	-- function to update the text displaying the high score
+	-- @param self: allows this function to access values stored in self.<variable> variables
+	-- @return: none, just updates the self.is_valid_run boolean
+
+	-- check if any debug options are active
+	if #self.debug_options == 0 then
+		-- set the boolean indicating that the run is valid
+		self.is_valid_run = true
+
+	else
+		-- set the boolean indicating that the run is invalid
+		self.is_valid_run = false
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	print("win_screen received a message: " .. message_id .. " from sender:" .. sender)
+
+	-- to be lazy, i'm just going to have the fade to black node get disabled ANY time
+	-- this GUI is sent a message
+	gui.set_enabled(gui.get_node("fade to black"), false)
+	
+	-- check if the message says to show the GUI
+	if message_id == hash("show") then
+
+		-- post messages to the system to enable this object
+		-- and to acquire input focus
+		msg.post(".", "enable")
+		msg.post(".", "acquire_input_focus")
+		print("enabled and acquired input focus")
+
+		-- post a message to the main menu to update the high score
+		msg.post("main_menu", "update_hi_score", { hi_score = self.hi_score })
+
+		-- check if the message says to hide the GUI
+	elseif message_id == hash("hide") then
+
+		-- post messages to the system to disable this object
+		-- and release input focus
+		msg.post(".", "disable")
+		msg.post(".", "release_input_focus")
+		print("win_screen disabled and released input focus")
+
+	elseif message_id == hash("update_scores") then
+
+		-- update the local variables tracking the high score, whether the player
+		-- is playing the challenge mode, and whether the run is valid
+		self.hi_score = message.hi_score
+		self.is_tera = message.is_tera
+		self.debug_options = message.debug_options
+
+		-- update the local variable tracking the score, accounting for if the player 
+		-- is playing the challenge mode
+		if self.is_tera then
+			-- if the player is playing the challenge mode, multiply the score by 2
+			self.score = message.curr_score * 2
+		else
+			-- if the player isn't in the challenge mode, use the given score
+			self.score = message.curr_score
+		end
+
+		-- update the boolean that indicates if the run is valid
+		update_validity(self)
+
+		-- update the text nodes displaying the score, high score, 
+		-- whether the run was in the challenge mode, and whether the run was valid
+		update_score_text(self)
+		update_hi_score_text(self)
+		update_debug_text(self)
+		
+	end
+
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+
+	-- check if the player left clicks
+	if action_id == hash("mouse1") and action.released then
+		-- play the fade to black animation
+		gui.set_enabled(gui.get_node("fade to black"), true)
+		gui.play_flipbook(gui.get_node("fade to black"), "fade to black", function() 
+			-- send the player back to the main menu once the fade to black finishes
+			msg.post("controller", "show_main_menu") 
+		end)
+		
+	end
+end

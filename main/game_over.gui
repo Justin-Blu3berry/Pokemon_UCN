@@ -1,0 +1,134 @@
+script: "/scripts/game_over.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
+textures {
+  name: "game_over"
+  texture: "/atlases/game_over.atlas"
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "game_over/fade to black 12"
+  id: "background"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 492.0
+  }
+  scale {
+    x: 7.0
+    y: 7.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Game Over!"
+  font: "default"
+  id: "game over text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 359.0
+  }
+  scale {
+    x: 3.0
+    y: 3.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Cause of death: <character>"
+  font: "default"
+  id: "cause of death"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 317.0
+  }
+  scale {
+    x: 3.0
+    y: 3.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Time of death: 0:00"
+  font: "default"
+  id: "death time"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 216.0
+  }
+  scale {
+    x: 3.0
+    y: 3.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Default tip text"
+  font: "default"
+  id: "tip"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 26.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Click to return to main menu"
+  font: "default"
+  id: "click to progress"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 360.0
+  }
+  size {
+    x: 1280.0
+    y: 720.0
+  }
+  type: TYPE_BOX
+  texture: "game_over/fade to black"
+  id: "fade to black"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

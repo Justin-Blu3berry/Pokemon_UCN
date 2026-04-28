@@ -1,0 +1,36 @@
+key_trigger {
+  input: KEY_S
+  action: "s_key"
+}
+key_trigger {
+  input: KEY_A
+  action: "a_key"
+}
+key_trigger {
+  input: KEY_D
+  action: "d_key"
+}
+key_trigger {
+  input: KEY_F
+  action: "f_key"
+}
+key_trigger {
+  input: KEY_3
+  action: "3_key"
+}
+key_trigger {
+  input: KEY_4
+  action: "4_key"
+}
+key_trigger {
+  input: KEY_ESC
+  action: "esc_key"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_LEFT
+  action: "mouse1"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_RIGHT
+  action: "mouse2"
+}
