@@ -294,7 +294,8 @@ local function attack_door(self)
 		cu.play_directional_sound(sound, "#" .. self.evolution_dict[self.my_stage] .. "_cry")
 
 		-- send a message to the office gui to kill the player
-		msg.post("/office_GUI", "kill_player", { character_name = self.name })
+		-- make the office GUI play the right evo stage's jumpscare animation and show the right tip after
+		msg.post("/office_GUI", "kill_player", { character_name = self.evolution_dict[self.my_stage] })
 
 		-- tell the dummy dragapult in the office to become invisible so it isn't visible during the jumpscare
 		msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
