@@ -2,7 +2,7 @@
 Justin Wildman
 
 Last updated: 04/27/2026 @ 10:29 p.  
-Current progress: Third character of twenty is almost complete (TODO: add unique jumpscare for each evoluationary stage of this Pokemon)
+Current progress: Third character of twenty is essentially complete (TODO: test edge cases where Dragapult evolves while waiting at the door)
 
 ## Project Overview
 This is the indie game I'm working on in my spare time (the title is likely to change before I get a release build ready). 
