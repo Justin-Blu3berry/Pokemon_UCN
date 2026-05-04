@@ -1,83 +1,13 @@
-local function get_tips_dict()
-	-- function to construct a dictionary mapping character names to the tips
-	-- also includes a tip for greenrunning if the player powers out
-	-- @return: a dictionary, keys are all strings, values are all strings
-
-	return {
-		powerout = "Powerout tip",
-		bulbasaur = "bulbasaur tip",
-		charmander = "charmander tip",
-		squirtle = "squirtle tip",
-		abra = "abra tip",
-		tauros = "tauros tip",
-		magikarp = "magikarp tip",
-		snorlax = "snorlax tip",
-		pichu = "pichu tip",
-		misdreavus = "misdreavus tip",
-		peliper = "peliper tip",
-		ninetales = "ninetales tip",
-		lucario = "lucario tip",
-		croagunk = "croagunk tip",
-		rotom = "rotom tip",
-		giratina = "giratina tip",
-		klinklang = "klinklang tip",
-		["a-tales"] = "alolan ninetales tip",
-		primarina = "primarina tip",
-		dragapult = "dragapult tip",
-		gimmighoul = "gimmighoul tip"
-	}
-
-
-end
-
-
-local function get_challengemode_tips_dict()
-	-- function to construct a dictionary mapping character names to the tips
-	-- for how to deal with them in the challenge mode
-	-- also includes a tip for greenrunning if the player powers out
-	-- @return: a dictionary, keys are all strings, values are all strings
-
-	return {
-		powerout = "tera Powerout tip",
-		-- bulbasaur = "Remember she goes back and forth between your\noffice and the generator directly, so she\n appears much more frequently than in vanilla",
-		bulbasaur = "'Sucked!'\n-Imported Cheese",
-		-- charmander = "He appears one camera behind where he actually\nis along his path. So close the door\nwhen you see him in the hall.",
-		charmander = "You let his tail go out",
-		-- squirtle = "He camps out at your door for longer the more time\nyou've spent looking at him in the camera.\nOnly look at him for as long as you need\nto know which way he's going.",
-		squirtle = "I got thirsrty",
-		abra = "tera abra tip",
-		-- tauros = "They now have a chance to break out of a pokeball\nor dodge it as you throw it. Remember to\ncheck again after you throw to see if it stays\nin the ball",
-		tauros = "Isn't it cool they now have all the RNG that makes\nreal Pokemon Go so annoying?",
-		magikarp = "'Imagine you are a seagull...'",
-		snorlax = "I eated it",
-		pichu = "tera pichu tip",
-		misdreavus = "How did you like budget Rat & Cat All Challenges?",
-		peliper = "I'd put a joke here, but you know that using the heater\nmakes ninetales more likely to spawn, right?\nSame for the AC and alolan ninetales",
-		ninetales = "tera ninetales tip",
-		lucario = "Gamble responsibly >:)",
-		croagunk = "You blinked",
-		rotom = "tera rotom tip",
-		giratina = "tera giratina tip",
-		klinklang = "Honestly the fact a door character didn't kill you\nfirst is impressive",
-		["a-tales"] = "tera alolan ninetales tip",
-		primarina = "tera primarina tip",
-		dragapult = "tera dragapult tip",
-		gimmighoul = "Please deposit five coins",
-		ditto = "Remember to check if a character has a :) face like a ditto clone before clicking on them"
-	}
-
-
-end
-
+local characters = require "scripts.character_lists"
 
 function init(self)
 	-- Add initialization code here
 
 	-- assign a variable to track the mapping of character names to their tips
-	self.tips = get_tips_dict()
+	self.tips = characters.get_tips_dict()
 
 	-- get the dictionary mapping character names to tips for the challenge mode as well
-	self.challenge_tips = get_challengemode_tips_dict()
+	self.challenge_tips = characters.get_challengemode_tips_dict()
 
 	-- make a dicitonary mapping whether or not the player was in the challenge mode
 	-- to which dictionary of tips to pull from

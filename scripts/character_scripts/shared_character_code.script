@@ -24,7 +24,6 @@ local function update_displayed_time(timer_name, time_remaining, is_running, nam
 	-- @param time_ramining: float, the amount of time remaining on the timer
 	-- @param start_timer: bool, indicates whether the timer is currently running
 	-- @param name: str, the name of the character whose timer is being updated
-	-- @param msg: module, allows this function to call msg.post
 	-- @param string: module, allows this function to call string.format
 
 	-- send the message to the office GUI

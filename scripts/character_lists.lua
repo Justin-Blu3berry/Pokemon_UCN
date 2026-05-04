@@ -267,4 +267,80 @@ function character_lists.get_character_urls()
 end
 
 
+function character_lists.get_tips_dict()
+	-- function to construct a dictionary mapping character names to the tips
+	-- also includes a tip for greenrunning if the player powers out
+	-- @return: a dictionary, keys are all strings, values are all strings
+
+	return {
+		powerout = "Powerout tip",
+		bulbasaur = "bulbasaur tip",
+		charmander = "charmander tip",
+		squirtle = "squirtle tip",
+		abra = "abra tip",
+		tauros = "tauros tip",
+		magikarp = "magikarp tip",
+		snorlax = "snorlax tip",
+		pichu = "pichu tip",
+		misdreavus = "misdreavus tip",
+		peliper = "peliper tip",
+		ninetales = "ninetales tip",
+		lucario = "lucario tip",
+		croagunk = "croagunk tip",
+		rotom = "rotom tip",
+		giratina = "giratina tip",
+		klinklang = "klinklang tip",
+		["a-tales"] = "alolan ninetales tip",
+		primarina = "primarina tip",
+		dreepy = "dreepy tip",
+		drakloak = "drakloak tip",
+		dragapult = "dragapult tip",
+		gimmighoul = "gimmighoul tip"
+	}
+
+
+end
+
+
+function character_lists.get_challengemode_tips_dict()
+	-- function to construct a dictionary mapping character names to the tips
+	-- for how to deal with them in the challenge mode
+	-- also includes a tip for greenrunning if the player powers out
+	-- @return: a dictionary, keys are all strings, values are all strings
+
+	return {
+		powerout = "tera Powerout tip",
+		-- bulbasaur = "Remember she goes back and forth between your\noffice and the generator directly, so she\n appears much more frequently than in vanilla",
+		bulbasaur = "'Sucked!'\n-Imported Cheese",
+		-- charmander = "He appears one camera behind where he actually\nis along his path. So close the door\nwhen you see him in the hall.",
+		charmander = "You let his tail go out",
+		-- squirtle = "He camps out at your door for longer the more time\nyou've spent looking at him in the camera.\nOnly look at him for as long as you need\nto know which way he's going.",
+		squirtle = "I got thirsrty",
+		abra = "tera abra tip",
+		-- tauros = "They now have a chance to break out of a pokeball\nor dodge it as you throw it. Remember to\ncheck again after you throw to see if it stays\nin the ball",
+		tauros = "Isn't it cool they now have all the RNG that makes\nreal Pokemon Go so annoying?",
+		magikarp = "'Imagine you are a seagull...'",
+		snorlax = "I eated it",
+		pichu = "tera pichu tip",
+		misdreavus = "How did you like budget Rat & Cat All Challenges?",
+		peliper = "I'd put a joke here, but you know that using the heater\nmakes ninetales more likely to spawn, right?\nSame for the AC and alolan ninetales",
+		ninetales = "tera ninetales tip",
+		lucario = "Gamble responsibly >:)",
+		croagunk = "You blinked",
+		rotom = "tera rotom tip",
+		giratina = "tera giratina tip",
+		klinklang = "Honestly the fact a door character didn't kill you\nfirst is impressive",
+		["a-tales"] = "tera alolan ninetales tip",
+		primarina = "tera primarina tip",
+		dreepy = "This shouldn't display because Pult's tera change is\nbeing fully evolved at the start of the night",
+		drakloak = "This shouldn't display because Pult's tera change is\nbeing fully evolved at the start of the night",
+		dragapult = "tera dragapult tip",
+		gimmighoul = "'Please deposit five coins'\n-Rockstar Freddy",
+		ditto = "Remember to check if a character has a :) face like a ditto clone before clicking on them"
+	}
+
+
+end
+
+
 return character_lists
