@@ -1,8 +1,8 @@
 # Pokemon Ultimate Custom Night (name TBD)
 Justin Wildman
 
-Last updated: 05/04/2026 @ 12:45 a.  
-Current progress: Third character of twenty is essentially complete (TODO: test edge cases where Dragapult evolves while waiting at the door)
+Last updated: 05/05/2026 @ 12:13 a.  
+Current progress: Third character completed, now creating template script for camera characters' scripts to be based on
 
 ## Project Overview
 This is the indie game I'm working on in my spare time (the title is likely to change before I get a release build ready). 
