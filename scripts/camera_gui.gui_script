@@ -246,6 +246,7 @@ function on_message(self, message_id, message, sender)
 
 		-- check whether the radar debug option is on
 		self.is_radar = contains(message.debug_options, "radar")
+		local character_levels = message.character_levels
 
 		print("Radar debug option is: " .. tostring(self.is_radar))
 		print(self.char_list[1])
@@ -253,8 +254,13 @@ function on_message(self, message_id, message, sender)
 		-- enable or disable the gui nodes with the character icons indicating their positions
 		for __, curr_char in ipairs(self.char_list) do
 			-- set the current character's icon to be visible or not
-			print(curr_char)
-			gui.set_enabled(gui.get_node(curr_char .. "_icon"), self.is_radar)
+			-- print(curr_char .. " at level " .. tostring(character_levels[curr_char]))
+			if character_levels[curr_char] ~= 0 and character_levels[curr_char] ~= nil then
+				gui.set_enabled(gui.get_node(curr_char .. "_icon"), self.is_radar)
+			else
+				-- if a character isn't active, make sure that their icon is ALWAYS invisible
+				gui.set_enabled(gui.get_node(curr_char .. "_icon"), false)
+			end
 		end
 
 	elseif message_id == hash("move_character") then

@@ -265,7 +265,8 @@ local function start_night(self)
 	msg.post("office_GUI", "update_debug", { debug_options = get_active_debug_options(self) })
 	msg.post("/office/office", "new_night")
 	msg.post("camera_GUI", "new_night")
-	msg.post("camera_GUI", "update_debug", { debug_options = get_active_debug_options(self) })
+	msg.post("camera_GUI", "update_debug", { debug_options = get_active_debug_options(self), 
+											 character_levels = self.character_levels })
 	msg.post("/camera/camera", "new_night")
 	msg.post("game_over", "update_challenge_mode", { is_tera = self.is_kaizo})
 	msg.post("win_screen", "update_scores", { curr_score = self.score, 
@@ -278,7 +279,8 @@ local function start_night(self)
 		print(curr_character .. " type: " .. type(curr_character))
 		msg.post(self.character_urls[curr_character], 
 				 "new_night", 
-				 { ai_level = curr_level, is_tera = self.is_kaizo })
+				{ ai_level = curr_level, is_tera = self.is_kaizo, 
+				  hitboxes_enabled = self.debug_statuses.hitbox_viewer})
 	end
 
 	-- tell all of the props that the night is starting

@@ -18,56 +18,51 @@ function init(self)
 	-- Add initialization code here
 
 	-- initialize character name
-	self.name = "bulbasaur"
+	self.name = "default_door_char"
 
 	-- initialize his location on screen
 	self.location = "Cam 01"
 
 	-- initialize the lists of locations in this character's movement paths
-	local office_path = {"Cam 01", "Cam 02", "Cam 04", "Cam 05", "Cam 09", "office"}
-	local generator_path = {"Cam 01", "Cam 02", "Cam 04", "Cam 05", "Cam 09", "Cam 08"}
-	local tera_gen_path = {"Cam 09", "Cam 08"}
-	local tera_office_path = {"Cam 09", "office"}
+	local left_path = {"Cam 01", "Cam 02", "Cam 04", "Cam 05", "Cam 09", "office"}
+	local right_path = {"Cam 01", "Cam 02", "Cam 06", "Cam 11", "Cam 10", "office"}
 
 	-- initialize the dictionary that will get used to get the character's location
 	self.path = {
-		office = office_path,
-		generator = generator_path,
-		tera_generator = tera_gen_path,
-		tera_office = tera_office_path
+		left = left_path,
+		right = right_path
 	}
 
 	-- initialize a variable tracking which path the character is on
-	self.my_path = "generator"
-
-	-- initialize a variable tracking which door this character attacks
-	self.my_door = "left"
+	self.my_path = "left"
 
 	-- initialize a variable tracking what step of his path he's on
 	self.movement_step = 1
 
 	-- initialize the dictionary mapping camera locations to his position on screen
 	self.position_dict = {
-		["Cam 01"] = vmath.vector3(234.0, -78.0, 0.0),
-		["Cam 02"] = vmath.vector3(234.0, -78.0, 0.0),
-		["Cam 04"] = vmath.vector3(234.0, -78.0, 0.0),
+		["Cam 01"] = vmath.vector3(0, 0, 0.0),
+		["Cam 02"] = vmath.vector3(0, 0, 0.0),
+		["Cam 04"] = vmath.vector3(0, 0, 0.0),
 		["Cam 05"] = vmath.vector3(0, 0, 0.0),
-		["Cam 08"] = vmath.vector3(-241.0, -141.0, 0.0),
+		["Cam 06"] = vmath.vector3(0, 0, 0.0),
 		["Cam 09"] = vmath.vector3(0, 0, 0.0),
-		["office"] = vmath.vector3(0, 0, 0.0)  -- note that this one doesn't matter because of the dummy bulbasaur sprite in the office
+		["Cam 10"] = vmath.vector3(0, 0, 0.0),
+		["Cam 11"] = vmath.vector3(0, 0, 0.0),
+		["office"] = vmath.vector3(0, 0, 0.0)  -- note that this one doesn't matter because of the dummy sprite in the office
 	}
 	
 	-- initialize the dictionary mapping camera locations to this character's sprite names
 	self.sprite_dict = {
-		["Cam 01"] = "bulbasaur",
-		["Cam 02"] = "bulbasaur",
-		["Cam 04"] = "bulbasaur",
-		["Cam 05"] = "bulbasaur",
-		["Cam 06"] = "bulbasaur",
-		["Cam 09"] = "bulbasaur",
-		["Cam 10"] = "bulbasaur",
-		["Cam 11"] = "bulbasaur",
-		["office"] = "bulbasaur"  -- note that this one doesn't matter because of the dummy bulbasaur sprite in the office
+		["Cam 01"] = "default_door_char_sprite",
+		["Cam 02"] = "default_door_char_sprite",
+		["Cam 04"] = "default_door_char_sprite",
+		["Cam 05"] = "default_door_char_sprite",
+		["Cam 06"] = "default_door_char_sprite",
+		["Cam 09"] = "default_door_char_sprite",
+		["Cam 10"] = "default_door_char_sprite",
+		["Cam 11"] = "default_door_char_sprite",
+		["office"] = "default_door_char_sprite"  -- note that this one doesn't matter because of the dummy sprite in the office
 	}
 
 	-- initialize values to track if the player is in the cameras
@@ -91,20 +86,21 @@ function init(self)
 	local curr_position = go.get_position()
 	go.set_position(vmath.vector3(curr_position.x, curr_position.y, 100))
 
-	-- initialize the variable tracking how much time bulbasaur should wait at the door
+	-- initialize the variable tracking how much time this character should wait at the door
 	self.max_door_time = 0.5
 
-	-- initialize the variable tracking how much time bulbasaur has left to wait at the door
+	-- initialize the variable tracking how much time this character has left to wait at the door
 	self.remaining_door_time = self.max_door_time
 
-	-- initialize the variable tracking how much time bulbasaur's kill timer has left on it
+	-- initialize the variable tracking how much time this character's kill timer has left on it
 	self.remaining_kill_time = 5
 
 	-- post a message to the instance of shared_character_code attached to this character
 	-- informing it of which character's properties it should read
 	msg.post(".", "define_self", { name = self.name })
 	-- post a message to this chraacter's dummy object that sits in the office
-	msg.post("/office/" .. self.name .. "_dummy", "define_self", { name = self.name })
+	-- commented out because making a default dummy is redundance since they all use the same code
+	-- msg.post("/office/" .. self.name .. "_dummy", "define_self", { name = self.name })
 end
 
 
@@ -124,11 +120,11 @@ local function progress_movement(self)
 	self.location = self.path[self.my_path][self.movement_step]
 	print(self.name .. " moved to " .. self.location .. " along " .. self.my_path .. " path")
 
-	-- tell the camera GUI to move the bulbasaur icon on the minimap (only visible if radar is on)
+	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
 		{char_name = self.name, 
 		new_pos = self.location, 
-		side = self.my_door
+		side = self.my_path
 	})
 
 	-- have this character check if they're visible
@@ -158,17 +154,18 @@ end
 
 local function attack_door(self)
 	-- function to check if the door is closed, and kills the player if not
-	print("kill player ran, " .. self.my_door .. " door is closed: " .. tostring(self.doors_closed[self.my_door]))
+	print("kill player ran, " .. self.my_path .. " door is closed: " .. tostring(self.doors_closed[self.my_path]))
 	-- check if the door is closed
-	if not self.doors_closed[self.my_door] then
+	if not self.doors_closed[self.my_path] then
 		-- if the door isn't closed, start by playing the sound for the jumpscare
 		cu.play_directional_sound(sound, "#" .. self.name .. "_cry")
 
 		-- send a message to the office gui to kill the player
 		msg.post("/office_GUI", "kill_player", { character_name = self.name })
 
-		-- tell the dummy bulbasaur in the office to become invisible so it isn't visible during the jumpscare
-		msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
+		-- tell the dummy sprite in the office to become invisible so it isn't visible during the jumpscare
+		-- commented out because making a default dummy is redundance since they all use the same code
+		-- msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
 		
 		-- cancel this character' timers
 		cancel_all_timers(self)
@@ -190,8 +187,9 @@ local function enter_kill_state(self)
 	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
 
-	-- tell the dummy bulbasaur model in the office to become visible and which door to go to
-	msg.post("/office/" .. self.name .. "_dummy", "become_visible", { my_path = self.my_door })
+	-- tell the dummy model in the office to become visible and which door to go to
+	-- commented out because making a default dummy is redundance since they all use the same code
+	-- msg.post("/office/" .. self.name .. "_dummy", "become_visible", { my_path = self.my_path })
 
 end
 
@@ -200,23 +198,8 @@ local function restart_path(self)
 	-- function to reset this character's movement path 
 
 	-- pick a new path
-	if self.is_tera and (self.my_path == "tera_office" or self.my_path == "office") then
-		-- if the path previously took bulbasaur to the office, he switches destinations
-		-- to the generator room
-		self.my_path = "tera_generator"
-
-	elseif self.is_tera and (self.my_path == "tera_generator" or self.my_path == "generator") then
-		-- if the path previously took bulbasaur to the generator, he switches destinations
-		-- to the office
-		self.my_path = "tera_office"
-	else
-		-- if we're not in the challenge mode, just pick one of the two normal paths at random
-		-- (this will have bulbasaur reset to the show stage)
-		local which_path = { "office", "generator" }
-		self.my_path = which_path[math.random(1,2)]
-	end
-	
-
+	local which_path = { "left", "right" }
+	self.my_path = which_path[math.random(1,2)]
 	-- reset movement to step 0
 	self.movement_step = 0
 	-- go to the show stage (this function will increment the movement step to 1, which is the 
@@ -252,12 +235,13 @@ local function leave_kill_state(self)
 	print("Leaving kill state, Result of cancelling " .. self.name .. "'s door timer: "  .. tostring(result))
 	self.remaining_door_time = self.max_door_time
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
-	
-	-- tell the dummy bulbasaur model in the office to become invisible
-	msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
 
-	-- play the sound effect for bulbasaur leaving the door
-	cu.play_directional_sound(sound, "#run_away", self.my_door, 1.00)
+	-- tell the dummy model in the office to become invisible
+	-- commented out because making a default dummy is redundance since they all use the same code
+	-- msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
+
+	-- play the sound effect for this character leaving the door
+	cu.play_directional_sound(sound, "#run_away", self.my_path, 1.00)
 
 	-- use message passing to call the driver function because it's not defined yet at the time
 	-- of this function getting compiled
@@ -273,32 +257,18 @@ function driver(self)
 	progress_movement(self)
 
 	-- check if the character is in the office
-	if self.location == "office" and not self.doors_closed[self.my_door] then
+	if self.location == "office" and not self.doors_closed[self.my_path] then
 		-- run the function for the character to enter his kill state at the door
 		print("Reached office, door was open. " .. self.name .. " entering kill state.")
 		enter_kill_state(self)
 
 		-- check if the door is closed when the character gets there
-	elseif self.location == "office" and self.doors_closed[self.my_door] then
+	elseif self.location == "office" and self.doors_closed[self.my_path] then
 		-- set the door timer to leave the kill state if the door stays closed
 		print("Reached office, door was closed. " .. self.name .. " starting door timer: " .. self.remaining_door_time .. " seconds")
 		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
 		msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = true})
-
-	elseif self.location == "Cam 08" then
-		-- here, bulbasaur has reached the generator room and will tell the office GUI 
-		-- to apply the leech seed effect (increases the usage by 1)
-		msg.post("/office_GUI", "seed_generator")
-
-		-- update this character's movement interval
-		self.interval = cu.calculate_interval(self.non_random, math)
-		msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
-
-		-- now we wait one interval to restart the movement path (without waiting, bulbasaur just
-		-- teleports to the next room or the showstage insantly on arrival)
-		self.movement_timer = timer.delay(self.interval, false, restart_path)
 		
-
 	else
 
 		-- update this character's sprite
@@ -319,13 +289,13 @@ end
 
 
 local function set_door_timers(self)
-	-- function to check if bulbasaur is in the office when a door is closed
+	-- function to check if this character is in the office when a door is closed
 	-- and either start or cancel this character's door timer (depending on whether
 	-- the door this character is at has been opened or closed)
 
 	-- make a couple booleans to shorten the next if statements
 	local is_in_office = self.location == "office"
-	local my_door_closed = self.doors_closed[self.my_door]
+	local my_door_closed = self.doors_closed[self.my_path]
 
 	print("set_door_timers ran: is_in_office = " .. tostring(is_in_office) .. " // my_door_closed = " .. tostring(my_door_closed))
 
@@ -336,9 +306,9 @@ local function set_door_timers(self)
 
 		-- start a counter to leave the door when it's been closed for half a second
 		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
+		-- print(self.name .. " is in office and door is closed, starting door time pie node animation")
 		msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = true})
 		
-
 		-- pause the kill timer
 		local remaining_kill_time = cu.pause_timer(self.kill_timer, timer)
 
@@ -363,6 +333,7 @@ local function set_door_timers(self)
 		if remaining_door_time then
 			-- only overwrite the remaining door time if the pause function returned a number for the amount of time remaining
 			self.remaining_door_time = remaining_door_time
+			-- print("Resuming door timer pie animation")
 			msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = false})
 			
 		end
@@ -392,7 +363,7 @@ local function start_night(self)
 	-- @return: nothing, just resets self.<variable> variables, sprites, position, and timers
 
 	-- reset movement interval
-	self.non_random = cu.calculate_nonrandom_interval(self.level, 6, 45)
+	self.non_random = cu.calculate_nonrandom_interval(self.level, 5, 45)
 	self.interval = cu.calculate_interval(self.non_random, math)
 	print("Starting night. timer_name: move_time, time_remaining: " .. self.interval, ", is_running: " .. tostring(self.level ~= 0))
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = self.level ~= 0})
@@ -402,11 +373,8 @@ local function start_night(self)
 	self.location = "Cam 01"
 
 	-- reset the variable tracking which path the character is on
-	local which_path = { "office", "generator" }
+	local which_path = { "left", "right" }
 	self.my_path = which_path[math.random(1,2)]
-
-	-- reset the variable tracking which door this character attacks
-	self.my_door = "left"
 
 	-- reset he variable tracking what step of his path he's on
 	self.movement_step = 1
@@ -417,26 +385,25 @@ local function start_night(self)
 	-- reset the value to track which camera is currently selected
 	self.selected_camera = "Cam 01"
 
-	-- reset the variable tracking how much time bulbasaur should wait at the door
+	-- reset the variable tracking how much time this character should wait at the door
 	self.max_door_time = 0.5
 
-	-- reset the variable tracking how much time bulbasaur has left to wait at the door
+	-- reset the variable tracking how much time this character has left to wait at the door
 	self.remaining_door_time = self.max_door_time
 
-	-- reset the variable tracking how much time bulbasaur's kill timer has left on it
+	-- reset the variable tracking how much time this character's kill timer has left on it
 	self.remaining_kill_time = 5
 
 	-- send the door time and kill time to the office GUI
-	print("Starting night. timer_name: kill_time, time_remaining: " .. self.max_door_time, ", is_running: false")
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
-	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.remaining_kill_time, ", is_running: false")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
+	
 
-	-- tell the camera GUI to move the bulbasaur icon on the minimap (only visible if radar is on)
+	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
 	{char_name = self.name, 
 	new_pos = self.location, 
-	side = self.my_door
+	side = self.my_path
 	})
 
 	-- reset variables to know if either door is open
@@ -458,7 +425,7 @@ local function start_night(self)
 	-- reset sprite
 	sprite.play_flipbook("#" .. self.name .. "_sprite", self.name)
 
-	-- check if this character's ai level is above 0
+	-- check if this character's AI level is above 0
 	if self.level ~= 0 then
 		-- start the timer for a new night if the character's level is above 0
 		print(self.name .. "'s initial interval: " .. self.interval)
@@ -473,6 +440,7 @@ function on_message(self, message_id, message, sender)
 	-- Add message-handling code here
 
 	-- print(self.name .. " received a message: " .. message_id .. " from sender:" .. sender)
+	-- pprint(message)
 
 	if message_id == hash("new_night") then
 		-- update this character's AI level
@@ -480,7 +448,8 @@ function on_message(self, message_id, message, sender)
 		print(self.name .. " set to level " .. self.level)
 
 		-- reset the visibility on the dummy sprite in the office
-		msg.post("/office/" .. self.name .. "_dummy", "become_invisible", { my_path = self.my_path })
+		-- commented out because making a default dummy is redundance since they all use the same code
+		-- msg.post("/office/" .. self.name .. "_dummy", "become_invisible", { my_path = self.my_path })
 
 		-- update whether the challenge mode is active
 		self.is_tera = message.is_tera
@@ -524,8 +493,8 @@ function on_message(self, message_id, message, sender)
 		-- print(self.name .. " has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
 		-- print(self.name .. " thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
 
-		-- update door timers if bulbasaur is in the office and the door that opened/closed was the one he's at
-		if message.selected_door == self.my_door then
+		-- update door timers if this character is in the office and the door that opened/closed was the one he's at
+		if message.selected_door == self.my_path then
 			set_door_timers(self)
 		end
 

@@ -383,7 +383,8 @@ function driver(self)
 			flying_attack(self)
 		else
 			-- set a longer than normal kill timer
-			self.interval = cu.calculate_interval(self.non_random, math) * 3
+			local temp_interval = cu.calculate_nonrandom_interval(10, 8, 56)
+			self.interval = cu.calculate_interval(temp_interval, math)
 			enter_kill_state(self)
 		end
 

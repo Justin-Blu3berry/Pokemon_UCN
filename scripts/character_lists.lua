@@ -122,7 +122,7 @@ function character_lists.get_character_levels()
 	return { bulbasaur = 0,
 	-- charmander = 0,
 	squirtle = 0,
-	-- abra = 0,
+	abra = 0,
 	-- tauros = 0,
 	-- magikarp = 0,
 	-- snorlax = 0,
@@ -178,7 +178,19 @@ function character_lists.get_radar_positions(vm)
 				["right"] = vm.vector3(1070.0, 67.0, 0.0)
 			}
 		},
-		-- abra = 0,
+		abra = {
+			["Cam 01"] = vm.vector3(1063.0, 203.0, 0.0),
+			["Cam 02"] = vm.vector3(1079.0, 177.0, 0.0),
+			["Cam 03"] = vm.vector3(1085.0, 237.0, 0.0),
+			["Cam 04"] = vm.vector3(992.0, 164.0, 0.0),
+			["Cam 05"] = vm.vector3(950.0, 181.0, 0.0),
+			["Cam 06"] = vm.vector3(1162.0, 186.0, 0.0),
+			["Cam 07"] = vm.vector3(1114.0, 220.0, 0.0),
+			["Cam 08"] = vm.vector3(962.0, 87.0, 0.0),
+			["Cam 09"] = vm.vector3(992.0, 51.0, 0.0),
+			["Cam 10"] = vm.vector3(1085.0, 87.0, 0.0),
+			["Cam 11"] = vm.vector3(1162.0, 106.0, 0.0),
+			},
 		-- tauros = 0,
 		-- magikarp = 0,
 		-- snorlax = 0,
@@ -217,7 +229,7 @@ function character_lists.get_timer_names()
 	return { bulbasaur = { move_time = 0, door_time = 0, kill_time = 0 },
 		--charmander = 0,
 		squirtle = { move_time = 0, door_time = 0, kill_time = 0 },
-		--abra = 0,
+		abra = { move_time = 0, kill_time = 0 },
 		--tauros = 0,
 		--magikarp = 0,
 		--snorlax = 0,
@@ -245,7 +257,7 @@ function character_lists.get_character_urls()
 	return { bulbasaur = "/camera/bulbasaur",
 	-- charmander = 0,
 	squirtle = "/camera/squirtle",
-	-- abra = 0,
+	abra = "/camera/abra",
 	-- tauros = 0,
 	-- magikarp = 0,
 	-- snorlax = 0,
@@ -293,8 +305,8 @@ function character_lists.get_tips_dict()
 		["a-tales"] = "alolan ninetales tip",
 		primarina = "primarina tip",
 		dreepy = "dreepy tip",
-		drakloak = "drakloak tip",
-		dragapult = "dragapult tip",
+		drakloak = "After evolving, Drakloak won't appear in the doorway anymore",
+		dragapult = "After evolving, Dragapult needs you to watch him\nfly down the hallway before closing the door.",
 		gimmighoul = "gimmighoul tip"
 	}
 

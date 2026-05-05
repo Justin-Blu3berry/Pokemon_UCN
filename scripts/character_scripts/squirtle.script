@@ -497,8 +497,8 @@ end
 function on_message(self, message_id, message, sender)
 	-- Add message-handling code here
 
-	print("squirtle received a message: " .. message_id .. " from sender:" .. sender)
-	pprint(message)
+	-- print("squirtle received a message: " .. message_id .. " from sender:" .. sender)
+	-- pprint(message)
 
 	if message_id == hash("new_night") then
 		-- update this character's AI level
