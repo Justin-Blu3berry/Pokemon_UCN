@@ -47,18 +47,20 @@ function init(self)
 	
 	-- initialize the dictionary mapping camera locations to this character's sprite names
 	self.sprite_dict = {
-		["Cam 01"] = self.name .. "_sprite",
-		["Cam 02"] = self.name .. "_sprite",
-		["Cam 03"] = self.name .. "_sprite",
-		["Cam 04"] = self.name .. "_sprite",
-		["Cam 05"] = self.name .. "_sprite",
-		["Cam 06"] = self.name .. "_sprite",
-		["Cam 07"] = self.name .. "_sprite",
-		["Cam 08"] = self.name .. "_sprite",
-		["Cam 09"] = self.name .. "_sprite",
-		["Cam 10"] = self.name .. "_sprite",
-		["Cam 11"] = self.name .. "_sprite"
+		["Cam 01"] = self.name,
+		["Cam 02"] = self.name,
+		["Cam 03"] = self.name,
+		["Cam 04"] = self.name,
+		["Cam 05"] = self.name,
+		["Cam 06"] = self.name,
+		["Cam 07"] = self.name,
+		["Cam 08"] = self.name,
+		["Cam 09"] = self.name,
+		["Cam 10"] = self.name,
+		["Cam 11"] = self.name,
 	}
+
+	self.sounds = { "#" .. self.name .. "_cry", "#run_away", "#teleport"}
 
 	-- initialize values to track if the player is in the cameras
 	self.is_in_camera = false
@@ -80,6 +82,16 @@ function init(self)
 	-- post a message to the instance of shared_character_code attached to this character
 	-- informing it of which character's properties it should read
 	msg.post(".", "define_self", { name = self.name })
+end
+
+
+local function select_random_sound(self)
+	-- function to randomly select a sound from the list self.sounds (assumes the urls
+	-- in self.sounds all actually exist and have sound files on them)
+	-- @param self: grants access to self.<variable> namespace
+	-- @return: str, the url for a sound that this character has access to
+
+	return self.sounds[math.random(#self.sounds)]
 end
 
 
@@ -166,7 +178,8 @@ local function leave_kill_state(self)
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
 
 	-- play the sound effect for this character leaving
-	cu.play_directional_sound(sound, "#run_away", 1.00)
+	local random_sound = select_random_sound(self)
+	cu.play_directional_sound(sound, random_sound, 1.00)
 
 end
 
@@ -248,7 +261,7 @@ local function start_night(self)
 	sprite.play_flipbook("#" .. self.name .. "_sprite", self.name)
 
 	-- set this characters' hitboxes to the appropriate visibility
-	if self.hitbox_visible then
+	if self.hitbox_visible and self.level > 0 then
 		for _, hitbox_url in ipairs(self.hitboxes) do
 			-- set hitbox sprite's alpha to 0.5
 			go.set(hitbox_url, "tint.w", 0.5)
@@ -269,8 +282,6 @@ local function start_night(self)
 
 		msg.post(".", "acquire_input_focus")
 	end
-	
-
 end
 
 
@@ -300,6 +311,7 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("end_night") then
 		-- cancel all timers
 		cancel_all_timers(self)
+		msg.post(".", "release_input_focus")
 
 	elseif message_id == hash("change_camera_location") then
 
@@ -336,17 +348,28 @@ local function check_hitbox(self, x, y)
 	-- @param y: float, y position of the mouse click
 	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
 
-	-- iterate through all hitboxes for this character
 	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
+	
+	-- iterate through all hitboxes for this character
 	for _, hitbox_url in ipairs(self.hitboxes) do
-		local z = self.position_dict[self.location].z
-		local distance = vmath.length(vmath.vector3(x, y, z) - go.get_world_position(hitbox_url))
+		-- pretend that the hitbox is on the same z position as the mouse
+		local hitbox_xy = go.get_world_position(hitbox_url)
+		hitbox_xy.z = 0
+		
+		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
 
 		local hitbox_size = go.get(hitbox_url, "size")
 		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
 		
 		-- check if the distance to the current hitbox is close enough
-		if distance <= hitbox_size.x then
+		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
+
+		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
+		local is_clicked = timer.get_info(self.kill_timer) == nil
+
+		-- NOTE: this distance check makes hitboxes functionally circular 
+		-- because it calculates based on the coords for the center of the hitbox
+		if distance <= hitbox_size.x / 2 and is_visible and not is_clicked then
 			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
 			return true
 		end

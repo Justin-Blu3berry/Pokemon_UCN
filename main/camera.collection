@@ -367,6 +367,12 @@ embedded_instances {
   "  data: \"sound: \\\"/assets/Audio/run_away.wav\\\"\\n"
   "\"\n"
   "}\n"
+  "embedded_components {\n"
+  "  id: \"teleport\"\n"
+  "  type: \"sound\"\n"
+  "  data: \"sound: \\\"/assets/Audio/teleport.wav\\\"\\n"
+  "\"\n"
+  "}\n"
   ""
   position {
     z: -0.5
@@ -380,8 +386,8 @@ embedded_instances {
   "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "size {\\n"
-  "  x: 300.0\\n"
-  "  y: 300.0\\n"
+  "  x: 250.0\\n"
+  "  y: 250.0\\n"
   "}\\n"
   "size_mode: SIZE_MODE_MANUAL\\n"
   "textures {\\n"
