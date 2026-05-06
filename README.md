@@ -1,8 +1,8 @@
 # Pokemon Ultimate Custom Night (name TBD)
 Justin Wildman
 
-Last updated: 05/05/2026 @ 12:13 a.  
-Current progress: Third character completed, now creating template script for camera characters' scripts to be based on
+Last updated: 05/05/2026 @ 10:48 p.  
+Current progress: Completed template script for camera characters' scripts to be based on, next up is the fourth character
 
 ## Project Overview
 This is the indie game I'm working on in my spare time (the title is likely to change before I get a release build ready). 
