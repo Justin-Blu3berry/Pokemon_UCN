@@ -878,7 +878,25 @@ local function kill_player(self, character_name)
 			game_over(self, time_of_death, character_name) 
 		end)
 
-	
+end
+
+
+local function update_radial(fraction, node)
+	-- function to update the angle that's filled in on the named pie node
+	-- @param fraction: float, the proportion of the pie node that should be filled in
+	-- @param node: str, the name of the pie node to be updated
+	-- @return: none, just updates the node's properties
+
+	-- define local variables to access the node and calculate the angle
+	local pie_node = gui.get_node(node)
+	local angle = fraction * 360
+
+	if angle > 360 then
+		angle = angle % 360
+	end
+
+	-- update the pie node's angle
+	gui.set_fill_angle(pie_node, angle)
 
 end
 
@@ -904,8 +922,9 @@ local function toggle_timers_text(self)
 			-- enable the text node showing this timer's value
 			gui.set_enabled(gui.get_node(curr_char .. "_" .. curr_timer), self.is_int_timer)
 
-			-- and enabel the pie node showing the visual for this timer running
+			-- and enable the pie node showing the visual for this timer running
 			gui.set_enabled(gui.get_node(curr_char .. "_" .. curr_timer .. "_pie"), self.is_int_timer)
+			-- update_radial(gui.get_node(curr_char .. "_" .. curr_timer .. "_pie"), 1)
 			
 		end
 	end
@@ -936,23 +955,7 @@ local function contains(iterable, element)
 end
 
 
-local function update_radial(fraction, node)
-	-- function to update the angle that's filled in on the named pie node
-	-- @param fraction: float, the proportion of the pie node that should be filled in
-	-- @param node: str, the name of the pie node to be updated
-	-- @return: none, just updates the node's properties
-
-	-- define local variables to access the node and calculate the angle
-	local pie_node = gui.get_node(node)
-	local angle = fraction * 360
-
-	-- update the pie node's angle
-	gui.set_fill_angle(pie_node, angle)
-
-end
-
-
-local function count_down(self, character, timer_name, start_time, interval)
+local function count_down(self, character, timer_name, start_time, interval, handle)
 	-- function to be called by a repeating timer to tick down from the start_time to zero,
 	-- updating the pie node on the GUI associated with the timer
 	-- This function also cancels the repeating timer once the remaining time is 0
@@ -965,6 +968,7 @@ local function count_down(self, character, timer_name, start_time, interval)
 	-- @param start_time: float, the amount of time the pie node is supposed to represent, 
 	-- 					  it's how much time the repeating timer will repeat for
 	-- @param interval: float, the amount of time for each repetition on the repeating timer
+	-- @param handle: int, represents the timer that this function is being run within
 	-- @return: none, just ends a timer
 
 	-- decrease the time remaining for the repeating timer by the interval
@@ -986,7 +990,8 @@ local function count_down(self, character, timer_name, start_time, interval)
 	-- We have to use 1.5 * interval instead of 1*interval because of how floating point numbers
 	-- get rounded
 	if self.debug_timers[character][timer_name] <= 1.5 * interval then
-		local result = timer.cancel(self.debug_handles[character][timer_name])
+		-- local result = timer.cancel(self.debug_handles[character][timer_name])
+		local result = timer.cancel(handle)
 		pprint(self.debug_handles[character])
 		print("Canceling " .. character .. "_" .. timer_name .. " because it reached 0: " .. tostring(result))
 	end
@@ -1111,8 +1116,8 @@ function on_message(self, message_id, message, sender)
 		if message.start_timer then
 
 			-- now update the displayed pie chart for the GUI
-			self.debug_handles[message.character_name][message.value_name] = timer.delay(0.05, true, function() 
-				count_down(self, message.character_name, message.value_name, message.new_value, 0.05)
+			self.debug_handles[message.character_name][message.value_name] = timer.delay(0.05, true, function(timerself, handle, time_remaining) 
+				count_down(self, message.character_name, message.value_name, message.new_value, 0.05, handle)
 			end)
 		else
 			-- Since the timer isn't actually running, this call was just to update the displayed value
