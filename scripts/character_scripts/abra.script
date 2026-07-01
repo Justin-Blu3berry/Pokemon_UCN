@@ -1,6 +1,9 @@
 -- import the shared helper functions
 local cu = require "scripts.character_scripts.character_utils"
 
+-- forward declare the driver so it can be called by kill_player to reset the character
+local driver
+
 -- initialize AI level
 go.property("level", 0)
 
@@ -9,7 +12,6 @@ go.property("interval", 15)
 
 -- initialize if the player is in the challenge mode
 go.property("is_tera", false)
-
 
 function init(self)
 	-- Add initialization code here
@@ -133,26 +135,32 @@ end
 
 
 local function kill_player(self)
-	-- function to kill the player (runs at the end of the kill timer)
+	-- function to disable the current camera (runs at the end of the kill timer)
 	print("kill player ran, " .. self.name)
 	-- start by playing the sound for the jumpscare
 	cu.play_directional_sound(sound, "#" .. self.name .. "_cry")
 
 	-- send a message to the office gui to kill the player
-	msg.post("/office_GUI", "kill_player", { character_name = self.name })
+	msg.post("/camera_GUI", "disable_camera", { location = self.location })
+	-- msg.post("/camera", "disable_camera", { location = self.location })
 
 	-- cancel this character' timers
 	cancel_all_timers(self)
+
+	-- now continue to this character's next movement
+	driver(self)
 	
 end
 
 
 local function enter_kill_state(self)
-	-- function to set a timer that is used to determine if this character should kill the player
+	-- function to set a timer that is used to determine if this character should disable the camera
+	-- this uses a lot of the same logic as a normal character killing the player, but abra just disables
+	-- a camera instead of actually killing the player
 	-- @param self: grants access to self.<variable> namespace
 	-- @return: none, sets timers and maps them to self.<variable> variables
 
-	-- set the initial timer for the character killing the player
+	-- set the initial timer for disabling the current camera
 	self.kill_timer = timer.delay(self.interval, false, kill_player)
 	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
@@ -181,7 +189,7 @@ local function leave_kill_state(self)
 end
 
 
-local function driver(self)
+function driver(self)
 	-- driver function to be called by the timer
 
 	-- move to the next location
