@@ -18,7 +18,7 @@ function init(self)
 	-- Add initialization code here
 
 	-- initialize character name
-	self.name = "abra"  -- TODO: change this back to default_camera_char
+	self.name = "default_camera_char"  -- TODO: change this back to default_camera_char
 
 	-- initialize his location on screen
 	self.location = "Cam 01"
