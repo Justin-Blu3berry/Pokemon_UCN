@@ -1,8 +1,8 @@
 # Pokemon Ultimate Custom Night (name TBD)
 Justin Wildman
 
-Last updated: 05/05/2026 @ 10:48 p.  
-Current progress: Completed template script for camera characters' scripts to be based on, next up is the fourth character
+Last updated: 07/01/2026 1:48 am.
+Current progress: Done with implementing the default camera character script and Abra's mechanic. Now to add Abra's hard-mode mechanic
 
 ## Project Overview
 This is the indie game I'm working on in my spare time (the title is likely to change before I get a release build ready). 
