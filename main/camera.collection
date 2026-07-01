@@ -330,7 +330,7 @@ embedded_instances {
   children: "abra_hitbox"
   data: "components {\n"
   "  id: \"abra\"\n"
-  "  component: \"/scripts/character_scripts/default_camera_char.script\"\n"
+  "  component: \"/scripts/character_scripts/abra.script\"\n"
   "}\n"
   "components {\n"
   "  id: \"shared_character_code\"\n"
