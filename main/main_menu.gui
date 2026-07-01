@@ -1322,10 +1322,6 @@ nodes {
   position {
     x: -78.0
   }
-  scale {
-    x: 1.5
-    y: 1.5
-  }
   type: TYPE_BOX
   texture: "main_menu/rotom icon greyscale"
   id: "rotom icon"
