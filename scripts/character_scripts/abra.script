@@ -1,0 +1,398 @@
+-- import the shared helper functions
+local cu = require "scripts.character_scripts.character_utils"
+
+-- initialize AI level
+go.property("level", 0)
+
+-- initialize movement interval
+go.property("interval", 15)
+
+-- initialize if the player is in the challenge mode
+go.property("is_tera", false)
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- initialize character name
+	self.name = "abra"  -- TODO: change this back to default_camera_char
+
+	-- initialize his location on screen
+	self.location = "Cam 01"
+
+	-- initialize the lists of locations this character can go to
+	self.legal_cams = {"Cam 01", "Cam 02", "Cam 03","Cam 04", "Cam 05", "Cam 06", "Cam 07", "Cam 08", "Cam 09", "Cam 10", "Cam 11"}
+
+	-- initialize a list of the urls for this character's hitboxes
+	self.hitboxes = { self.name .. "_hitbox#sprite" }
+	self.hitbox_visible = false
+	
+	-- initialize the dictionary mapping camera locations to his position on screen
+	self.position_dict = {
+		["Cam 01"] = vmath.vector3(0, 0, 0.0),
+		["Cam 02"] = vmath.vector3(0, 0, 0.0),
+		["Cam 03"] = vmath.vector3(0, 0, 0.0),
+		["Cam 04"] = vmath.vector3(0, 0, 0.0),
+		["Cam 05"] = vmath.vector3(0, 0, 0.0),
+		["Cam 06"] = vmath.vector3(0, 0, 0.0),
+		["Cam 07"] = vmath.vector3(0, 0, 0.0),
+		["Cam 08"] = vmath.vector3(0, 0, 0.0),
+		["Cam 09"] = vmath.vector3(0, 0, 0.0),
+		["Cam 10"] = vmath.vector3(0, 0, 0.0),
+		["Cam 11"] = vmath.vector3(0, 0, 0.0)
+	}
+	
+	-- initialize the dictionary mapping camera locations to this character's sprite names
+	self.sprite_dict = {
+		["Cam 01"] = self.name,
+		["Cam 02"] = self.name,
+		["Cam 03"] = self.name,
+		["Cam 04"] = self.name,
+		["Cam 05"] = self.name,
+		["Cam 06"] = self.name,
+		["Cam 07"] = self.name,
+		["Cam 08"] = self.name,
+		["Cam 09"] = self.name,
+		["Cam 10"] = self.name,
+		["Cam 11"] = self.name,
+	}
+
+	self.sounds = { "#" .. self.name .. "_cry", "#run_away", "#teleport"}
+
+	-- initialize values to track if the player is in the cameras
+	self.is_in_camera = false
+
+	-- initialize a value to track which camera is currently selected
+	self.selected_camera = "Cam 01"
+
+	-- initialize all timers
+	self.movement_timer = timer.delay(0, false, function() print(self.name .. " move timer initialized") end)
+	self.kill_timer = timer.delay(0, false, function() print(self.name .. " kill timer initialized") end)
+	
+	-- become invisible
+	local curr_position = go.get_position()
+	go.set_position(vmath.vector3(curr_position.x, curr_position.y, 100))
+
+	-- initialize the variable tracking how much time this character's kill timer has left on it
+	self.remaining_kill_time = self.interval
+
+	-- post a message to the instance of shared_character_code attached to this character
+	-- informing it of which character's properties it should read
+	msg.post(".", "define_self", { name = self.name })
+end
+
+
+local function select_random_sound(self)
+	-- function to randomly select a sound from the list self.sounds (assumes the urls
+	-- in self.sounds all actually exist and have sound files on them)
+	-- @param self: grants access to self.<variable> namespace
+	-- @return: str, the url for a sound that this character has access to
+
+	return self.sounds[math.random(#self.sounds)]
+end
+
+
+local function progress_movement(self)
+	-- function to increment the character's movement step and update their
+	-- location and position accordingly
+	-- @param self: 
+	-- @return: nothing probably
+
+	-- update the character's location (randomly select from the legal rooms)
+	self.location = self.legal_cams[math.random(#self.legal_cams)]
+	print(self.name .. " moved to " .. self.location)
+
+	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
+	msg.post("/camera_GUI", "move_character", 
+		{char_name = self.name, 
+		new_pos = self.location
+	})
+
+	-- have this character check if they're visible
+	msg.post(".", "update_visibility", {
+		is_in_camera = self.is_in_camera, 
+		camera_location = self.selected_camera, 
+		location = self.location 
+	})
+
+	-- update this character's position on screen
+	cu.update_coords(self.position_dict, self.location, go)
+	
+end
+
+
+local function cancel_all_timers(self)
+	-- function to cancel all of this character's timers
+	-- @param self:
+	-- @return: nothing, just cancels timers
+
+	timer.cancel(self.movement_timer)
+	timer.cancel(self.kill_timer)
+
+end
+
+
+local function kill_player(self)
+	-- function to kill the player (runs at the end of the kill timer)
+	print("kill player ran, " .. self.name)
+	-- start by playing the sound for the jumpscare
+	cu.play_directional_sound(sound, "#" .. self.name .. "_cry")
+
+	-- send a message to the office gui to kill the player
+	msg.post("/office_GUI", "kill_player", { character_name = self.name })
+
+	-- cancel this character' timers
+	cancel_all_timers(self)
+	
+end
+
+
+local function enter_kill_state(self)
+	-- function to set a timer that is used to determine if this character should kill the player
+	-- @param self: grants access to self.<variable> namespace
+	-- @return: none, sets timers and maps them to self.<variable> variables
+
+	-- set the initial timer for the character killing the player
+	self.kill_timer = timer.delay(self.interval, false, kill_player)
+	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
+	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
+
+end
+
+
+local function leave_kill_state(self)
+	-- function to handle this character leaving their kill state
+	-- cancels kill timer and plays a sound
+	-- @param self:
+	-- @return: nothing, just cancels a timer
+
+	-- reset this character's kill timer
+	self.remaining_kill_time = self.interval
+
+	-- cancel this character's kill timer
+	local result = timer.cancel(self.kill_timer)
+	print("Leaving kill state, Result of cancelling " .. self.name .. "'s kill timer: " .. tostring(result))
+	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
+
+	-- play the sound effect for this character leaving
+	local random_sound = select_random_sound(self)
+	cu.play_directional_sound(sound, random_sound, 1.00)
+
+end
+
+
+local function driver(self)
+	-- driver function to be called by the timer
+
+	-- move to the next location
+	progress_movement(self)
+
+	-- update this character's sprite
+	cu.update_sprite(self.name, self.sprite_dict, self.location, sprite)
+
+	-- update this character's movement interval
+	self.interval = cu.calculate_interval(self.non_random, math)
+	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
+
+	-- start the timer for the next movement
+	-- this is recursive, but can be broken if the timer is canceled
+	self.movement_timer = timer.delay(self.interval, false, driver)
+
+	-- start the kill timer because we have restarted our interval
+	enter_kill_state(self)
+
+	print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+end
+
+
+function final(self)
+	-- Add finalization code here
+	cancel_all_timers(self) --putting this here so we don't accidentally cause memory leaks
+end
+
+
+local function start_night(self)
+	-- function to reset all variables, timers, and sprites when the night starts
+	-- @param self: 
+	-- @return: nothing, just resets self.<variable> variables, sprites, position, and timers
+	
+	-- reset movement interval
+	self.non_random = cu.calculate_nonrandom_interval(self.level, 15, 45)
+	self.interval = cu.calculate_interval(self.non_random, math)
+	print("Starting night. timer_name: move_time, time_remaining: " .. self.interval, ", is_running: " .. tostring(self.level ~= 0))
+	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = self.level ~= 0})
+	
+
+	-- reset his location on screen
+	self.location = "Cam 01"
+
+	-- reset values to track if the player is in the cameras
+	self.is_in_camera = false
+
+	-- reset the value to track which camera is currently selected
+	self.selected_camera = "Cam 01"
+
+	-- reset the variable tracking how much time this character's kill timer has left on it
+	self.remaining_kill_time = self.interval
+
+	-- send the kill time to the office GUI
+	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
+
+	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
+	msg.post("/camera_GUI", "move_character", 
+	{char_name = self.name, 
+	new_pos = self.location
+	})
+
+	-- reset this character's position
+	go.set_position(self.position_dict[self.location])
+
+	-- become invisible for the start of the night
+	msg.post(".", "update_visibility", {
+		is_in_camera = self.is_in_camera, 
+		camera_location = self.selected_camera, 
+		location = self.location 
+	})
+
+	-- reset sprite
+	sprite.play_flipbook("#" .. self.name .. "_sprite", self.name)
+
+	-- set this characters' hitboxes to the appropriate visibility
+	if self.hitbox_visible and self.level > 0 then
+		for _, hitbox_url in ipairs(self.hitboxes) do
+			-- set hitbox sprite's alpha to 0.5
+			go.set(hitbox_url, "tint.w", 0.5)
+		end
+	else
+		for _, hitbox_url in ipairs(self.hitboxes) do
+			-- set hitbox sprite's alpha to 0
+			go.set(hitbox_url, "tint.w", 0)
+		end
+	end
+
+	-- check if this character's AI level is above 0
+	if self.level ~= 0 then
+		-- start the timer for a new night if the character's level is above 0
+		print(self.name .. "'s initial interval: " .. self.interval)
+		self.movement_timer = timer.delay(self.interval, false, driver)
+		enter_kill_state(self)
+
+		msg.post(".", "acquire_input_focus")
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+
+	-- print(self.name .. " received a message: " .. message_id .. " from sender:" .. sender)
+	-- pprint(message)
+
+	if message_id == hash("new_night") then
+		-- update this character's AI level
+		self.level = message.ai_level
+		print(self.name .. " set to level " .. self.level)
+
+		-- update whether the challenge mode is active
+		self.is_tera = message.is_tera
+		print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
+
+		-- update whether hitboxes are visible or not
+		self.hitbox_visible = message.hitboxes_enabled
+		print(self.name .. " set hitboxes to visible " .. tostring(self.hitbox_visible))
+
+		-- run the function that resets all timers and variables for the start
+		-- of a new night
+		start_night(self)
+
+	elseif message_id == hash("end_night") then
+		-- cancel all timers
+		cancel_all_timers(self)
+		msg.post(".", "release_input_focus")
+
+	elseif message_id == hash("change_camera_location") then
+
+		-- update this character's variable tracking what camera the player has selected
+		self.selected_camera = message.new_cam
+
+		-- update whether this character is visible
+		msg.post(".", "update_visibility", {
+			is_in_camera = self.is_in_camera, 
+			camera_location = self.selected_camera, 
+			location = self.location 
+		})
+
+	elseif message_id == hash("update_camera_status") then
+
+		-- update this character's variable tracking if the cameras are visible
+		self.is_in_camera = message.is_in_camera
+
+		-- update whether this character is visible
+		msg.post(".", "update_visibility", {
+			is_in_camera = self.is_in_camera, 
+			camera_location = self.selected_camera, 
+			location = self.location 
+		})
+
+	end
+end
+
+
+local function check_hitbox(self, x, y)
+	-- function to check, when the mouse was clicked, if this character's hitbox was clicked
+	-- @param self: grants access to self.<variable> namespace
+	-- @param x: float, x position of the mouse click
+	-- @param y: float, y position of the mouse click
+	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
+
+	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
+	
+	-- iterate through all hitboxes for this character
+	for _, hitbox_url in ipairs(self.hitboxes) do
+		-- pretend that the hitbox is on the same z position as the mouse
+		local hitbox_xy = go.get_world_position(hitbox_url)
+		hitbox_xy.z = 0
+		
+		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
+
+		local hitbox_size = go.get(hitbox_url, "size")
+		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
+		
+		-- check if the distance to the current hitbox is close enough
+		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
+
+		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
+		local is_clicked = timer.get_info(self.kill_timer) == nil
+
+		-- NOTE: this distance check makes hitboxes functionally circular 
+		-- because it calculates based on the coords for the center of the hitbox
+		if distance <= hitbox_size.x / 2 and is_visible and not is_clicked then
+			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
+			return true
+		end
+	end
+
+	-- if we made it here, then none of the hitboxes evaluated as being clicked
+	print(self.name .. " determined that none of its hitboxes were clicked")
+	return false
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- must have acquired input focus
+
+	if action_id == hash("mouse1")  and action.released then
+		-- check if a camera button's node was clicked, and update cameras if yes
+		if check_hitbox(self, action.x, action.y) then
+			leave_kill_state(self)
+		end
+
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end
