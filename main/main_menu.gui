@@ -61,8 +61,8 @@ nodes {
     x: -78.0
   }
   scale {
-    x: 2.2
-    y: 2.4
+    x: 1.5
+    y: 1.5
   }
   type: TYPE_BOX
   texture: "main_menu/bulbasaur icon greyscale"
@@ -255,8 +255,8 @@ nodes {
     x: -78.0
   }
   scale {
-    x: 2.2
-    y: 2.4
+    x: 1.5
+    y: 1.5
   }
   type: TYPE_BOX
   texture: "main_menu/squirtle icon greyscale"
@@ -352,8 +352,8 @@ nodes {
     x: -78.0
   }
   scale {
-    x: 2.2
-    y: 2.4
+    x: 1.5
+    y: 1.5
   }
   type: TYPE_BOX
   texture: "main_menu/abra icon greyscale"
@@ -1323,8 +1323,8 @@ nodes {
     x: -78.0
   }
   scale {
-    x: 2.2
-    y: 2.4
+    x: 1.5
+    y: 1.5
   }
   type: TYPE_BOX
   texture: "main_menu/rotom icon greyscale"
@@ -1812,8 +1812,8 @@ nodes {
     y: 8.0
   }
   scale {
-    x: 1.4
-    y: 1.4
+    x: 1.5
+    y: 1.5
   }
   type: TYPE_BOX
   texture: "main_menu/dragapult icon greyscale"
