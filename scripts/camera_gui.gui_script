@@ -81,6 +81,75 @@ local function get_camera_nodes_table()
 end
 
 
+local function set_alpha(self, node_name, new_alpha)
+	-- function to set the alpha (opacity from 0 to 1) of a gui node
+
+	local node = gui.get_node(node_name)
+
+	-- get the existing color of the node
+	local color = gui.get_color(node)
+
+	-- change the alpha and reapply
+	color.w = new_alpha
+	gui.set_color(node, color)
+	
+end
+
+
+local function fade_to(self, node_name, new_alpha, fade_time, num_steps)
+	-- function to gradually fade the named GUI node from its current opacity to the new opacity
+	-- @param self: grants access to self.<variable> namespace
+	-- @param node_name: str, name of the node whose opacity is being adjusted
+	-- @param new_alpha: float between 0.0 and 1.0, the desired opacity to transition to
+	-- @param fade_time: float, the duration of the fade (in seconds)
+	-- @param num_steps: number of times the opacity is adjusted in <fade_time> seconds
+	-- @return: nothing, just adjusts opacity values
+
+	fade_time = fade_time or 1.0
+	num_steps = num_steps or 10
+
+	-- grab the gui node and figure out its initial alpha
+	local color = gui.get_color(gui.get_node(node_name))
+	local curr_alpha = color.w
+	local change_in_alpha = ( new_alpha - curr_alpha ) / num_steps
+
+	-- start a counter to know when the timers should stop repeating
+	local step = 0
+
+	timer.delay((fade_time / num_steps), true, function(timerself, handle, time_elapsed)
+		step = step + 1
+		-- update the opacity
+		curr_alpha = curr_alpha + change_in_alpha
+		set_alpha(self, node_name, curr_alpha)
+		
+		-- print("Updated " .. node_name .. "'s opacity to " .. tostring(curr_alpha))
+		-- break from the timer if the number of steps has been reached
+		if step == num_steps then
+			timer.cancel(handle)
+		end
+	end)
+	
+
+end
+
+
+local function update_static(self, camera_enabled, fade_time, num_steps)
+	-- function to set the static to its normal opacity (0.35) or to be completely opaque
+	-- depending on if the current camera location is enabled
+
+	fade_time = fade_time or 0.0
+	num_steps = num_steps or 1
+
+	
+	print("Attempting to update the static's opacity, current camera is enabled: " .. tostring(camera_enabled))
+	if camera_enabled then
+		fade_to(self, "static", 0.35, fade_time, num_steps)
+	else
+		fade_to(self, "static", 1.0, fade_time, num_steps)
+	end
+end
+
+
 function init(self)
 	-- function that runs on app startup
 
@@ -189,6 +258,14 @@ local function start_night(self)
 	-- initialize (or reset) the camera location to camera 1
 	self.camera_location = "Cam 01"
 
+	-- re-enable all camera locations
+	for cam_name, status in pairs(self.camera_statuses) do
+		self.camera_statuses[cam_name] = true
+	end
+
+	-- reset the opacity on the static
+	update_static(self, self.camera_location)
+
 	-- reset the position of the text indicating what room the player is looking at
 	move_room_text(self)
 
@@ -199,7 +276,7 @@ local function start_night(self)
 	gui.play_flipbook(gui.get_node("camera location"), "show stage text")
 
 	-- reset the camera's background sprite to be the background for camera 1
-	msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location })
+	msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location, cam_enabled = self.camera_statuses[self.camera_location] })
 
 	-- make the rapid spin button invisible
 	gui.set_enabled(gui.get_node("rapid_spin_button"), false)
@@ -294,6 +371,16 @@ function on_message(self, message_id, message, sender)
 			gui.set_position(gui.get_node(message.char_name .. "_icon"),self.radar_positions[message.char_name][message.new_pos])
 		end
 
+	elseif message_id == hash("disable_camera") then
+
+		-- this message indicates that a camera location needs to be obscured by static
+		-- update the status for the named location's camera
+		self.camera_statuses[message.location] = false
+
+		-- now update the static's opacity on the currently visible camera in case the player
+		-- is looking at the camera while it's disabled
+		update_static(self, self.camera_statuses[self.camera_location], 1.0, 10)
+
 	end
 
 end
@@ -357,16 +444,19 @@ local function try_change_cameras(self, action_id, action)
 
 		-- make the generator's rapid spin button visible or not depending on if cam 8 is selected
 		gui.set_enabled(gui.get_node("rapid_spin_button"), self.camera_location == "Cam 08")
+
+		-- update the opacity on the camera static
+		update_static(self, self.camera_statuses[self.camera_location])
 		
 		-- send a message to the camera background object to change its sprite to the new location
-		msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location })
+		msg.post("/camera/camera", "change_camera_location", { new_cam = self.camera_location, cam_enabled = self.camera_statuses[self.camera_location] })
 
 		-- send a message to all characters indicating the new camera location
-		message_characters("change_camera_location", { new_cam = self.camera_location })
+		message_characters("change_camera_location", { new_cam = self.camera_location, cam_enabled = self.camera_statuses[self.camera_location] })
 		-- print("player is now looking at: " .. self.camera_location)
 
 		-- send a message to all props indicating the new camera location
-		message_props("change_camera_location", { new_cam = self.camera_location })
+		message_props("change_camera_location", { new_cam = self.camera_location, cam_enabled = self.camera_statuses[self.camera_location] })
 		
 	end
 end
