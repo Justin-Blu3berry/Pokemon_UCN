@@ -137,6 +137,21 @@ function init(self)
 		["Cam 11"] = 987
 	}
 
+	-- define a dict of cameras' statuses (enabled vs disabled)
+	self.camera_statuses = {
+		["Cam 01"] = true,
+		["Cam 02"] = true,
+		["Cam 03"] = true,
+		["Cam 04"] = true,
+		["Cam 05"] = true,
+		["Cam 06"] = true,
+		["Cam 07"] = true,
+		["Cam 08"] = true,
+		["Cam 09"] = true,
+		["Cam 10"] = true,
+		["Cam 11"] = true
+	}
+
 
 	-- define the list of character names
 	self.char_list = characters.get_character_list()
