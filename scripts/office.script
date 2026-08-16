@@ -34,6 +34,13 @@ function init(self)
 	-- office starts at x = 790, left bound is 500 and right is 800
 	self.left_bound = self.init_position.x - 290
 	self.right_bound = self.init_position.x + 10
+
+	-- define the fast and slow scroll speeds for the office
+	self.fast_scroll = 10
+	self.slow_scroll = 1.5
+
+	-- define a multiplier that determines how slowly the player's POV slows down as they reach the edge of the office
+	self.slowzone_multiplier = 0.1  -- the lower this is, the smoother the slowdown at the edge of the office is
 	
 end
 
@@ -297,26 +304,66 @@ local function update_office_position(self)
 
 	-- initialize the x value the office is about to move to
 	local new_x = self.office_position.x
+	local delta_x
 
 	-- calculate how far the office sprite needs to move left/right
 	-- mouse bounds are 640 +/- 160 or +/- 260
 	if self.mouse_position.x < 300 and self.office_position.x < self.right_bound then
-		-- mouse is far left, move right quickly
-		new_x = self.office_position.x + 6
+		-- mouse is far left, move the background sprite right quickly
+		-- check if office sprite is close enough to the edge to warrant slowing down
+		delta_x = self.slowzone_multiplier * (self.right_bound - self.office_position.x)
+		if self.fast_scroll >= delta_x then
+			-- office sprite should slow to a stop as the player POV reaches the edge of the background sprite
+			-- the fast scroll speed is more extreme than delta_x, so use delta_x
+			new_x = self.office_position.x + delta_x
+		else
+			-- player POV isn't near edge of office, don't worry about slowing the office sprite down
+			new_x = self.office_position.x + self.fast_scroll
+		end
 		-- print("far left ran")
 	elseif self.mouse_position.x < 480 and self.office_position.x < self.right_bound then
-		-- mouse is middle left, move right slowly
-		new_x = self.office_position.x + 1.5
+		-- mouse is middle left, move the background sprite right slowly
+		-- check if office sprite is close enough to the edge to warrant slowing down
+		delta_x = self.slowzone_multiplier * (self.right_bound - self.office_position.x)
+		if self.slow_scroll >= delta_x then
+			-- office sprite should slow to a stop as the player POV reaches the edge of the background sprite
+			-- the slow scroll speed is more extreme than delta_x, so use delta_x
+			new_x = self.office_position.x + delta_x
+		else
+			-- player POV isn't near edge of office, don't worry about slowing the office sprite down
+			new_x = self.office_position.x + self.slow_scroll
+		end
 		-- print("middle left ran")
 	elseif self.mouse_position.x > 1080 and self.office_position.x > self.left_bound then
-		-- mouse is far right, move left quickly
-		new_x = self.office_position.x - 6
+		-- mouse is far right, move the background sprite left quickly
+		-- check if office sprite is close enough to the edge to warrant slowing down
+		delta_x = self.slowzone_multiplier * (self.left_bound - self.office_position.x)
+		if (-1 * self.fast_scroll) <= delta_x then
+			-- office sprite should slow to a stop as player POV reaches the edge of the background sprite
+			-- fast scroll is more exterme than delta_x, so use delta_x
+			new_x = self.office_position.x + delta_x
+		else
+			-- player POV isn't near the edge of the background sprite, so don't worry about slowing the office sprite down
+			new_x = self.office_position.x - self.fast_scroll
+		end
 		-- print("far right ran")
 	elseif self.mouse_position.x > 800 and self.office_position.x > self.left_bound then
-		-- mouse is middle right, move left slowly
-		new_x = self.office_position.x - 1.5
+		-- mouse is middle right, move the background sprite left slowly
+		-- check if office sprite is close enough to the edge to warrant slowing down
+		delta_x = self.slowzone_multiplier * (self.left_bound - self.office_position.x)
+		if (-1 * self.slow_scroll) <= delta_x then
+			-- office sprite should slow to a stop as player POV reaches the edge of the background sprite
+			-- slow scroll speed is more extreme than delta_x, so use delta_x
+			new_x = self.office_position.x + delta_x
+		else
+			-- player POV isn't near the edge of the background sprite, so don't worry about slowing the office sprite down
+			new_x = self.office_position.x - self.slow_scroll
+		end
 		-- print("middle right ran")
 	end
+	-- print("Office: delta_x = " .. tostring(delta_x))
+	-- print("Office: moving from x = " .. tostring(self.office_position.x) .. " to x = " .. tostring(new_x))
+	-- print("Office: actual distance moved this frame was: " .. tostring(new_x - self.office_position.x))
 
 	-- now that new x position is calculated, create a vector for the new position
 	local new_position = vmath.vector3(new_x, self.office_position.y, self.office_position.z)
