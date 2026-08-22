@@ -1183,15 +1183,15 @@ function on_input(self, action_id, action)
 
 		end
 
-	elseif action_id == hash("f_key") and action.released and self.power > 0 then
+	elseif action_id == hash("f_key") and self.power > 0 and not self.is_in_camera and not self.flashlight_is_on then
 		-- if the f key is pressed, the flashlight should be toggled
 		-- as long as the player isn't in the cameras
+		-- toggle the flashlight
+		toggle_flashlight(self)
 
-		-- check if the player is in the camera
-		if not self.is_in_camera then
-			-- toggle the flashlight
-			toggle_flashlight(self)
-		end
+	elseif action_id == hash("f_key") and action.released then
+		-- if the f key is released, the flashlight turns off
+		force_flashlight_off(self)
 
 	elseif action_id == hash("3_key") and action.released and self.power > 0 then
 		-- if the 3 key is pressed, the heater should be toggled
