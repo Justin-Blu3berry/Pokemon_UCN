@@ -123,7 +123,7 @@ local function add_door_time(self)
 	-- update this character's remaining door time too
 	self.remaining_door_time = self.max_door_time
 
-	print("squirtle door time increased to " .. self.max_door_time)
+	-- print("squirtle door time increased to " .. self.max_door_time)
 
 	-- send a message to the gui to update how much time squirtle's door time has on it
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
@@ -141,7 +141,7 @@ local function update_visibility(self)
 
 	-- determine what the player is looking at
 	local player_location = cu.get_player_view(self.is_in_camera, self.selected_camera)
-	print("Squirtle thinks the player is looking at: " .. player_location)
+	-- print("Squirtle thinks the player is looking at: " .. player_location)
 
 	-- check if the current camera is disabled
 	-- msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
@@ -153,7 +153,7 @@ local function update_visibility(self)
 		-- make the character become visible
 		cu.become_visible(go, vmath)
 
-		print("Squirtle is now visible at " .. self.location)
+		-- print("Squirtle is now visible at " .. self.location)
 
 		-- if the player is in the challenge mode, activate a timer that adds to the
 		-- door timer for every frame you spent looking at him
@@ -166,14 +166,14 @@ local function update_visibility(self)
 		-- make the character become invisible
 		cu.become_invisible(go, vmath)
 
-		print("squirtle is now invisible at " .. self.location)
+		-- print("squirtle is now invisible at " .. self.location)
 
 		-- if the player is in the challenge mode, stop adding time to the door timer
 		if self.is_tera then
 			local result = timer.cancel(self.look_timer)
-			print("Result of cancelling Squirtle's additional_door_time timer: " .. tostring(result))
+			-- print("Result of cancelling Squirtle's additional_door_time timer: " .. tostring(result))
 		end
-		print("Squirtle door time is: " .. self.max_door_time)
+		-- print("Squirtle door time is: " .. self.max_door_time)
 
 	end
 
@@ -194,7 +194,7 @@ local function progress_movement(self)
 	-- the character's current path (self.my_path). Then access the right room in
 	-- the list by keying it with the current step of this character's movement progression
 	self.location = self.path[self.my_path][self.movement_step]
-	print("Squirtle moved to " .. self.location .. " along " .. self.my_path .. " path")
+	-- print("Squirtle moved to " .. self.location .. " along " .. self.my_path .. " path")
 
 	-- tell the camera GUI to move the squirtle icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
@@ -227,7 +227,7 @@ end
 
 local function attack_door(self)
 	-- function to check if the door is closed, and kills the player if not
-	print("kill player ran, " .. self.my_path .. " door is closed: " .. tostring(self.doors_closed[self.my_path]))
+	-- print("kill player ran, " .. self.my_path .. " door is closed: " .. tostring(self.doors_closed[self.my_path]))
 	-- check if the door is closed
 	if not self.doors_closed[self.my_path] then
 		-- if the door isn't closed, start by playing the sound for the jumpscare
@@ -281,7 +281,7 @@ local function restart_path(self)
 	-- start the timer for the next movement
 	self.movement_timer = timer.delay(self.interval, false, driver)
 
-	print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	-- print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -298,11 +298,11 @@ local function leave_kill_state(self)
 
 	-- cancel this character's kill timer
 	local result = timer.cancel(self.kill_timer)
-	print("Leaving kill state, Result of cancelling Squirtle's kill timer: " .. tostring(result))
+	-- print("Leaving kill state, Result of cancelling Squirtle's kill timer: " .. tostring(result))
 
 	-- cancel this character's timer to leave the door
 	result = timer.cancel(self.door_timer)
-	print("Leaving kill state, Result of cancelling Squirtle's door timer: "  .. tostring(result))
+	-- print("Leaving kill state, Result of cancelling Squirtle's door timer: "  .. tostring(result))
 	self.remaining_door_time = self.max_door_time
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
 
@@ -328,13 +328,13 @@ function driver(self)
 	-- check if the character is in the office
 	if self.location == "office" and not self.doors_closed[self.my_path] then
 		-- run the function for the character to enter his kill state at the door
-		print("Reached office, door was open. Squirtle entering kill state.")
+		-- print("Reached office, door was open. Squirtle entering kill state.")
 		enter_kill_state(self)
 
 		-- check if the door is closed when the character gets there
 	elseif self.location == "office" and self.doors_closed[self.my_path] then
 		-- set the door timer to leave the kill state if the door stays closed
-		print("Reached office, door was closed. Squirtle starting door timer: " .. self.remaining_door_time .. " seconds")
+		-- print("Reached office, door was closed. Squirtle starting door timer: " .. self.remaining_door_time .. " seconds")
 		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
 		msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = true})
 		
@@ -353,7 +353,7 @@ function driver(self)
 
 	end
 
-	print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	-- print("Squirtle just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -366,7 +366,7 @@ local function set_door_timers(self)
 	local is_in_office = self.location == "office"
 	local my_door_closed = self.doors_closed[self.my_path]
 
-	print("set_door_timers ran: is_in_office = " .. tostring(is_in_office) .. " // my_door_closed = " .. tostring(my_door_closed))
+	-- print("set_door_timers ran: is_in_office = " .. tostring(is_in_office) .. " // my_door_closed = " .. tostring(my_door_closed))
 
 	-- check if this character's door is closed
 	if is_in_office and my_door_closed then
@@ -375,7 +375,7 @@ local function set_door_timers(self)
 
 		-- start a counter to leave the door when it's been closed for half a second
 		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
-		print("Squirtle is in office and door is closed, starting door time pie node animation")
+		-- print("Squirtle is in office and door is closed, starting door time pie node animation")
 		msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = true})
 		
 		-- pause the kill timer
@@ -389,7 +389,7 @@ local function set_door_timers(self)
 			
 		end
 		
-		print("Door closed, result of cancelling squirtle's kill timer: " .. tostring(remaining_kill_time) .. ". " .. self.remaining_kill_time .. " sec left on it")
+		-- print("Door closed, result of cancelling squirtle's kill timer: " .. tostring(remaining_kill_time) .. ". " .. self.remaining_kill_time .. " sec left on it")
 
 	elseif is_in_office and not my_door_closed then
 		-- this runs if the door this character was at was opened while he was there
@@ -402,14 +402,14 @@ local function set_door_timers(self)
 		if remaining_door_time then
 			-- only overwrite the remaining door time if the pause function returned a number for the amount of time remaining
 			self.remaining_door_time = remaining_door_time
-			print("Resuming door timer pie animation")
+			-- print("Resuming door timer pie animation")
 			msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = false})
 			
 		end
 		
-		print("Door opened, result of cancelling squirtle's door timer: " .. tostring(remaining_door_time).. ". " .. self.remaining_door_time .. " seconds left on it")
+		-- print("Door opened, result of cancelling squirtle's door timer: " .. tostring(remaining_door_time).. ". " .. self.remaining_door_time .. " seconds left on it")
 
-		print("Restarting Squirtle's kill timer with " .. self.remaining_kill_time .. " sec remaining.")
+		-- print("Restarting Squirtle's kill timer with " .. self.remaining_kill_time .. " sec remaining.")
 		-- resume the kill timer
 		self.kill_timer = timer.delay(self.remaining_kill_time, false, attack_door)
 		msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = true})
@@ -496,7 +496,7 @@ local function start_night(self)
 	if self.level ~= 0 then
 
 		-- start the timer for a new night if the character's level is above 0
-		print("Squirtle's initial interval: " .. self.interval)
+		-- print("Squirtle's initial interval: " .. self.interval)
 		self.movement_timer = timer.delay(self.interval, false, driver)
 	end
 	
@@ -513,14 +513,14 @@ function on_message(self, message_id, message, sender)
 	if message_id == hash("new_night") then
 		-- update this character's AI level
 		self.level = message.ai_level
-		print("Squirtle set to level " .. self.level)
+		-- print("Squirtle set to level " .. self.level)
 
 		-- reset the visibility on the dummy sprite in the office
 		msg.post("/office/" .. self.name .. "_dummy", "become_invisible", { my_path = self.my_path })
 
 		-- update whether the challenge mode is active
 		self.is_tera = message.is_tera
-		print("Squirtle thinks tera mode is on: " .. tostring(self.is_tera))
+		-- print("Squirtle thinks tera mode is on: " .. tostring(self.is_tera))
 
 		-- run the function that resets all timers and variables for the start
 		-- of a new night
@@ -549,8 +549,8 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("update_doors") then
 		-- update the values for which doors are open and which are closed
 		self.doors_closed[message.selected_door] = message.is_closed
-		print("Squirtle has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
-		print("Squirtle thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
+		-- print("Squirtle has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
+		-- print("Squirtle thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
 
 		-- update door timers if squirtle is in the office and the door that opened/closed was the one he's at
 		if message.selected_door == self.my_path then

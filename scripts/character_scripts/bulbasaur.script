@@ -122,7 +122,7 @@ local function progress_movement(self)
 	-- the character's current path (self.my_path). Then access the right room in
 	-- the list by keying it with the current step of this character's movement progression
 	self.location = self.path[self.my_path][self.movement_step]
-	print(self.name .. " moved to " .. self.location .. " along " .. self.my_path .. " path")
+	-- print(self.name .. " moved to " .. self.location .. " along " .. self.my_path .. " path")
 
 	-- tell the camera GUI to move the bulbasaur icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
@@ -158,7 +158,7 @@ end
 
 local function attack_door(self)
 	-- function to check if the door is closed, and kills the player if not
-	print("kill player ran, " .. self.my_door .. " door is closed: " .. tostring(self.doors_closed[self.my_door]))
+	-- print("kill player ran, " .. self.my_door .. " door is closed: " .. tostring(self.doors_closed[self.my_door]))
 	-- check if the door is closed
 	if not self.doors_closed[self.my_door] then
 		-- if the door isn't closed, start by playing the sound for the jumpscare
@@ -187,7 +187,7 @@ local function enter_kill_state(self)
 
 	-- set the initial timer for the character appearing in the door before being a threat
 	self.kill_timer = timer.delay(self.interval, false, attack_door)
-	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
+	-- print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
 
 	-- tell the dummy bulbasaur model in the office to become visible and which door to go to
@@ -228,7 +228,7 @@ local function restart_path(self)
 	-- start the timer for the next movement
 	self.movement_timer = timer.delay(self.interval, false, driver)
 
-	print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	-- print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -245,11 +245,11 @@ local function leave_kill_state(self)
 
 	-- cancel this character's kill timer
 	local result = timer.cancel(self.kill_timer)
-	print("Leaving kill state, Result of cancelling " .. self.name .. "'s kill timer: " .. tostring(result))
+	-- print("Leaving kill state, Result of cancelling " .. self.name .. "'s kill timer: " .. tostring(result))
 
 	-- cancel this character's timer to leave the door
 	result = timer.cancel(self.door_timer)
-	print("Leaving kill state, Result of cancelling " .. self.name .. "'s door timer: "  .. tostring(result))
+	-- print("Leaving kill state, Result of cancelling " .. self.name .. "'s door timer: "  .. tostring(result))
 	self.remaining_door_time = self.max_door_time
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
 	
@@ -367,9 +367,9 @@ local function set_door_timers(self)
 			
 		end
 		
-		print("Door opened, result of cancelling " .. self.name .. "'s door timer: " .. tostring(remaining_door_time).. ". " .. self.remaining_door_time .. " seconds left on it")
+		-- print("Door opened, result of cancelling " .. self.name .. "'s door timer: " .. tostring(remaining_door_time).. ". " .. self.remaining_door_time .. " seconds left on it")
 
-		print("Restarting " .. self.name .. "'s kill timer with " .. self.remaining_kill_time .. " sec remaining.")
+		-- print("Restarting " .. self.name .. "'s kill timer with " .. self.remaining_kill_time .. " sec remaining.")
 		-- resume the kill timer
 		self.kill_timer = timer.delay(self.remaining_kill_time, false, attack_door)
 		msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = true})
@@ -394,7 +394,7 @@ local function start_night(self)
 	-- reset movement interval
 	self.non_random = cu.calculate_nonrandom_interval(self.level, 6, 45)
 	self.interval = cu.calculate_interval(self.non_random, math)
-	print("Starting night. timer_name: move_time, time_remaining: " .. self.interval, ", is_running: " .. tostring(self.level ~= 0))
+	-- print("Starting night. timer_name: move_time, time_remaining: " .. self.interval, ", is_running: " .. tostring(self.level ~= 0))
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = self.level ~= 0})
 	
 
@@ -427,9 +427,9 @@ local function start_night(self)
 	self.remaining_kill_time = 5
 
 	-- send the door time and kill time to the office GUI
-	print("Starting night. timer_name: kill_time, time_remaining: " .. self.max_door_time, ", is_running: false")
+	-- print("Starting night. timer_name: kill_time, time_remaining: " .. self.max_door_time, ", is_running: false")
 	msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.max_door_time, is_running = false})
-	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.remaining_kill_time, ", is_running: false")
+	-- print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.remaining_kill_time, ", is_running: false")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
 
 	-- tell the camera GUI to move the bulbasaur icon on the minimap (only visible if radar is on)
@@ -461,7 +461,7 @@ local function start_night(self)
 	-- check if this character's ai level is above 0
 	if self.level ~= 0 then
 		-- start the timer for a new night if the character's level is above 0
-		print(self.name .. "'s initial interval: " .. self.interval)
+		-- print(self.name .. "'s initial interval: " .. self.interval)
 		self.movement_timer = timer.delay(self.interval, false, driver)
 	end
 	
@@ -477,14 +477,14 @@ function on_message(self, message_id, message, sender)
 	if message_id == hash("new_night") then
 		-- update this character's AI level
 		self.level = message.ai_level
-		print(self.name .. " set to level " .. self.level)
+		-- print(self.name .. " set to level " .. self.level)
 
 		-- reset the visibility on the dummy sprite in the office
 		msg.post("/office/" .. self.name .. "_dummy", "become_invisible", { my_path = self.my_path })
 
 		-- update whether the challenge mode is active
 		self.is_tera = message.is_tera
-		print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
+		-- print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
 
 		-- run the function that resets all timers and variables for the start
 		-- of a new night
