@@ -264,7 +264,7 @@ local function start_night(self)
 	msg.post("office_GUI", "new_night")
 	msg.post("office_GUI", "update_debug", { debug_options = get_active_debug_options(self) })
 	msg.post("/office/office", "new_night")
-	msg.post("camera_GUI", "new_night")
+	msg.post("camera_GUI", "new_night", {is_tera = self.is_kaizo} )
 	msg.post("camera_GUI", "update_debug", { debug_options = get_active_debug_options(self), 
 											 character_levels = self.character_levels })
 	msg.post("/camera/camera", "new_night")
