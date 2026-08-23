@@ -140,15 +140,8 @@ local function kill_player(self)
 	-- start by playing the sound for the jumpscare
 	cu.play_directional_sound(sound, "#" .. self.name .. "_cry")
 
-	-- send a message to the office gui to kill the player
+	-- send a message to the office gui to disable the camera
 	msg.post("/camera_GUI", "disable_camera", { location = self.location })
-
-	-- if the player is in tera mode, Abra disabling a camera also prevents the player from interacting
-	-- with things in that camera (squirtle won't see that the player is looking at him, and hitboxes are off)
-	if self.is_tera then
-		msg.post("/camera", "disable_camera", { location = self.location })
-	end
-	-- TODO: make all characters keep a dict of which cams are enabled/disabled to know when to lose input focus/ignore player looking at them
 
 	-- cancel this character' timers
 	cancel_all_timers(self)
