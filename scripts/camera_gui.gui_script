@@ -334,6 +334,9 @@ function on_message(self, message_id, message, sender)
 		-- variables for the start of a new night
 		start_night(self)
 
+		-- track whether the challenge mode is on
+		self.is_tera = message.is_tera
+
 	elseif message_id == hash("update_debug") then
 
 		-- check whether the radar debug option is on
@@ -381,6 +384,21 @@ function on_message(self, message_id, message, sender)
 		-- is looking at the camera while it's disabled
 		update_static(self, self.camera_statuses[self.camera_location], 1.0, 10)
 
+		-- message all the characters to tell them that a camera got disabled
+		message_characters("disable_camera", { camera_location = message.camera_location})
+		message_props("disable_camera", { camera_location = message.camera_location})
+
+	elseif message_id == hash("is_cam_enabled") then
+		-- check if the challenge mode is active
+		if self.is_tera then
+			-- truthfully tell the character whether the cam in question is enabled
+			msg.post(sender, "is_cam_enabled", { is_enabled = self.camera_statuses[message.camera]} )
+
+		else
+			-- since the challenge mode isn't active, just tell the character the cam is still enabled
+			-- this keeps the character from ignoring inputs and ignoring whether the player is looking at them
+			msg.post(sender, "is_cam_enabled", { is_enabled = true} )
+		end
 	end
 
 end
