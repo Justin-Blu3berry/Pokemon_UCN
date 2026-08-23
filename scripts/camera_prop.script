@@ -136,6 +136,12 @@ function on_message(self, message_id, message, sender)
 				sprite.play_flipbook(self.url, self.default_animation)
 			end
 		end)
+
+	elseif message_id == hash("disable_camera") then
+		-- this lets the character know if a camera is disabled while they're on it
+		if self.location == message.camera_location then
+			msg.post(".", "release_input_focus")
+		end
 		
 	end
 end
