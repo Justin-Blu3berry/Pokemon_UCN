@@ -71,6 +71,9 @@ function init(self)
 	-- initialize a value to track which camera is currently selected
 	self.selected_camera = "Cam 01"
 
+	-- initialize a value to know if the character's curent location in the camera is enabled/disabled
+	self.cam_enabled = true
+
 	-- initialize variables to know if either door is open
 	self.doors_closed = {
 		right = false, 
@@ -139,6 +142,10 @@ local function update_visibility(self)
 	-- determine what the player is looking at
 	local player_location = cu.get_player_view(self.is_in_camera, self.selected_camera)
 	print("Squirtle thinks the player is looking at: " .. player_location)
+
+	-- check if the current camera is disabled
+	-- msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
+	-- TODO: if combo with abra is problematic, uncomment this and re-add "and self.cam_enabled" to following if statement
 
 	-- check if this character is in the location the player is in
 	if self.location == player_location then
@@ -443,6 +450,9 @@ local function start_night(self)
 	-- reset values to track if the player is in the cameras
 	self.is_in_camera = false
 
+	-- reset the value indicating if the current location in the cameras is enabled/disabled
+	self.cam_enabled = true
+
 	-- reset the value to track which camera is currently selected
 	self.selected_camera = "Cam 01"
 
@@ -545,6 +555,14 @@ function on_message(self, message_id, message, sender)
 		-- update door timers if squirtle is in the office and the door that opened/closed was the one he's at
 		if message.selected_door == self.my_path then
 			set_door_timers(self)
+		end
+
+	elseif message_id == hash("is_cam_enabled") then
+		-- camera GUI has responded with whether this character's location in the cams is enabled/disabled
+		if message.is_enabled then
+			self.cam_enabled = true
+		else
+			self.cam_enabled = false
 		end
 
 	end
