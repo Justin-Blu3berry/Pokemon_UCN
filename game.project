@@ -15,7 +15,6 @@ use_accelerometer = 0
 width = 1260
 height = 720
 high_dpi = 1
-fullscreen = 0
 
 [script]
 shared_state = 1
