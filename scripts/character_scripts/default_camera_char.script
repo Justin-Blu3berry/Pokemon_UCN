@@ -119,7 +119,7 @@ local function progress_movement(self)
 	})
 
 	-- have this character check if the camera they're moving to is enabled or disabled (important in tera mode)
-	msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
+	msg.post("/camera_GUI", "is_cam_enabled", { camera = self.location })
 	
 
 	-- update this character's position on screen

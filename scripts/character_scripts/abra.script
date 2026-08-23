@@ -118,7 +118,8 @@ local function progress_movement(self)
 	})
 
 	-- have this character check if the camera they're moving to is enabled or disabled (important in tera mode)
-	msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
+	msg.post("/camera_GUI", "is_cam_enabled", { camera = self.location })
+	print(self.name .. ": checking if " .. self.location .. " is enabled")
 
 	-- update this character's position on screen
 	cu.update_coords(self.position_dict, self.location, go)
@@ -132,7 +133,9 @@ local function cancel_all_timers(self)
 	-- @return: nothing, just cancels timers
 
 	timer.cancel(self.movement_timer)
+	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = false})
 	timer.cancel(self.kill_timer)
+	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = false})
 
 end
 
@@ -164,7 +167,7 @@ local function enter_kill_state(self)
 
 	-- set the initial timer for disabling the current camera
 	self.kill_timer = timer.delay(self.interval, false, kill_player)
-	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
+	print(self.name .. "Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
 
 end
@@ -301,15 +304,15 @@ function on_message(self, message_id, message, sender)
 	if message_id == hash("new_night") then
 		-- update this character's AI level
 		self.level = message.ai_level
-		print(self.name .. " set to level " .. self.level)
+		-- print(self.name .. " set to level " .. self.level)
 
 		-- update whether the challenge mode is active
 		self.is_tera = message.is_tera
-		print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
+		-- print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
 
 		-- update whether hitboxes are visible or not
 		self.hitbox_visible = message.hitboxes_enabled
-		print(self.name .. " set hitboxes to visible " .. tostring(self.hitbox_visible))
+		-- print(self.name .. " set hitboxes to visible " .. tostring(self.hitbox_visible))
 
 		-- run the function that resets all timers and variables for the start
 		-- of a new night
@@ -349,14 +352,10 @@ function on_message(self, message_id, message, sender)
 		if message.is_enabled then
 			-- re-acquire input focus
 			msg.post(".", "acquire_input_focus")
+			print("Abra: current location: " .. self.location .. " is enabled. Acquired input focus")
 		else
 			msg.post(".", "release_input_focus")
-		end
-
-	elseif message_id == hash("disable_camera") then
-		-- this lets the character know if a camera is disabled while they're on it
-		if self.location == message.camera_location then
-			msg.post(".", "release_input_focus")
+			print("Abra: current location: " .. self.location .. " is disabled. Released input focus")
 		end
 
 	end

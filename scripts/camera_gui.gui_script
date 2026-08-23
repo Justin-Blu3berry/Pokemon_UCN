@@ -379,6 +379,8 @@ function on_message(self, message_id, message, sender)
 		-- this message indicates that a camera location needs to be obscured by static
 		-- update the status for the named location's camera
 		self.camera_statuses[message.location] = false
+		print("Camera GUI: Abra disabled " .. message.location)
+		pprint(self.camera_statuses)
 
 		-- now update the static's opacity on the currently visible camera in case the player
 		-- is looking at the camera while it's disabled
