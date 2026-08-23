@@ -118,6 +118,10 @@ local function progress_movement(self)
 		location = self.location 
 	})
 
+	-- have this character check if the camera they're moving to is enabled or disabled (important in tera mode)
+	msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
+	
+
 	-- update this character's position on screen
 	cu.update_coords(self.position_dict, self.location, go)
 	
@@ -336,6 +340,21 @@ function on_message(self, message_id, message, sender)
 			camera_location = self.selected_camera, 
 			location = self.location 
 		})
+
+	elseif message_id == hash("is_cam_enabled") then
+		-- camera GUI has responded with whether this character's location in the cams is enabled/disabled
+		if message.is_enabled then
+			-- re-acquire input focus
+			msg.post(".", "acquire_input_focus")
+		else
+			msg.post(".", "release_input_focus")
+		end
+
+	elseif message_id == hash("disable_camera") then
+		-- this lets the character know if a camera is disabled while they're on it
+		if self.location == message.camera_location then
+			msg.post(".", "release_input_focus")
+		end
 
 	end
 end
