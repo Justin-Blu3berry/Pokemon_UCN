@@ -39,9 +39,6 @@ function init(self)
 	-- initialize the variable tracking which prop rotom is possessing
 	self.curr_prop = "none"
 
-	-- initialize values to track if the player is in the cameras
-	self.is_in_camera = false
-
 	-- initialize a value to track which camera is currently selected
 	self.selected_camera = "Cam 01"
 
@@ -98,6 +95,9 @@ local function progress_movement(self)
 
 	-- message the prop rotom is moving to
 	msg.post(self.prop_urls[self.curr_prop], "update_possession", { is_possessed = true })
+
+	-- play a sound indicating rotom moved
+	cu.play_directional_sound(sound, "#" .. self.name .. "_cry", 1.00)
 	
 end
 
@@ -202,9 +202,6 @@ local function start_night(self)
 	print("Starting night. timer_name: move_time, time_remaining: " .. self.interval, ", is_running: " .. tostring(self.level ~= 0))
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = self.level ~= 0})
 
-	-- reset values to track if the player is in the cameras
-	self.is_in_camera = false
-
 	-- reset the value to track which camera is currently selected
 	self.selected_camera = "Cam 01"
 
@@ -226,8 +223,6 @@ local function start_night(self)
 		print(self.name .. "'s initial interval: " .. self.interval)
 		self.movement_timer = timer.delay(self.interval, false, driver)
 		enter_kill_state(self)
-
-		msg.post(".", "acquire_input_focus")
 	end
 end
 
@@ -254,101 +249,13 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("end_night") then
 		-- cancel all timers
 		cancel_all_timers(self)
-		msg.post(".", "release_input_focus")
 
-	elseif message_id == hash("change_camera_location") then
-
-		-- update this character's variable tracking what camera the player has selected
-		self.selected_camera = message.new_cam
-
-		-- update whether this character is visible
-		msg.post(".", "update_visibility", {
-			is_in_camera = self.is_in_camera, 
-			camera_location = self.selected_camera, 
-			location = self.location 
-		})
-
-	elseif message_id == hash("update_camera_status") then
-
-		-- update this character's variable tracking if the cameras are visible
-		self.is_in_camera = message.is_in_camera
-
-		-- update whether this character is visible
-		msg.post(".", "update_visibility", {
-			is_in_camera = self.is_in_camera, 
-			camera_location = self.selected_camera, 
-			location = self.location 
-		})
-
-	elseif message_id == hash("is_cam_enabled") then
-		-- camera GUI has responded with whether this character's location in the cams is enabled/disabled
-		if message.is_enabled then
-			-- re-acquire input focus
-			msg.post(".", "acquire_input_focus")
-		else
-			msg.post(".", "release_input_focus")
-		end
-
-	elseif message_id == hash("disable_camera") then
-		-- this lets the character know if a camera is disabled while they're on it
-		if self.location == message.camera_location then
-			msg.post(".", "release_input_focus")
-		end
-
-	end
-end
-
-
-local function check_hitbox(self, x, y)
-	-- function to check, when the mouse was clicked, if this character's hitbox was clicked
-	-- @param self: grants access to self.<variable> namespace
-	-- @param x: float, x position of the mouse click
-	-- @param y: float, y position of the mouse click
-	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
-
-	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
-	
-	-- iterate through all hitboxes for this character
-	for _, hitbox_url in ipairs(self.hitboxes) do
-		-- pretend that the hitbox is on the same z position as the mouse
-		local hitbox_xy = go.get_world_position(hitbox_url)
-		hitbox_xy.z = 0
-		
-		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
-
-		local hitbox_size = go.get(hitbox_url, "size")
-		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
-		
-		-- check if the distance to the current hitbox is close enough
-		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
-
-		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
-		local is_clicked = timer.get_info(self.kill_timer) == nil
-
-		-- NOTE: this distance check makes hitboxes functionally circular 
-		-- because it calculates based on the coords for the center of the hitbox
-		if distance <= hitbox_size.x / 2 and is_visible and not is_clicked then
-			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
-			return true
-		end
-	end
-
-	-- if we made it here, then none of the hitboxes evaluated as being clicked
-	print(self.name .. " determined that none of its hitboxes were clicked")
-	return false
-end
-
-
-function on_input(self, action_id, action)
-	-- Add input-handling code here. The game object this script is attached to
-	-- must have acquired input focus
-
-	if action_id == hash("mouse1")  and action.released then
-		-- check if a camera button's node was clicked, and update cameras if yes
-		if check_hitbox(self, action.x, action.y) then
+	elseif message_id == hash("hitbox_clicked") then
+		-- check if the prop whose hitbox was clicked was the one Rotom is possessing
+		if message.prop_name == self.curr_prop then
+			-- exit the kill state
 			leave_kill_state(self)
 		end
-
 	end
 end
 

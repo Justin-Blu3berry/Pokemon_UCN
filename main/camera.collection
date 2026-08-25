@@ -431,7 +431,7 @@ embedded_instances {
   "  component: \"/scripts/character_scripts/shared_character_code.script\"\n"
   "}\n"
   "embedded_components {\n"
-  "  id: \"default_camera_char_cry\"\n"
+  "  id: \"rotom_cry\"\n"
   "  type: \"sound\"\n"
   "  data: \"sound: \\\"/assets/Audio/abra_cry.wav\\\"\\n"
   "\"\n"
