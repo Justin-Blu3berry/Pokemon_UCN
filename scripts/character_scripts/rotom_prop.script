@@ -59,10 +59,8 @@ function init(self)
 	-- initialize boolean tracking if the challenge mode is on
 	self.is_tera = false
 
-	-- initialize boolean tracking if hitboxes should be visible
-	self.hitbox_visible = false
-
-	
+	-- initialize the boolean tracking if this prop is possessed by rotom
+	self.is_possessed = false
 end
 
 
@@ -81,6 +79,9 @@ local function start_night(self)
 	-- set this prop to its default sprite
 	sprite.play_flipbook(self.url, self.default_animation)
 
+	-- acquire input focus
+	msg.post(".", "acquire_input_focus")
+
 	-- set this prop's hitbox to the appropriate visibility
 	if self.hitbox_visible and self.level > 0 then
 		for _, hitbox_url in ipairs(self.hitboxes) do
@@ -90,6 +91,7 @@ local function start_night(self)
 	else
 		for _, hitbox_url in ipairs(self.hitboxes) do
 			-- set hitbox sprite's alpha to 0
+			print(self.name .. ": attempting to access hitbox url: " .. hitbox_url)
 			go.set(hitbox_url, "tint.w", 0)
 		end
 	end
@@ -112,6 +114,10 @@ function on_message(self, message_id, message, sender)
 	if message_id == hash("define_self") then
 		-- this message indicates what this prop's name is
 		self.name = message.name
+
+		-- initialize a list of the urls for this character's hitboxes
+		self.hitboxes = { self.name .. "_hitbox#sprite" }
+		self.hitbox_visible = false
 
 		-- this message indicates what this prop's url is too
 		self.url = message.url
@@ -158,11 +164,83 @@ function on_message(self, message_id, message, sender)
 			end
 		end)
 
+	elseif message_id == hash("end_night") then
+		-- release input focus at end of night
+		msg.post(".", "release_input_focus")
+
 	elseif message_id == hash("disable_camera") then
 		-- this lets the character know if a camera is disabled while they're on it
 		if self.location == message.camera_location then
 			msg.post(".", "release_input_focus")
 		end
-		
+
+	elseif message_id == hash("update_possession") then
+		-- update the boolean indicating if rotom's possessing this prop
+		self.is_possessed = message.is_possessed
+	end
+end
+
+
+local function check_hitbox(self, x, y)
+	-- function to check, when the mouse was clicked, if this character's hitbox was clicked
+	-- @param self: grants access to self.<variable> namespace
+	-- @param x: float, x position of the mouse click
+	-- @param y: float, y position of the mouse click
+	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
+
+	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
+
+	-- iterate through all hitboxes for this character
+	for _, hitbox_url in ipairs(self.hitboxes) do
+		-- pretend that the hitbox is on the same z position as the mouse
+		local hitbox_xy = go.get_world_position(hitbox_url)
+		hitbox_xy.z = 0
+
+		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
+
+		local hitbox_size = go.get(hitbox_url, "size")
+		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
+
+		-- check if the distance to the current hitbox is close enough
+		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
+
+		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
+		local is_clicked = timer.get_info(self.kill_timer) == nil
+
+		-- NOTE: this distance check makes hitboxes functionally circular 
+		-- because it calculates based on the coords for the center of the hitbox
+		if distance <= hitbox_size.x / 2 and is_visible and not is_clicked then
+			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
+			return true
+		end
+	end
+
+	-- if we made it here, then none of the hitboxes evaluated as being clicked
+	print(self.name .. " determined that none of its hitboxes were clicked")
+	return false
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- must have acquired input focus
+
+	if action_id == hash("mouse1")  and action.released then
+		-- check if a camera button's node was clicked, and update cameras if yes
+		local hitbox_clicked = check_hitbox(self, action.x, action.y)
+		if hitbox_clicked and self.is_possessed then
+			print(self.name .. ": hitbox clicked while possessed")
+			-- tell rotom the sprite was clicked
+			msg.post("/camera/rotom", "hitbox_clicked", { prop_name = self.name })
+			-- get the name of the animation to play
+			-- local animation_to_play = self.name .. "_clicked_possessed_tera" and self.is_tera or self.name .. "_clicked_possessed"
+			sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation) -- TODO: change to animation_to_play
+
+		elseif hitbox_clicked and not self.is_possessed then
+			print(self.name .. ": hitbox clicked while not possessed")
+			-- just play the animation for when the prop gets clicked without being possessed
+			sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation) -- TODO: change to self.name .. "_clicked"
+		end
+
 	end
 end
