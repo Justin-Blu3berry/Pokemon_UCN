@@ -881,5 +881,88 @@ nodes {
   id: "abra_kill_time"
   inherit_alpha: true
 }
+nodes {
+  position {
+    x: 67.0
+    y: 306.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "rotom"
+  font: "default"
+  id: "rotom_text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 140.0
+    y: 306.0
+  }
+  size {
+    x: 40.0
+    y: 40.0
+  }
+  color {
+    x: 0.8
+    y: 0.5019608
+    z: 0.2
+  }
+  type: TYPE_PIE
+  id: "rotom_move_time_pie"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 140.0
+    y: 306.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0.0"
+  font: "default"
+  id: "rotom_move_time"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 236.0
+    y: 306.0
+  }
+  size {
+    x: 40.0
+    y: 40.0
+  }
+  color {
+    x: 0.8
+    y: 0.5019608
+    z: 0.2
+  }
+  type: TYPE_PIE
+  id: "rotom_kill_time_pie"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 236.0
+    y: 306.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0.0"
+  font: "default"
+  id: "rotom_kill_time"
+  inherit_alpha: true
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
