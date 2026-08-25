@@ -288,7 +288,7 @@ local function start_night(self)
 		-- tell the prop to define itself with its name and location
 		msg.post(curr_url, "define_self", { name = curr_prop, url = curr_url, location = self.prop_locations[curr_prop], animation = curr_prop } )
 		-- tell the prop that the night is starting
-		msg.post(curr_url, "new_night")
+		msg.post(curr_url, "new_night", {is_tera = self.is_kaizo, hitboxes_enabled = self.debug_statuses.hitbox_viewer})
 	end
 	
 	-- wait before posting a message to the controller script to switch to the office 
