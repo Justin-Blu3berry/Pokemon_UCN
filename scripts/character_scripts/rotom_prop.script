@@ -1,0 +1,168 @@
+-- import the shared helper functions
+local cu = require "scripts.character_scripts.character_utils"
+
+
+local function toggle_visibility(self, selected_camera, is_in_camera)
+	-- function to make the dummy visible or invisible and move
+	-- it to the given side of the office
+	-- @param self: allows this function to access self.<variable> variables
+	-- @param selected_camera: str, indicates what camera the player has selected
+	-- @param is_in_camera: bool, indicates whether the player is in the camera or the office
+	-- @return: nothing
+
+	-- get the player's view
+	local player_view = cu.get_player_view(is_in_camera, selected_camera)
+
+	-- figure out if the player is looking at this prop's camera
+	local is_visible = player_view == self.location
+
+	-- get the position on the correct side of the office
+	local curr_position = go.get_position()
+
+	-- get the correct z coordinate based on if the dummy needs to be visible or invisible
+	local bool_to_z = {
+		[true] = 0.5,
+		[false] = 100
+	}
+
+	-- move the sprite to the x,y coords indicated by 'side' and the z-coord to make it visible
+	go.set_position(vmath.vector3(curr_position.x, curr_position.y, bool_to_z[is_visible]))
+	print(self.name .. " in camera has visibility status: " .. tostring(is_visible))
+
+end
+
+
+function init(self)
+	-- Add initialization code here
+
+	-- initialize the variable storing the name of the character whose sprite this dummy uses
+	self.name = "prop"
+
+	-- initialize the variable for this prop's url
+	self.url = "/camera/rotom/prop"
+
+	-- initialize a variable storing this prop's location
+	self.location = "Cam 01"
+
+	-- initialize a variable tracking this prop's default sprite
+	self.default_sprite = "none"
+
+	-- initialize a variable tracking whether the player is in the camera
+	self.is_in_camera = false
+
+	-- initialize a variable tracking what camera the player has selected
+	self.selected_camera = "Cam 01"
+
+	-- become invisible
+	toggle_visibility(self, self.selected_camera, self.is_in_camera)
+
+	-- initialize boolean tracking if the challenge mode is on
+	self.is_tera = false
+
+	-- initialize boolean tracking if hitboxes should be visible
+	self.hitbox_visible = false
+
+	
+end
+
+
+local function start_night(self)
+	-- Add code that resets this prop to behave correctly when the night starts
+
+	-- initialize a variable tracking whether the player is in the camera
+	self.is_in_camera = false
+
+	-- initialize a variable tracking what camera the player has selected
+	self.selected_camera = "Cam 01"
+
+	-- become invisible
+	toggle_visibility(self, self.selected_camera, self.is_in_camera)
+
+	-- set this prop to its default sprite
+	sprite.play_flipbook(self.url, self.default_animation)
+
+	-- set this prop's hitbox to the appropriate visibility
+	if self.hitbox_visible and self.level > 0 then
+		for _, hitbox_url in ipairs(self.hitboxes) do
+			-- set hitbox sprite's alpha to 0.5
+			go.set(hitbox_url, "tint.w", 0.5)
+		end
+	else
+		for _, hitbox_url in ipairs(self.hitboxes) do
+			-- set hitbox sprite's alpha to 0
+			go.set(hitbox_url, "tint.w", 0)
+		end
+	end
+
+end
+
+
+function final(self)
+	-- Add finalization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+
+	print(self.name .. " prop in " .. self.location .. " received a message: " .. message_id .. " from sender:" .. sender)
+	pprint(message)
+	if message_id == hash("define_self") then
+		-- this message indicates what this prop's name is
+		self.name = message.name
+
+		-- this message indicates what this prop's url is too
+		self.url = message.url
+
+		-- this message also tells the prop what camera it's in
+		self.location = message.location
+
+		-- this message also defines the prop's default animation
+		self.default_animation = message.animation
+
+	elseif message_id == hash("new_night") then
+		-- run the function that resets all timers and variables for the start of a new night
+		start_night(self)
+
+		self.is_tera = message.is_tera
+		self.hitbox_visible = message.hitboxes_enabled
+
+	elseif message_id == hash("change_camera_location") then
+
+		-- update this character's variable tracking what camera the player has selected
+		self.selected_camera = message.new_cam
+
+		-- update whether this prop is visible
+		toggle_visibility(self, self.selected_camera, self.is_in_camera)
+
+	elseif message_id == hash("update_camera_status") then
+
+		-- update this character's variable tracking if the cameras are visible
+		self.is_in_camera = message.is_in_camera
+
+		-- update whether this character is visible
+		toggle_visibility(self, self.selected_camera, self.is_in_camera)
+
+	elseif message_id == hash("animate_prop") then
+
+		print("animation name: " .. message.animation_name)
+		-- this message plays the named animation
+		sprite.play_flipbook("#" .. self.name .. "_sprite", message.animation_name, function()
+			print("successfully finished playing animation: " .. message.animation_name)
+			-- check if this prop needs to return to its default animation when done
+			if message.return_when_done then
+				-- return to this prop's default animation when done
+				sprite.play_flipbook(self.url, self.default_animation)
+			end
+		end)
+
+	elseif message_id == hash("disable_camera") then
+		-- this lets the character know if a camera is disabled while they're on it
+		if self.location == message.camera_location then
+			msg.post(".", "release_input_focus")
+		end
+		
+	end
+end
