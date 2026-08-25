@@ -625,6 +625,7 @@ local function progress_timers(self)
 		msg.post("controller", "show_win_screen")
 
 		message_characters("end_night")
+		message_props("end_night")
 
 	elseif self.game_time % 120 == 0 then
 		-- this means it's either 2 AM (=120) or 4 AM (=240)
@@ -821,6 +822,7 @@ local function game_over(self, time_of_death, cause_of_death)
 	-- @param cause_of_death: indicates the character the player died to (or if the player powered out)
 	-- tell the characters that the night is over
 	message_characters("end_night")
+	message_props("end_night")
 
 	-- determine if the player died because the power went out
 	if self.power == 0 then
@@ -1166,6 +1168,7 @@ function on_input(self, action_id, action)
 
 		-- tell all characters that the night has ended
 		message_characters("end_night")
+		message_props("end_night")
 
 		-- message the controller to send the player to the main menu
 		msg.post("controller", "show_main_menu")
