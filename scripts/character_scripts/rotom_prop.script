@@ -28,6 +28,7 @@ local function toggle_visibility(self, selected_camera, is_in_camera)
 	-- move the sprite to the x,y coords indicated by 'side' and the z-coord to make it visible
 	go.set_position(vmath.vector3(curr_position.x, curr_position.y, bool_to_z[is_visible]))
 	print(self.name .. " in camera has visibility status: " .. tostring(is_visible))
+	pprint(self.name .. " has coords " .. go.get_position())
 
 end
 
@@ -180,8 +181,9 @@ function on_message(self, message_id, message, sender)
 		self.is_possessed = message.is_possessed
 
 		-- switch to this prop's idle sprite for when it's possessed
-		sprite.play_flipbook(self.sprite_url, self.default_animation)
-		print(self.name .. " playing default animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
+		local sprite_to_use = self.name .. "_possessed_tera" and self.is_tera or self.name .. "_possessed"
+		sprite.play_flipbook(self.sprite_url, sprite_to_use)
+		print(self.name .. " playing animation: " .. sprite_to_use .. " using sprite URL: " .. self.sprite_url)
 	end
 end
 
@@ -200,6 +202,7 @@ local function check_hitbox(self, x, y)
 		-- pretend that the hitbox is on the same z position as the mouse
 		local hitbox_xy = go.get_world_position(hitbox_url)
 		hitbox_xy.z = 0
+		pprint(self.name .. ": hitbox is at " .. hitbox_xy)
 
 		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
 
@@ -234,14 +237,25 @@ function on_input(self, action_id, action)
 			print(self.name .. ": hitbox clicked while possessed")
 			-- tell rotom the sprite was clicked
 			msg.post("/camera/rotom", "hitbox_clicked", { prop_name = self.name })
+			
 			-- get the name of the animation to play
-			-- local animation_to_play = self.name .. "_clicked_possessed_tera" and self.is_tera or self.name .. "_clicked_possessed"
-			sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation) -- TODO: change to animation_to_play
+			local animation_to_play = self.name .. "_clicked_possessed_tera" and self.is_tera or self.name .. "_clicked_possessed"
+			sprite.play_flipbook(self.sprite_url, animation_to_play, function() 
+				-- go back to the default animation when this one finishes
+				sprite.play_flipbook(self.sprite_url, self.default_animation)
+				print(self.name .. " playing animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
+			end)
+			print(self.name .. " playing animation: " .. animation_to_play .. " using sprite URL: " .. self.sprite_url)
 
 		elseif hitbox_clicked and not self.is_possessed then
 			print(self.name .. ": hitbox clicked while not possessed")
 			-- just play the animation for when the prop gets clicked without being possessed
-			sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation) -- TODO: change to self.name .. "_clicked"
+			sprite.play_flipbook(self.sprite_url, self.name .. "_clicked", function()
+				-- go back to the default animation when this one finishes
+				sprite.play_flipbook(self.sprite_url, self.default_animation)
+				print(self.name .. " playing animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
+			end)
+			print(self.name .. " playing animation: " .. self.name .. "_clicked using sprite URL: " .. self.sprite_url)
 		end
 
 	end
