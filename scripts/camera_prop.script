@@ -73,7 +73,8 @@ local function start_night(self)
 	toggle_visibility(self, self.selected_camera, self.is_in_camera)
 
 	-- set this prop to its default sprite
-	sprite.play_flipbook(self.url, self.default_animation)
+	sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation)
+	-- print(self.name .. ": playing default animation: " .. self.default_animation .. ". Using url: " .. "#" .. self.name .. "_sprite")
 
 
 end
@@ -126,14 +127,15 @@ function on_message(self, message_id, message, sender)
 
 	elseif message_id == hash("animate_prop") then
 
-		print("animation name: " .. message.animation_name)
+		-- print(self.name .. ": starting animation, " .. message.animation_name .. ". Using URL #" .. self.name .. "_sprite")
 		-- this message plays the named animation
 		sprite.play_flipbook("#" .. self.name .. "_sprite", message.animation_name, function()
 			print("successfully finished playing animation: " .. message.animation_name)
 			-- check if this prop needs to return to its default animation when done
 			if message.return_when_done then
 				-- return to this prop's default animation when done
-				sprite.play_flipbook(self.url, self.default_animation)
+				sprite.play_flipbook("#" .. self.name .. "_sprite", self.default_animation)
+				-- print(self.name .. ": playing default animation. Using URL " .. "#" .. self.name .. "_sprite")
 			end
 		end)
 
