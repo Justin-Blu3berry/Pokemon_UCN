@@ -386,6 +386,7 @@ local function check_hitbox(self, x, y)
 		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
 
 		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
+		-- this is used to make abra ignore inputs when his kill timer is stopped
 		local is_clicked = timer.get_info(self.kill_timer) == nil
 
 		-- NOTE: this distance check makes hitboxes functionally circular 
