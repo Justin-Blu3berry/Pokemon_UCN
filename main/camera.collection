@@ -443,9 +443,6 @@ embedded_instances {
   "\"\n"
   "}\n"
   ""
-  position {
-    z: -0.5
-  }
 }
 embedded_instances {
   id: "oven"

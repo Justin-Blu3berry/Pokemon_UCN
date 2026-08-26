@@ -45,10 +45,6 @@ function init(self)
 	-- initialize all timers
 	self.movement_timer = timer.delay(0, false, function() print(self.name .. " move timer initialized") end)
 	self.kill_timer = timer.delay(0, false, function() print(self.name .. " kill timer initialized") end)
-	
-	-- become invisible
-	local curr_position = go.get_position()
-	go.set_position(vmath.vector3(curr_position.x, curr_position.y, 100))
 
 	-- initialize the variable tracking how much time this character's kill timer has left on it
 	self.remaining_kill_time = self.interval
@@ -61,6 +57,11 @@ function init(self)
 	self.props = prop_lists.get_rotom_props()
 	self.prop_locations = prop_lists.get_rotom_locations()
 	self.prop_urls = prop_lists.get_rotom_urls()
+
+	-- normally in init(), characters that don't appear in cam 01 become invisible by going to z=100
+	-- however because rotom's props need to all decide their positions (particularly their z) independently
+	-- and all of rotom's props are his children, Rotom as a game object changing his z-coordinate becomes
+	-- EXTREMELY problematic
 end
 
 
@@ -85,7 +86,7 @@ local function progress_movement(self)
 
 	-- update the character's location (randomly select from the legal rooms)
 	self.curr_prop = self.props[math.random(#self.props)]
-	print(self.name .. " possessed " .. self.curr_prop)
+	print(self.name .. ": possessed " .. self.curr_prop)
 
 	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
