@@ -39,7 +39,7 @@ function init(self)
 	self.name = "prop"
 
 	-- initialize the variable for this prop's url
-	self.url = "/camera/rotom/prop"
+	self.sprite_url = "#prop_sprite"
 
 	-- initialize a variable storing this prop's location
 	self.location = "Cam 01"
@@ -77,7 +77,7 @@ local function start_night(self)
 	toggle_visibility(self, self.selected_camera, self.is_in_camera)
 
 	-- set this prop to its default sprite
-	sprite.play_flipbook(self.url, self.default_animation)
+	sprite.play_flipbook(self.sprite_url, self.default_animation)
 
 	-- acquire input focus
 	msg.post(".", "acquire_input_focus")
@@ -119,8 +119,8 @@ function on_message(self, message_id, message, sender)
 		self.hitboxes = { self.name .. "_hitbox#sprite" }
 		self.hitbox_visible = false
 
-		-- this message indicates what this prop's url is too
-		self.url = message.url
+		-- use this prop's name to dynamically create the URL for this object's sprite
+		self.sprite_url = "#" .. self.name .. "_sprite"
 
 		-- this message also tells the prop what camera it's in
 		self.location = message.location
@@ -153,14 +153,15 @@ function on_message(self, message_id, message, sender)
 
 	elseif message_id == hash("animate_prop") then
 
-		print("animation name: " .. message.animation_name)
+		print(self.name .. " playing animation: " .. message.animation_name .. " using sprite URL: " .. self.sprite_url)
 		-- this message plays the named animation
-		sprite.play_flipbook("#" .. self.name .. "_sprite", message.animation_name, function()
+		sprite.play_flipbook(self.sprite_url, message.animation_name, function()
 			print("successfully finished playing animation: " .. message.animation_name)
 			-- check if this prop needs to return to its default animation when done
 			if message.return_when_done then
 				-- return to this prop's default animation when done
-				sprite.play_flipbook(self.url, self.default_animation)
+				sprite.play_flipbook(self.sprite_url, self.default_animation)
+				print(self.name .. " playing default animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
 			end
 		end)
 
@@ -177,6 +178,10 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("update_possession") then
 		-- update the boolean indicating if rotom's possessing this prop
 		self.is_possessed = message.is_possessed
+
+		-- switch to this prop's idle sprite for when it's possessed
+		sprite.play_flipbook(self.sprite_url, self.default_animation)
+		print(self.name .. " playing default animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
 	end
 end
 
@@ -204,12 +209,9 @@ local function check_hitbox(self, x, y)
 		-- check if the distance to the current hitbox is close enough
 		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
 
-		-- NOTE: can replace this with a self.is_clicked parameter (this makes the kill timer redundant)
-		local is_clicked = timer.get_info(self.kill_timer) == nil
-
 		-- NOTE: this distance check makes hitboxes functionally circular 
 		-- because it calculates based on the coords for the center of the hitbox
-		if distance <= hitbox_size.x / 2 and is_visible and not is_clicked then
+		if distance <= hitbox_size.x / 2 and is_visible then
 			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
 			return true
 		end
