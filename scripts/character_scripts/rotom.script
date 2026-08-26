@@ -95,6 +95,7 @@ local function progress_movement(self)
 	})
 
 	-- message the prop rotom is moving to
+	print(self.name .. ": messaging " .. self.curr_prop .. " to update possession to true. Using URL: " .. self.prop_urls[self.curr_prop])
 	msg.post(self.prop_urls[self.curr_prop], "update_possession", { is_possessed = true })
 
 	-- play a sound indicating rotom moved
@@ -182,7 +183,7 @@ local function driver(self)
 	-- start the kill timer because we have restarted our interval
 	enter_kill_state(self)
 
-	print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	print(self.name .. " just moved to " .. self.curr_prop .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -256,6 +257,7 @@ function on_message(self, message_id, message, sender)
 		if message.prop_name == self.curr_prop then
 			-- exit the kill state
 			leave_kill_state(self)
+			print(self.name .. ": current prop, " .. self.curr_prop .. " clicked. Leaving kill state")
 		end
 	end
 end

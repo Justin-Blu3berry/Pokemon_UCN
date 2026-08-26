@@ -22,7 +22,6 @@ end
 function prop_lists.get_rotom_props()
 	-- function to generate a list of the names for characters
 	return {
-		"generator",
 		"oven"
 	}
 
