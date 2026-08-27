@@ -252,6 +252,10 @@ function on_message(self, message_id, message, sender)
 		-- cancel all timers
 		cancel_all_timers(self)
 
+		-- tell all the props they're not possessed
+		message_props("update_possession", { is_possessed = false })
+		
+
 	elseif message_id == hash("hitbox_clicked") then
 		-- check if the prop whose hitbox was clicked was the one Rotom is possessing
 		if message.prop_name == self.curr_prop then
