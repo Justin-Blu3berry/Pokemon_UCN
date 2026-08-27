@@ -13,7 +13,8 @@ function prop_lists.get_prop_list()
 	-- function to generate a list of the names for characters
 	return {
 		"generator",
-		"oven"
+		"oven",
+		"washer"
 	}
 	
 end
@@ -22,7 +23,8 @@ end
 function prop_lists.get_rotom_props()
 	-- function to generate a list of the names for characters
 	return {
-		"oven"
+		"oven",
+		"washer"
 	}
 
 end
@@ -33,7 +35,8 @@ function prop_lists.get_prop_urls()
 
 	return { 
 		generator = "/camera/generator",
-		oven = "/camera/oven"
+		oven = "/camera/oven",
+		washer = "/camera/washer"
 	}
 
 end
@@ -43,7 +46,8 @@ function prop_lists.get_rotom_urls()
 	-- function to return a dictionary mapping prop names to their URLs
 
 	return { 
-		oven = "/camera/oven"
+		oven = "/camera/oven",
+		washer = "/camera/washer"
 	}
 
 end
@@ -54,7 +58,8 @@ function prop_lists.get_prop_locations()
 
 	return { 
 		generator = "Cam 08",
-		oven = "Cam 05"
+		oven = "Cam 05",
+		washer = "Cam 08"
 	}
 
 end
@@ -64,7 +69,8 @@ function prop_lists.get_rotom_locations()
 	-- function to return a dictionary mapping prop names to their locations
 
 	return { 
-		oven = "Cam 05"
+		oven = "Cam 05",
+		washer = "Cam 08"
 	}
 
 end

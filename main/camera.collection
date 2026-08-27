@@ -422,6 +422,7 @@ embedded_instances {
 embedded_instances {
   id: "rotom"
   children: "oven"
+  children: "washer"
   data: "components {\n"
   "  id: \"rotom\"\n"
   "  component: \"/scripts/character_scripts/rotom.script\"\n"
@@ -433,7 +434,7 @@ embedded_instances {
   "embedded_components {\n"
   "  id: \"rotom_cry\"\n"
   "  type: \"sound\"\n"
-  "  data: \"sound: \\\"/assets/Audio/abra_cry.wav\\\"\\n"
+  "  data: \"sound: \\\"/assets/Audio/rotom_cry.ogg\\\"\\n"
   "\"\n"
   "}\n"
   "embedded_components {\n"
@@ -474,6 +475,57 @@ embedded_instances {
 }
 embedded_instances {
   id: "oven_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "washer"
+  children: "washer_hitbox"
+  data: "components {\n"
+  "  id: \"washer\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"washer_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"washer\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: -205.0
+    y: -118.0
+  }
+}
+embedded_instances {
+  id: "washer_hitbox"
   data: "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
