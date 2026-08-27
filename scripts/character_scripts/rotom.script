@@ -34,7 +34,7 @@ function init(self)
 	-- initialize character name
 	self.name = "rotom"
 
-	self.sounds = { "#" .. self.name .. "_cry", "#run_away", "#teleport"}
+	self.sounds = { "#" .. self.name .. "_cry", "#run_away"}
 
 	-- initialize the variable tracking which prop rotom is possessing
 	self.curr_prop = "none"
@@ -262,6 +262,13 @@ function on_message(self, message_id, message, sender)
 			-- exit the kill state
 			leave_kill_state(self)
 			print(self.name .. ": current prop, " .. self.curr_prop .. " clicked. Leaving kill state")
+
+			if self.is_tera then
+				-- As soon as the player clears the possessed prop, run it back immediately
+				timer.cancel(self.movement_timer)
+				msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_kill_time, is_running = false})
+				driver(self)
+			end
 		end
 	end
 end
