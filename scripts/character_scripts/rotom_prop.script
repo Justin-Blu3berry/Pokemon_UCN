@@ -181,10 +181,10 @@ function on_message(self, message_id, message, sender)
 		self.is_possessed = message.is_possessed
 
 		-- switch to this prop's idle sprite for when it's possessed
-		local sprite_to_use
-		if self.is_tera then
+		local sprite_to_use = self.default_animation
+		if self.is_tera and self.is_possessed then
 			sprite_to_use = self.name .. "_possessed_tera"
-		else
+		elseif not self.is_tera and self.is_possessed then
 			sprite_to_use = self.name .. "_possessed"
 		end
 		sprite.play_flipbook(self.sprite_url, sprite_to_use)
