@@ -1116,7 +1116,10 @@ function on_message(self, message_id, message, sender)
 
 		-- check if the named timer is actually running on the character's end
 		if message.start_timer then
-
+			-- stop the timer for counting down the pie node if it's already running
+			local result = timer.cancel(self.debug_handles[message.character_name][message.value_name])
+			print("Office GUI: Attempted to cancel debug timer for " .. message.character_name .. "'s " .. message.value_name .. ". Result was: " .. tostring(result))
+			
 			-- now update the displayed pie chart for the GUI
 			self.debug_handles[message.character_name][message.value_name] = timer.delay(0.05, true, function(timerself, handle, time_remaining) 
 				count_down(self, message.character_name, message.value_name, message.new_value, 0.05, handle)
