@@ -124,7 +124,7 @@ local function kill_player(self)
 	cu.play_directional_sound(sound, "#" .. self.name .. "_cry")
 
 	-- send a message to the office gui to kill the player
-	msg.post("/office_GUI", "kill_player", { character_name = self.name })
+	msg.post("/office_GUI", "kill_player", { character_name = self.name .. "_" .. self.curr_prop})
 
 	-- cancel this character' timers
 	cancel_all_timers(self)
