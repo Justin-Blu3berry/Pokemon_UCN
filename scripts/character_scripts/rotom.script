@@ -45,6 +45,7 @@ function init(self)
 	-- initialize all timers
 	self.movement_timer = timer.delay(0, false, function() print(self.name .. " move timer initialized") end)
 	self.kill_timer = timer.delay(0, false, function() print(self.name .. " kill timer initialized") end)
+	-- print(self.name .. ": kill timer initialized with ID: " .. self.kill_timer)
 
 	-- initialize the variable tracking how much time this character's kill timer has left on it
 	self.remaining_kill_time = self.interval
@@ -112,6 +113,7 @@ local function cancel_all_timers(self)
 	timer.cancel(self.movement_timer)
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = false})
 	timer.cancel(self.kill_timer)
+	-- print(self.name .. ": kill timer cancelled with ID: " .. self.kill_timer)
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = false})
 
 end
@@ -137,8 +139,13 @@ local function enter_kill_state(self)
 	-- @param self: grants access to self.<variable> namespace
 	-- @return: none, sets timers and maps them to self.<variable> variables
 
+	-- for debugging reasons, attempt to stop an existing kill timer
+	local result = timer.cancel(self.kill_timer)
+	-- print(self.name .. ": attempting to cancel the kill timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
+
 	-- set the initial timer for the character killing the player
 	self.kill_timer = timer.delay(self.interval, false, kill_player)
+	-- print(self.name .. ": kill timer started with ID: " .. self.kill_timer)
 	print("Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
 
@@ -156,6 +163,7 @@ local function leave_kill_state(self)
 
 	-- cancel this character's kill timer
 	local result = timer.cancel(self.kill_timer)
+	-- print(self.name .. ": cancelling kill timer, with ID: " .. self.kill_timer)
 	print("Leaving kill state, Result of cancelling " .. self.name .. "'s kill timer: " .. tostring(result))
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
 
