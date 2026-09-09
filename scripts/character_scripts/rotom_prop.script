@@ -211,7 +211,7 @@ local function check_hitbox(self, x, y)
 
 		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
 
-		local hitbox_size = go.get(hitbox_url, "size")
+		local hitbox_size = go.get(hitbox_url, "size") * go.get_scale().x
 		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
 
 		-- check if the distance to the current hitbox is close enough
