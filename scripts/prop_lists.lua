@@ -14,7 +14,10 @@ function prop_lists.get_prop_list()
 	return {
 		"generator",
 		"oven",
-		"washer"
+		"washer",
+		"tv",
+		"computer",
+		"arcade_cabinet"
 	}
 	
 end
@@ -24,7 +27,10 @@ function prop_lists.get_rotom_props()
 	-- function to generate a list of the names for characters
 	return {
 		"oven",
-		"washer"
+		"washer",
+		"tv",
+		"computer",
+		"arcade_cabinet"
 	}
 
 end
@@ -36,7 +42,10 @@ function prop_lists.get_prop_urls()
 	return { 
 		generator = "/camera/generator",
 		oven = "/camera/oven",
-		washer = "/camera/washer"
+		washer = "/camera/washer",
+		tv = "/camera/tv",
+		computer = "/camera/computer",
+		arcade_cabinet = "/camera/arcade_cabinet"
 	}
 
 end
@@ -47,7 +56,10 @@ function prop_lists.get_rotom_urls()
 
 	return { 
 		oven = "/camera/oven",
-		washer = "/camera/washer"
+		washer = "/camera/washer",
+		tv = "/camera/tv",
+		computer = "/camera/computer",
+		arcade_cabinet = "/camera/arcade_cabinet"
 	}
 
 end
@@ -59,7 +71,10 @@ function prop_lists.get_prop_locations()
 	return { 
 		generator = "Cam 08",
 		oven = "Cam 05",
-		washer = "Cam 08"
+		washer = "Cam 08",
+		tv = "Cam 06",
+		computer = "Cam 03",
+		arcade_cabinet = "Cam 04"
 	}
 
 end
@@ -70,7 +85,10 @@ function prop_lists.get_rotom_locations()
 
 	return { 
 		oven = "Cam 05",
-		washer = "Cam 08"
+		washer = "Cam 08",
+		tv = "Cam 06",
+		computer = "Cam 03",
+		arcade_cabinet = "Cam 04"
 	}
 
 end

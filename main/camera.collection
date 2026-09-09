@@ -35,7 +35,7 @@ embedded_instances {
   "embedded_components {\n"
   "  id: \"camera location\"\n"
   "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"buffet\\\"\\n"
+  "  data: \"default_animation: \\\"show stage\\\"\\n"
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "size {\\n"
   "  x: 1802.0\\n"
@@ -421,7 +421,10 @@ embedded_instances {
 }
 embedded_instances {
   id: "rotom"
+  children: "arcade_cabinet"
+  children: "computer"
   children: "oven"
+  children: "tv"
   children: "washer"
   data: "components {\n"
   "  id: \"rotom\"\n"
@@ -533,6 +536,160 @@ embedded_instances {
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "size {\\n"
   "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "tv"
+  children: "tv_hitbox"
+  data: "components {\n"
+  "  id: \"tv\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tv_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"tv\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: 383.0
+    y: -123.0
+  }
+}
+embedded_instances {
+  id: "tv_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "computer"
+  children: "computer_hitbox"
+  data: "components {\n"
+  "  id: \"computer\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"computer_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"computer\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: -9.0
+    y: -20.0
+  }
+}
+embedded_instances {
+  id: "computer_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "arcade_cabinet"
+  children: "arcade_cabinet_hitbox"
+  data: "components {\n"
+  "  id: \"arcade_cabinet\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"arcade_cabinet_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"arcade_cabinet\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: -127.0
+    y: 4.0
+    z: -0.5
+  }
+}
+embedded_instances {
+  id: "arcade_cabinet_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 200.0\\n"
   "  y: 300.0\\n"
   "}\\n"
   "size_mode: SIZE_MODE_MANUAL\\n"
