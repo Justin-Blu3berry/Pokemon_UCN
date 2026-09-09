@@ -21,7 +21,7 @@ local function toggle_visibility(self, selected_camera, is_in_camera)
 
 	-- get the correct z coordinate based on if the dummy needs to be visible or invisible
 	local bool_to_z = {
-		[true] = 0.5,
+		[true] = -0.5,
 		[false] = 100
 	}
 
