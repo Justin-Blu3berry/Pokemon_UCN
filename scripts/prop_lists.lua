@@ -17,7 +17,8 @@ function prop_lists.get_prop_list()
 		"washer",
 		"tv",
 		"computer",
-		"arcade_cabinet"
+		"arcade_cabinet",
+		"soda_fountain"
 	}
 	
 end
@@ -30,7 +31,8 @@ function prop_lists.get_rotom_props()
 		"washer",
 		"tv",
 		"computer",
-		"arcade_cabinet"
+		"arcade_cabinet",
+		"soda_fountain"
 	}
 
 end
@@ -45,7 +47,8 @@ function prop_lists.get_prop_urls()
 		washer = "/camera/washer",
 		tv = "/camera/tv",
 		computer = "/camera/computer",
-		arcade_cabinet = "/camera/arcade_cabinet"
+		arcade_cabinet = "/camera/arcade_cabinet",
+		soda_fountain = "/camera/soda_fountain"
 	}
 
 end
@@ -59,7 +62,8 @@ function prop_lists.get_rotom_urls()
 		washer = "/camera/washer",
 		tv = "/camera/tv",
 		computer = "/camera/computer",
-		arcade_cabinet = "/camera/arcade_cabinet"
+		arcade_cabinet = "/camera/arcade_cabinet",
+		soda_fountain = "/camera/soda_fountain"
 	}
 
 end
@@ -74,7 +78,8 @@ function prop_lists.get_prop_locations()
 		washer = "Cam 08",
 		tv = "Cam 06",
 		computer = "Cam 03",
-		arcade_cabinet = "Cam 04"
+		arcade_cabinet = "Cam 04",
+		soda_fountain = "Cam 02"
 	}
 
 end
@@ -88,7 +93,8 @@ function prop_lists.get_rotom_locations()
 		washer = "Cam 08",
 		tv = "Cam 06",
 		computer = "Cam 03",
-		arcade_cabinet = "Cam 04"
+		arcade_cabinet = "Cam 04",
+		soda_fountain = "Cam 02"
 	}
 
 end

@@ -424,6 +424,7 @@ embedded_instances {
   children: "arcade_cabinet"
   children: "computer"
   children: "oven"
+  children: "soda_fountain"
   children: "tv"
   children: "washer"
   data: "components {\n"
@@ -690,6 +691,61 @@ embedded_instances {
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "size {\\n"
   "  x: 200.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "soda_fountain"
+  children: "soda_fountain_hitbox"
+  data: "components {\n"
+  "  id: \"soda_fountain\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"soda_fountain_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"soda_fountain\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: -113.0
+    y: 223.0
+  }
+  scale3 {
+    x: 0.5
+    y: 0.5
+  }
+}
+embedded_instances {
+  id: "soda_fountain_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
   "  y: 300.0\\n"
   "}\\n"
   "size_mode: SIZE_MODE_MANUAL\\n"
