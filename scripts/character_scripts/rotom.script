@@ -184,9 +184,14 @@ local function driver(self)
 	self.interval = cu.calculate_interval(self.non_random, math)
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
 
+	-- for debugging reasons, attempt to stop an existing kill timer
+	local result = timer.cancel(self.kill_timer)
+	print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
+	
 	-- start the timer for the next movement
 	-- this is recursive, but can be broken if the timer is canceled
 	self.movement_timer = timer.delay(self.interval, false, driver)
+	-- print(self.name .. ": calling driver from driver as the callback for self.movement_timer")
 
 	-- start the kill timer because we have restarted our interval
 	enter_kill_state(self)
@@ -231,8 +236,8 @@ local function start_night(self)
 	if self.level ~= 0 then
 		-- start the timer for a new night if the character's level is above 0
 		print(self.name .. "'s initial interval: " .. self.interval)
-		self.movement_timer = timer.delay(self.interval, false, driver)
 		driver(self)
+		-- print(self.name .. ": calling driver from start_night")
 	end
 end
 
@@ -275,7 +280,9 @@ function on_message(self, message_id, message, sender)
 				-- As soon as the player clears the possessed prop, run it back immediately
 				timer.cancel(self.movement_timer)
 				msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_kill_time, is_running = false})
-				driver(self)
+				-- set a short delay to let the possessed prop's 'clicked' animation play out
+				self.movement_timer = timer.delay(0.1, false, driver)
+				-- print(self.name .. ": calling driver from on_message when hitbox is clicked and self.is_tera")
 			end
 		end
 	end
