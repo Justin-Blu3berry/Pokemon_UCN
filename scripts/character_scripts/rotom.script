@@ -280,8 +280,7 @@ function on_message(self, message_id, message, sender)
 				-- As soon as the player clears the possessed prop, run it back immediately
 				timer.cancel(self.movement_timer)
 				msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_kill_time, is_running = false})
-				-- set a short delay to let the possessed prop's 'clicked' animation play out
-				self.movement_timer = timer.delay(0.1, false, driver)
+				driver(self)
 				-- print(self.name .. ": calling driver from on_message when hitbox is clicked and self.is_tera")
 			end
 		end
