@@ -165,6 +165,10 @@ local function enter_kill_state(self)
 	-- @param self: grants access to self.<variable> namespace
 	-- @return: none, sets timers and maps them to self.<variable> variables
 
+	-- for debugging reasons, attempt to stop an existing kill timer
+	local result = timer.cancel(self.kill_timer)
+	-- print(self.name .. ": attempting to cancel the kill timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
+	
 	-- set the initial timer for disabling the current camera
 	self.kill_timer = timer.delay(self.interval, false, kill_player)
 	print(self.name .. "Entering kill state. timer_name: kill_time, time_remaining: " .. self.interval, ", is_running: true")
@@ -207,6 +211,10 @@ function driver(self)
 	self.interval = cu.calculate_interval(self.non_random, math)
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
 
+	-- for debugging reasons, attempt to stop an existing movement timer
+	local result = timer.cancel(self.kill_timer)
+	-- print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
+	
 	-- start the timer for the next movement
 	-- this is recursive, but can be broken if the timer is canceled
 	self.movement_timer = timer.delay(self.interval, false, driver)
