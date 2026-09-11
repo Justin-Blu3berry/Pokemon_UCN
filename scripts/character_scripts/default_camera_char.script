@@ -281,7 +281,6 @@ local function start_night(self)
 	if self.level ~= 0 then
 		-- start the timer for a new night if the character's level is above 0
 		print(self.name .. "'s initial interval: " .. self.interval)
-		self.movement_timer = timer.delay(self.interval, false, driver)
 		driver(self)
 
 		msg.post(".", "acquire_input_focus")
