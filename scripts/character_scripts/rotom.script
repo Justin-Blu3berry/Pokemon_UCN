@@ -168,8 +168,7 @@ local function leave_kill_state(self)
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.remaining_kill_time, is_running = false})
 
 	-- play the sound effect for this character leaving
-	local random_sound = select_random_sound(self)
-	cu.play_directional_sound(sound, random_sound, 1.00)
+	cu.play_directional_sound(sound, "#run_away", 1.00)
 
 end
 
