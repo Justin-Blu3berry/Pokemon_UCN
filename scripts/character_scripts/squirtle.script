@@ -310,7 +310,7 @@ local function leave_kill_state(self)
 	msg.post("/office/" .. self.name .. "_dummy", "become_invisible")
 
 	-- play the sound effect for squirtle leaving the door
-	cu.play_directional_sound(sound, "#run_away", self.my_path, 1.00)
+	cu.play_directional_sound(sound, "#door_bonk", self.my_path, 1.00)
 
 	-- use message passing to call the driver function because it's not defined yet at the time
 	-- of this function getting compiled
