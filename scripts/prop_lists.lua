@@ -18,7 +18,10 @@ function prop_lists.get_prop_list()
 		"tv",
 		"computer",
 		"arcade_cabinet",
-		"soda_fountain"
+		"soda_fountain",
+		"drone",
+		"speaker_right",
+		"speaker_left"
 	}
 	
 end
@@ -33,7 +36,8 @@ function prop_lists.get_rotom_props()
 		"computer",
 		"arcade_cabinet",
 		"soda_fountain",
-		"drone"
+		"drone",
+		"speaker_right"
 	}
 
 end
@@ -50,7 +54,9 @@ function prop_lists.get_prop_urls()
 		computer = "/camera/computer",
 		arcade_cabinet = "/camera/arcade_cabinet",
 		soda_fountain = "/camera/soda_fountain",
-		drone = "/camera/drone"
+		drone = "/camera/drone",
+		speaker_right = "/camera/speaker_right",
+		speaker_left = "/camera/speaker_left"
 	}
 
 end
@@ -66,7 +72,8 @@ function prop_lists.get_rotom_urls()
 		computer = "/camera/computer",
 		arcade_cabinet = "/camera/arcade_cabinet",
 		soda_fountain = "/camera/soda_fountain",
-		drone = "/camera/drone"
+		drone = "/camera/drone",
+		speaker_right = "/camera/speaker_right"
 	}
 
 end
@@ -83,7 +90,9 @@ function prop_lists.get_prop_locations()
 		computer = "Cam 03",
 		arcade_cabinet = "Cam 04",
 		soda_fountain = "Cam 02",
-		drone = "Cam 07"
+		drone = "Cam 07",
+		speaker_right = "Cam 01",
+		speaker_left = "Cam 01"
 	}
 
 end
@@ -99,7 +108,8 @@ function prop_lists.get_rotom_locations()
 		computer = "Cam 03",
 		arcade_cabinet = "Cam 04",
 		soda_fountain = "Cam 02",
-		drone = "Cam 07"
+		drone = "Cam 07",
+		speaker_right = "Cam 01"
 	}
 
 end

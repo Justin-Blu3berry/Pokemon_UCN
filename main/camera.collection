@@ -9,6 +9,7 @@ embedded_instances {
   children: "dragapult"
   children: "generator"
   children: "rotom"
+  children: "speaker_left"
   children: "squirtle"
   data: "components {\n"
   "  id: \"camera\"\n"
@@ -426,6 +427,7 @@ embedded_instances {
   children: "drone"
   children: "oven"
   children: "soda_fountain"
+  children: "speaker_right"
   children: "tv"
   children: "washer"
   data: "components {\n"
@@ -811,5 +813,98 @@ embedded_instances {
   ""
   position {
     z: -0.1
+  }
+}
+embedded_instances {
+  id: "speaker_right"
+  children: "speaker_right_hitbox"
+  data: "components {\n"
+  "  id: \"speaker_right\"\n"
+  "  component: \"/scripts/character_scripts/rotom_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"speaker_right_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"speaker\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    x: 497.0
+    y: -159.0
+  }
+  scale3 {
+    x: 0.6
+    y: 0.6
+  }
+}
+embedded_instances {
+  id: "speaker_right_hitbox"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"Cam 01 Button\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 300.0\\n"
+  "  y: 300.0\\n"
+  "}\\n"
+  "size_mode: SIZE_MODE_MANUAL\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/camera_gui.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    z: -0.1
+  }
+}
+embedded_instances {
+  id: "speaker_left"
+  data: "components {\n"
+  "  id: \"camera_prop\"\n"
+  "  component: \"/scripts/camera_prop.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"speaker_left_sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"speaker\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "size {\\n"
+  "  x: 617.0\\n"
+  "  y: 486.0\\n"
+  "}\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/atlases/props.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: -583.3333\n"
+  "    y: -223.33333\n"
+  "  }\n"
+  "  scale {\n"
+  "    x: -1.0\n"
+  "  }\n"
+  "}\n"
+  ""
+  position {
+    x: -44.0
+    y: -61.0
+  }
+  scale3 {
+    x: 0.6
+    y: 0.6
   }
 }
