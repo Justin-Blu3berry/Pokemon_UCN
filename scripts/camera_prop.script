@@ -103,7 +103,19 @@ function on_message(self, message_id, message, sender)
 		self.location = message.location
 
 		-- this message also defines the prop's default animation
-		self.default_animation = message.animation
+		-- print(self.name .. ": default animation = " .. message.animation)
+		if string.find(message.animation, "left") or string.find(message.animation, "right") then
+			-- print(self.name .. ": default animation name contains 'left' or 'right'")
+			-- the string needs to have 'left' or 'right' removed, as the left and right speakers share a sprite
+			local animation = string.gsub(message.animation, "_left", "")
+			-- print(self.name .. ": result of removing '_left' from animation name: " .. animation)
+			animation = string.gsub(animation, "_right", "")
+			-- print(self.name .. ": result of rmeoving '_right' from animation name: " .. animation)
+			self.default_animation = animation
+
+		else
+			self.default_animation = message.animation
+		end
 
 	elseif message_id == hash("new_night") then
 		-- run the function that resets all timers and variables for the start of a new night
