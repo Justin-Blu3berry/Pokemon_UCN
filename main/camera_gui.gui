@@ -235,8 +235,8 @@ nodes {
     y: 202.0
   }
   scale {
-    x: 0.9
-    y: 0.8
+    x: 0.675
+    y: 0.6
   }
   type: TYPE_BOX
   texture: "camera_gui/squirtle icon"
@@ -247,7 +247,11 @@ nodes {
 nodes {
   position {
     x: 1072.0
-    y: 203.0
+    y: 202.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
   }
   type: TYPE_BOX
   texture: "camera_gui/bulbasaur icon"
@@ -270,6 +274,10 @@ nodes {
   position {
     x: 1085.0
     y: 237.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
   }
   type: TYPE_BOX
   texture: "camera_gui/abra icon"
@@ -404,8 +412,8 @@ nodes {
     y: 177.0
   }
   scale {
-    x: 0.6
-    y: 0.6
+    x: 0.45
+    y: 0.45
   }
   type: TYPE_BOX
   texture: "camera_gui/rotom icon"
@@ -441,7 +449,8 @@ nodes {
     y: 152.0
   }
   scale {
-    y: 0.8
+    x: 0.75
+    y: 0.75
   }
   type: TYPE_BOX
   texture: "camera_gui/dragapult icon"

@@ -256,7 +256,7 @@ nodes {
   }
   scale {
     x: 1.5
-    y: 1.5
+    y: 1.4
   }
   type: TYPE_BOX
   texture: "main_menu/squirtle icon greyscale"
