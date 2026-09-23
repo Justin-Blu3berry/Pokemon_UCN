@@ -839,10 +839,12 @@ local function game_over(self, time_of_death, cause_of_death)
 end
 
 
-local function kill_player(self, character_name)
+local function kill_player(self, character_name, form)
 	-- function to send the player to the game over screen when they die
 	-- @param self: 
 	-- @param character_name: str, indicates the name of the character that killed the player
+	-- @param form: str, indicates the name of the jumpscare to use (useful because each rotom prop
+	-- 				has its own jumpscare, but they don't need to have unique tips displayed for each one)
 	-- @return: nothing, just sends a message to the controller and to the game over screen
 
 	-- next figure out the time at which the player died (using real-time timer)
@@ -873,9 +875,13 @@ local function kill_player(self, character_name)
 	-- set the jumpscare sprite to be visible
 	gui.set_enabled(gui.get_node("jumpscare"), true)
 
+	-- determine what animation to play. if an alternative animation name 
+	-- was provided, use that. Otherwise use the character's name
+	local cause_of_death = form or character_name
+
 	-- set the jumpscare sprite to play the correct animation
 	gui.play_flipbook(gui.get_node("jumpscare"), 
-		character_name .. "_jumpscare", 
+		cause_of_death .. "_jumpscare", 
 		function()
 			game_over(self, time_of_death, character_name) 
 		end)
@@ -1079,7 +1085,7 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("kill_player") then
 
 		-- run the function to send the player to the game over screen when they die
-		kill_player(self, message.character_name)
+		kill_player(self, message.character_name, message.form)
 
 	elseif message_id == hash("update_debug") then
 
