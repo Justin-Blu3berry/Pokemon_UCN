@@ -268,6 +268,7 @@ local function start_night(self)
 	msg.post("camera_GUI", "update_debug", { debug_options = get_active_debug_options(self), 
 											 character_levels = self.character_levels })
 	msg.post("/camera/camera", "new_night")
+	msg.post("/camera/mouse_cursor", "new_night")
 	msg.post("game_over", "update_challenge_mode", { is_tera = self.is_kaizo})
 	msg.post("win_screen", "update_scores", { curr_score = self.score, 
 											  hi_score = self.hi_score, 

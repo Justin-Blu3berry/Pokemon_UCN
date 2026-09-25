@@ -623,7 +623,8 @@ local function progress_timers(self)
 	if self.real_time >= self.night_length then
 		-- send the player to the win screen
 		msg.post("controller", "show_win_screen")
-
+		
+		msg.post("/camera/mouse_cursor", "end_night")
 		message_characters("end_night")
 		message_props("end_night")
 
@@ -823,6 +824,7 @@ local function game_over(self, time_of_death, cause_of_death)
 	-- tell the characters that the night is over
 	message_characters("end_night")
 	message_props("end_night")
+	msg.post("/camera/mouse_cursor", "end_night")
 
 	-- determine if the player died because the power went out
 	if self.power == 0 then
@@ -1178,6 +1180,7 @@ function on_input(self, action_id, action)
 		-- tell all characters that the night has ended
 		message_characters("end_night")
 		message_props("end_night")
+		msg.post("/camera/mouse_cursor", "end_night")
 
 		-- message the controller to send the player to the main menu
 		msg.post("controller", "show_main_menu")
