@@ -201,6 +201,10 @@ function on_message(self, message_id, message, sender)
 		end
 		sprite.play_flipbook(self.sprite_url, sprite_to_use)
 		print(self.name .. " playing animation: " .. sprite_to_use .. " using sprite URL: " .. self.sprite_url)
+
+	elseif message_id == hash("trigger_response") then
+		local position = go.get_world_position()
+		print(self.name .. ": position is (" .. tostring(position.x) .. ", " .. tostring(position.y) .. ", " .. tostring(position.z) .. ")")
 	end
 end
 

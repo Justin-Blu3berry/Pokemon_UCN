@@ -30,6 +30,10 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("end_night") then
 		msg.post(".", "release_input_focus")
 		-- print("Mouse cursor: released input focus")
+
+	elseif message_id == hash("trigger_response") then
+		local position = go.get_position()
+		print("Mouse cursor: position is (" .. tostring(position.x) .. ", " .. tostring(position.y) .. ", " .. tostring(position.z) .. ")")
 	end
 end
 
