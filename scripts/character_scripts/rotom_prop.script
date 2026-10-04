@@ -62,6 +62,9 @@ function init(self)
 
 	-- initialize the boolean tracking if this prop is possessed by rotom
 	self.is_possessed = false
+
+	-- initialize the boolean tracking whether the mouse cursor is touching this prop
+	self.is_touching_cursor = false
 end
 
 
@@ -73,6 +76,9 @@ local function start_night(self)
 
 	-- initialize a variable tracking what camera the player has selected
 	self.selected_camera = "Cam 01"
+
+	-- reset the boolean tracking whether the mouse cursor is touching this prop
+	self.is_touching_cursor = false
 
 	-- become invisible
 	toggle_visibility(self, self.selected_camera, self.is_in_camera)
@@ -202,59 +208,70 @@ function on_message(self, message_id, message, sender)
 		sprite.play_flipbook(self.sprite_url, sprite_to_use)
 		print(self.name .. " playing animation: " .. sprite_to_use .. " using sprite URL: " .. self.sprite_url)
 
-	elseif message_id == hash("trigger_response") then
-		local position = go.get_world_position()
-		print(self.name .. ": position is (" .. tostring(position.x) .. ", " .. tostring(position.y) .. ", " .. tostring(position.z) .. ")")
+	elseif message_id == hash("trigger_response") and message.enter then
+		-- this will run when the mouse cursor comes into contact with this prop's hitbox
+
+		-- local position = go.get_world_position()
+		-- print(self.name .. ": position is (" .. tostring(position.x) .. ", " .. tostring(position.y) .. ", " .. tostring(position.z) .. ")")
+		print(self.name .. ": mouse cursor has come into contact with this prop's hitbox")
+		self.is_touching_cursor = true
+		
+	elseif message_id == hash("trigger_response") and not message.enter then
+		-- this runs when the mouse cursor leaves contact with the prop's hitbox
+		print(self.name .. ": mouse cursor has left contact with this prop's hitbox")
+		self.is_touching_cursor = false
+		
 	end
 end
 
 
-local function check_hitbox(self, x, y)
-	-- function to check, when the mouse was clicked, if this character's hitbox was clicked
-	-- @param self: grants access to self.<variable> namespace
-	-- @param x: float, x position of the mouse click
-	-- @param y: float, y position of the mouse click
-	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
-
-	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
-
-	-- iterate through all hitboxes for this character
-	for _, hitbox_url in ipairs(self.hitboxes) do
-		-- pretend that the hitbox is on the same z position as the mouse
-		local hitbox_xy = go.get_world_position(hitbox_url)
-		hitbox_xy.z = 0
-		pprint(self.name .. ": hitbox is at " .. hitbox_xy)
-
-		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
-
-		local hitbox_size = go.get(hitbox_url, "size") * go.get_scale().x
-		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
-
-		-- check if the distance to the current hitbox is close enough
-		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
-
-		-- NOTE: this distance check makes hitboxes functionally circular 
-		-- because it calculates based on the coords for the center of the hitbox
-		if distance <= hitbox_size.x / 2 and is_visible then
-			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
-			return true
-		end
-	end
-
-	-- if we made it here, then none of the hitboxes evaluated as being clicked
-	print(self.name .. " determined that none of its hitboxes were clicked")
-	return false
-end
+-- local function check_hitbox(self, x, y)
+-- 	-- function to check, when the mouse was clicked, if this character's hitbox was clicked
+-- 	-- @param self: grants access to self.<variable> namespace
+-- 	-- @param x: float, x position of the mouse click
+-- 	-- @param y: float, y position of the mouse click
+-- 	-- @return: true if the hitbox was clicked (could be modded to return name of hitbox)
+-- 
+-- 	print("Click at (" .. tostring(x) .. ", " .. tostring(y) .. "), " .. self.name .. " sees: ")
+-- 
+-- 	-- iterate through all hitboxes for this character
+-- 	for _, hitbox_url in ipairs(self.hitboxes) do
+-- 		-- pretend that the hitbox is on the same z position as the mouse
+-- 		local hitbox_xy = go.get_world_position(hitbox_url)
+-- 		hitbox_xy.z = 0
+-- 		pprint(self.name .. ": hitbox is at " .. hitbox_xy)
+-- 
+-- 		local distance = vmath.length(vmath.vector3(x, y, 0) - hitbox_xy)
+-- 
+-- 		local hitbox_size = go.get(hitbox_url, "size") * go.get_scale().x
+-- 		print("distance to " .. hitbox_url .. " is " .. tostring(distance) .. " and hitbox is " .. tostring(hitbox_size.x) .. " pixels wide")
+-- 
+-- 		-- check if the distance to the current hitbox is close enough
+-- 		local is_visible = self.location == cu.get_player_view(self.is_in_camera, self.selected_camera)
+-- 
+-- 		-- NOTE: this distance check makes hitboxes functionally circular 
+-- 		-- because it calculates based on the coords for the center of the hitbox
+-- 		if distance <= hitbox_size.x / 2 and is_visible then
+-- 			print(self.name .. " has determined that " .. hitbox_url .. " has been clicked")
+-- 			return true
+-- 		end
+-- 	end
+-- 
+-- 	-- if we made it here, then none of the hitboxes evaluated as being clicked
+-- 	print(self.name .. " determined that none of its hitboxes were clicked")
+-- 	return false
+-- end
 
 
 function on_input(self, action_id, action)
 	-- Add input-handling code here. The game object this script is attached to
 	-- must have acquired input focus
 
-	if action_id == hash("mouse1")  and action.released then
+	-- only bother checking for the mouse click if the prop is visible (z = 100 when invisible)
+	if action_id == hash("mouse1")  and action.released and go.get_position().z < 50 then
 		-- check if a camera button's node was clicked, and update cameras if yes
-		local hitbox_clicked = check_hitbox(self, action.x, action.y)
-		if hitbox_clicked and self.is_possessed then
+		-- local hitbox_clicked = check_hitbox(self, action.x, action.y)
+		if self.is_touching_cursor and self.is_possessed then
 			print(self.name .. ": hitbox clicked while possessed")
 			
 			-- get the name of the animation to play
@@ -264,10 +281,12 @@ function on_input(self, action_id, action)
 			else
 				animation_to_play = self.default_animation .. "_clicked_possessed"
 			end
+			-- play the animation for being clicked while possessed
 			sprite.play_flipbook(self.sprite_url, animation_to_play, function() 
 				-- go back to the default animation
 				sprite.play_flipbook(self.sprite_url, self.default_animation)
 				print(self.name .. " playing animation: " .. self.default_animation .. " using sprite URL: " .. self.sprite_url)
+
 				-- tell rotom that the hitbox was clicked AFTER letting the animation finish
 				msg.post("/camera/rotom", "hitbox_clicked", { prop_name = self.name })
 				self.is_possessed = false
@@ -275,7 +294,7 @@ function on_input(self, action_id, action)
 			
 			print(self.name .. " playing animation: " .. animation_to_play .. " using sprite URL: " .. self.sprite_url)
 
-		elseif hitbox_clicked and not self.is_possessed then
+		elseif self.is_touching_cursor and not self.is_possessed then
 			print(self.name .. ": hitbox clicked while not possessed")
 			-- just play the animation for when the prop gets clicked without being possessed
 			sprite.play_flipbook(self.sprite_url, self.default_animation .. "_clicked", function()
