@@ -167,15 +167,23 @@ local function update_visibility(self)
 
 		-- print(self.name .. " is now invisible at " .. self.location)
 
-		-- stop adding time to the move timer
-		local result = timer.cancel(self.look_timer)
-		-- print("Result of cancelling " .. self.name .. "'s look timer: " .. tostring(result))
+		-- check if the movement timer is running
+		local result = timer.get_info(self.movement_timer)
+		print(self.name .. ": result of timer.get_info on movement_timer: ")
+		pprint(result)
 
-		-- restart the movement timer with however much time is left on it
-		self.movement_timer = timer.delay(self.remaining_move_time, false, driver)
-		msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
-		-- print(self.name .. " move time is: " .. self.remaining_move_time)
+		if not result then
+			-- we know that the movement timer needs to be restarted
 
+			-- stop adding time to the move timer
+			result = timer.cancel(self.look_timer)
+			-- print("Result of cancelling " .. self.name .. "'s look timer: " .. tostring(result))
+
+			-- restart the movement timer with however much time is left on it
+			self.movement_timer = timer.delay(self.remaining_move_time, false, driver)
+			msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
+			-- print(self.name .. " move time is: " .. self.remaining_move_time)
+		end
 	end
 
 end
