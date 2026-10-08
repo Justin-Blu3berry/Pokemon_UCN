@@ -400,9 +400,13 @@ nodes {
     x: 1061.0
     y: 233.0
   }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
   type: TYPE_BOX
-  texture: "camera_gui/croagunk icon"
-  id: "croagunk_icon"
+  texture: "camera_gui/ursaluna icon"
+  id: "ursaluna_icon"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }

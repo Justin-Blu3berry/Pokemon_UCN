@@ -199,7 +199,17 @@ function character_lists.get_radar_positions(vm)
 		-- peliper = 0,
 		-- ninetales = 0,
 		-- lucario = 0,
-		ursaluna = {},
+		ursaluna = {
+			["Cam 01"] = vm.vector3(1072.0, 202.0, 0.0),
+			["Cam 02"] = vm.vector3(1067.0, 150.0, 0.0),
+			["Cam 03"] = vm.vector3(930.0, 82.0, 0.0),
+			["Cam 04"] = vm.vector3(971.0, 148.0, 0.0),
+			["Cam 05"] = vm.vector3(927.0, 182.0, 0.0),
+			["Cam 09"] = vm.vector3(947.0, 122.0, 0.0),
+			["office"] = {
+				["left"] = vm.vector3(1014.0, 68.0, 0.0), 
+				["right"] = vm.vector3(1070.0, 67.0, 0.0)
+			},
 		rotom = {
 			["Cam 01"] = vm.vector3(1068.0, 176.0, 0.0),
 			["Cam 02"] = vm.vector3(1055.0, 116.0, 0.0),
