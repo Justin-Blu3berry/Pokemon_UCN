@@ -1198,7 +1198,7 @@ nodes {
   }
   type: TYPE_BOX
   texture: "main_menu/character menu slate"
-  id: "croagunk slate"
+  id: "ursaluna slate"
   inherit_alpha: true
 }
 nodes {
@@ -1215,10 +1215,10 @@ nodes {
     y: 100.0
   }
   type: TYPE_TEXT
-  text: "Croagunk"
+  text: "Ursaluna"
   font: "default"
-  id: "croagunk text"
-  parent: "croagunk slate"
+  id: "ursaluna text"
+  parent: "ursaluna slate"
   inherit_alpha: true
 }
 nodes {
@@ -1231,8 +1231,8 @@ nodes {
   }
   type: TYPE_BOX
   texture: "main_menu/croagunk icon greyscale"
-  id: "croagunk icon"
-  parent: "croagunk slate"
+  id: "ursaluna icon"
+  parent: "ursaluna slate"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
@@ -1248,7 +1248,7 @@ nodes {
   type: TYPE_BOX
   texture: "main_menu/arrow down transparent"
   id: "croagunk arrow down"
-  parent: "croagunk slate"
+  parent: "ursaluna slate"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
@@ -1264,7 +1264,7 @@ nodes {
   type: TYPE_BOX
   texture: "main_menu/arrow up transparent"
   id: "croagunk arrow up"
-  parent: "croagunk slate"
+  parent: "ursaluna slate"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
@@ -1280,7 +1280,7 @@ nodes {
   type: TYPE_BOX
   texture: "main_menu/0"
   id: "croagunk level"
-  parent: "croagunk slate"
+  parent: "ursaluna slate"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
