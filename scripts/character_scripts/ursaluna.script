@@ -249,6 +249,10 @@ local function enter_kill_state(self)
 	-- @param self:
 	-- @return: none, sets timers and maps them to self.<variable> variables
 
+	-- for debugging reasons, attempt to stop an existing kill timer
+	local result = timer.cancel(self.kill_timer)
+	print(self.name .. ": attempting to cancel the kill timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
+
 	-- set the initial timer for the character appearing in the door before being a threat
 	self.kill_timer = timer.delay(self.interval, false, attack_door)
 	msg.post(".", "update_displayed_time", {timer_name = "kill_time", time_remaining = self.interval, is_running = true})
@@ -335,6 +339,11 @@ function driver(self)
 		-- reset the time remaining on the current movement
 		self.remaining_move_time = self.interval
 
+		-- for debugging reasons, attempt to stop an existing movement timer
+		local result = timer.cancel(self.movement_timer)
+		print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.movement_timer .. " and result of cancelling is: " .. tostring(result))
+		
+
 		-- start the timer for the next movement
 		-- this is recursive, but can be broken if the timer is canceled
 		self.movement_timer = timer.delay(self.interval, false, driver)
@@ -420,7 +429,7 @@ local function start_night(self)
 	-- @return: nothing, just resets self.<variable> variables, sprites, position, and timers
 
 	-- reset movement interval
-	self.non_random = cu.calculate_nonrandom_interval(self.level, 5, 45)
+	self.non_random = cu.calculate_nonrandom_interval(self.level, 10, 75)
 	self.interval = cu.calculate_interval(self.non_random, math)
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = self.level ~= 0})
 	
