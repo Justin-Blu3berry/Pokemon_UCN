@@ -155,7 +155,7 @@ local function update_visibility(self)
 		-- print(self.name .. " is now visible at " .. self.location)
 
 		-- pause the movement timer
-		self.max_door_time = cu.pause_timer(self.movement_timer, timer)
+		self.remaining_move_time = cu.pause_timer(self.movement_timer, timer)
 		
 		-- set a looping timer that adds time back onto the movement timer
 		self.look_timer = timer.delay(0.1, true, add_move_time)
