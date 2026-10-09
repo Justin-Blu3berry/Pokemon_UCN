@@ -148,6 +148,8 @@ local function update_visibility(self)
 
 		-- pause the movement timer
 		self.remaining_move_time = cu.pause_timer(self.movement_timer, timer)
+		print(self.name .. ": printing results of timer.get_info on movement timer")
+		pprint(timer.get_info(self.movement_timer))
 		
 		-- set a looping timer that adds time back onto the movement timer
 		self.look_timer = timer.delay(0.1, true, add_move_time)
@@ -164,7 +166,7 @@ local function update_visibility(self)
 		print(self.name .. ": result of timer.get_info on movement_timer: ")
 		pprint(result)
 
-		if not result then
+		if result == nil then
 			-- we know that the movement timer needs to be restarted
 
 			-- stop adding time to the move timer
@@ -342,7 +344,6 @@ function driver(self)
 		-- for debugging reasons, attempt to stop an existing movement timer
 		local result = timer.cancel(self.movement_timer)
 		print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.movement_timer .. " and result of cancelling is: " .. tostring(result))
-		
 
 		-- start the timer for the next movement
 		-- this is recursive, but can be broken if the timer is canceled
