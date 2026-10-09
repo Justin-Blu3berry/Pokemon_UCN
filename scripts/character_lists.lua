@@ -200,16 +200,17 @@ function character_lists.get_radar_positions(vm)
 		-- ninetales = 0,
 		-- lucario = 0,
 		ursaluna = {
-			["Cam 01"] = vm.vector3(1072.0, 202.0, 0.0),
-			["Cam 02"] = vm.vector3(1067.0, 150.0, 0.0),
-			["Cam 03"] = vm.vector3(930.0, 82.0, 0.0),
-			["Cam 04"] = vm.vector3(971.0, 148.0, 0.0),
-			["Cam 05"] = vm.vector3(927.0, 182.0, 0.0),
-			["Cam 09"] = vm.vector3(947.0, 122.0, 0.0),
+			["Cam 01"] = vm.vector3(1022.0, 188.0, 0.0),
+			["Cam 02"] = vm.vector3(1069.0, 142.0, 0.0),
+			["Cam 03"] = vm.vector3(1055.0, 238.0, 0.0),
+			["Cam 04"] = vm.vector3(984.0, 190.0, 0.0),
+			["Cam 05"] = vm.vector3(945.0, 185.0, 0.0),
+			["Cam 09"] = vm.vector3(995.0, 118.0, 0.0),
 			["office"] = {
 				["left"] = vm.vector3(1014.0, 68.0, 0.0), 
 				["right"] = vm.vector3(1070.0, 67.0, 0.0)
-			},
+			}
+		},
 		rotom = {
 			["Cam 01"] = vm.vector3(1068.0, 176.0, 0.0),
 			["Cam 02"] = vm.vector3(1055.0, 116.0, 0.0),
@@ -260,7 +261,7 @@ function character_lists.get_timer_names()
 		--peliper = 0,
 		--ninetales = 0,
 		--lucario = 0,
-		--ursaluna = 0,
+		ursaluna = { move_time = 0, door_time = 0, kill_time = 0 },
 		rotom = { move_time = 0, kill_time = 0 },
 		--giratina = 0,
 		--klinklang = 0,
@@ -288,7 +289,7 @@ function character_lists.get_character_urls()
 	-- peliper = 0,
 	-- ninetales = 0,
 	-- lucario = 0,
-	-- ursaluna = 0,
+	ursaluna = "/camera/ursaluna",
 	rotom = "/camera/rotom",
 	-- giratina = 0,
 	-- klinklang = 0,
