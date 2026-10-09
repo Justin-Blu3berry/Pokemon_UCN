@@ -175,7 +175,7 @@ local function update_visibility(self)
 
 			-- restart the movement timer with however much time is left on it
 			self.movement_timer = timer.delay(self.remaining_move_time, false, driver)
-			msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
+			msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_move_time, is_running = true})
 			print(self.name .. ": move time is: " .. self.remaining_move_time)
 		end
 	end
