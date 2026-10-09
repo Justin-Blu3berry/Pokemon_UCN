@@ -71,10 +71,10 @@ function init(self)
 	}
 
 	-- initialize all timers
-	self.movement_timer = timer.delay(0, false, function() print(self.name .. " move timer initialized") end)
-	self.door_timer = timer.delay(0, false, function() print(self.name .. " door timer initialized") end)
-	self.look_timer = timer.delay(0, false, function() print(self.name .. " look timer initialized") end)
-	self.kill_timer = timer.delay(0, false, function() print(self.name .. " kill timer initialized") end)
+	self.movement_timer = timer.delay(0, false, function() print(self.name .. ": move timer initialized") end)
+	self.door_timer = timer.delay(0, false, function() print(self.name .. ": door timer initialized") end)
+	self.look_timer = timer.delay(0, false, function() print(self.name .. ": look timer initialized") end)
+	self.kill_timer = timer.delay(0, false, function() print(self.name .. ": kill timer initialized") end)
 	
 	-- become invisible
 	local curr_position = go.get_position()
@@ -111,7 +111,7 @@ local function add_move_time(self, time_to_add)
 	-- add 0.05 seconds to the door timer
 	self.remaining_move_time = self.remaining_move_time + (0.1 * self.watchtime_multiplier)
 
-	print(self.name .. " move time increased to " .. self.max_door_time)
+	print(self.name .. ": move time increased to " .. self.max_door_time)
 
 	-- send a message to the gui to update how much time this character's door time has on it
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_move_time, is_running = false})
@@ -129,7 +129,7 @@ local function update_visibility(self)
 
 	-- determine what the player is looking at
 	local player_location = cu.get_player_view(self.is_in_camera, self.selected_camera)
-	print(self.name .. " thinks the player is looking at: " .. player_location)
+	print(self.name .. ": thinks the player is looking at: " .. player_location)
 
 	-- check if the current camera is disabled
 	-- msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
@@ -144,7 +144,7 @@ local function update_visibility(self)
 		-- make the character become visible
 		cu.become_visible(go, vmath)
 
-		print(self.name .. " is now visible at " .. self.location)
+		print(self.name .. ": is now visible at " .. self.location)
 
 		-- pause the movement timer
 		self.remaining_move_time = cu.pause_timer(self.movement_timer, timer)
@@ -157,7 +157,7 @@ local function update_visibility(self)
 		-- make the character become invisible
 		cu.become_invisible(go, vmath)
 
-		print(self.name .. " is now invisible at " .. self.location)
+		print(self.name .. ": is now invisible at " .. self.location)
 
 		-- check if the movement timer is running
 		local result = timer.get_info(self.movement_timer)
@@ -174,7 +174,7 @@ local function update_visibility(self)
 			-- restart the movement timer with however much time is left on it
 			self.movement_timer = timer.delay(self.remaining_move_time, false, driver)
 			msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
-			print(self.name .. " move time is: " .. self.remaining_move_time)
+			print(self.name .. ": move time is: " .. self.remaining_move_time)
 		end
 	end
 
@@ -194,7 +194,7 @@ local function progress_movement(self)
 	-- access the right room in the list by keying it with the current step of 
 	-- this character's movement progression
 	self.location = self.path[self.movement_step]
-	print(self.name .. " moved to " .. self.location .. " along " .. self.my_path .. " path")
+	print(self.name .. ": moved to " .. self.location .. " along " .. self.my_path .. " path")
 
 	-- tell the camera GUI to move this character's icon on the minimap (only visible if radar is on)
 	msg.post("/camera_GUI", "move_character", 
@@ -270,7 +270,7 @@ local function restart_path(self)
 	-- start the timer for the next movement
 	self.movement_timer = timer.delay(self.interval, false, driver)
 
-	print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	print(self.name .. ": just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -341,7 +341,7 @@ function driver(self)
 
 	end
 
-	print(self.name .. " just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+	print(self.name .. ": just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -363,7 +363,7 @@ local function set_door_timers(self)
 
 		-- start a counter to leave the door when it's been closed for half a second
 		self.door_timer = timer.delay(self.remaining_door_time, false, leave_kill_state)
-		print(self.name .. " is in office and door is closed, starting door time pie node animation")
+		print(self.name .. ": is in office and door is closed, starting door time pie node animation")
 		msg.post(".", "update_displayed_time", {timer_name = "door_time", time_remaining = self.remaining_door_time, is_running = true})
 		
 		-- pause the kill timer
@@ -494,17 +494,17 @@ end
 function on_message(self, message_id, message, sender)
 	-- Add message-handling code here
 
-	print(self.name .. " received a message: " .. message_id .. " from sender:" .. sender)
+	print(self.name .. ": received a message: " .. message_id .. " from sender:" .. sender)
 	-- pprint(message)
 
 	if message_id == hash("new_night") then
 		-- update this character's AI level
 		self.level = message.ai_level
-		print(self.name .. " set to level " .. self.level)
+		print(self.name .. ": set to level " .. self.level)
 		
 		-- update whether the challenge mode is active
 		self.is_tera = message.is_tera
-		print(self.name .. " thinks tera mode is on: " .. tostring(self.is_tera))
+		print(self.name .. ": thinks tera mode is on: " .. tostring(self.is_tera))
 
 		-- reset the variable tracking how much time this character should wait at the door,
 		-- implementing this character's tera mechanic of "never" leaving the door
@@ -541,8 +541,8 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("update_doors") then
 		-- update the values for which doors are open and which are closed
 		self.doors_closed[message.selected_door] = message.is_closed
-		print(self.name .. " has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
-		print(self.name .. " thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
+		print(self.name .. ": has been told " .. message.selected_door .. " door is now closed: " .. tostring(message.is_closed))
+		print(self.name .. ": thinks " .. message.selected_door .. " door is now closed: " .. tostring(self.doors_closed[message.selected_door]))
 
 		-- update door timers if this character is in the office and the door that opened/closed was the one he's at
 		if message.selected_door == self.my_path then
