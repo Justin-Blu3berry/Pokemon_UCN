@@ -115,8 +115,6 @@ local function add_move_time(self, time_to_add)
 
 	-- send a message to the gui to update how much time this character's door time has on it
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.remaining_move_time, is_running = false})
-	
-	print(self.location)
 
 end
 
@@ -334,17 +332,17 @@ function driver(self)
 		-- update this character's sprite
 		cu.update_sprite(self.name, self.sprite_dict, self.location, sprite)
 
+		-- for debugging reasons, attempt to stop an existing movement timer
+		local result = timer.cancel(self.movement_timer)
+		print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.movement_timer .. " and result of cancelling is: " .. tostring(result))
+
 		-- update this character's movement interval
 		self.interval = cu.calculate_interval(self.non_random, math)
 		msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
 
 		-- reset the time remaining on the current movement
 		self.remaining_move_time = self.interval
-
-		-- for debugging reasons, attempt to stop an existing movement timer
-		local result = timer.cancel(self.movement_timer)
-		print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.movement_timer .. " and result of cancelling is: " .. tostring(result))
-
+		
 		-- start the timer for the next movement
 		-- this is recursive, but can be broken if the timer is canceled
 		self.movement_timer = timer.delay(self.interval, false, driver)
