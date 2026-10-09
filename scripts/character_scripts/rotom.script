@@ -184,7 +184,7 @@ local function driver(self)
 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
 
 	-- for debugging reasons, attempt to stop an existing movement timer
-	local result = timer.cancel(self.kill_timer)
+	local result = timer.cancel(self.movement_timer)
 	-- print(self.name .. ": attempting to cancel the move timer before starting new one. Old ID is " .. self.kill_timer .. " and result of cancelling is: " .. tostring(result))
 	
 	-- start the timer for the next movement
