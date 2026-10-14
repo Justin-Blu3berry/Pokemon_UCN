@@ -107,6 +107,12 @@ local function add_move_time(self, time_to_add)
 	-- so ursaluna adds X seconds to the move timer time per 1.0 seconds spent looking at him
 	-- @param self: grants access to self.<variable> namespace
 	-- @return: nothing, just sets a timer and aliases in the self.<variable> namespace
+
+	-- handle the case where self.remaining_move_time is nil
+	if self.remaining_move_time == nil then
+		self.remaining_move_time = 0
+		print(self.name .. ": remaining move time was nil, set to 0 instead")
+	end
 	
 	-- add 0.05 seconds to the door timer
 	self.remaining_move_time = self.remaining_move_time + (0.1 * self.watchtime_multiplier)
@@ -129,6 +135,11 @@ local function update_visibility(self)
 	local player_location = cu.get_player_view(self.is_in_camera, self.selected_camera)
 	print(self.name .. ": thinks the player is looking at: " .. player_location)
 
+	-- stop the look timer regardless of if ursaluna is on screen to avoid accidentally starting
+	-- multiple instances of the same timer
+	local result = timer.cancel(self.look_timer)
+	print("Result of cancelling " .. self.name .. "'s look timer: " .. tostring(result))
+
 	-- check if the current camera is disabled
 	-- msg.post("/camera_GUI", "is_cam_enabled", { camera = self.locations })
 	-- TODO: if combo with abra is problematic, uncomment this and re-add "and self.cam_enabled" to following if statement
@@ -148,9 +159,13 @@ local function update_visibility(self)
 		self.remaining_move_time = cu.pause_timer(self.movement_timer, timer)
 		print(self.name .. ": printing results of timer.get_info on movement timer")
 		pprint(timer.get_info(self.movement_timer))
-		
-		-- set a looping timer that adds time back onto the movement timer
-		self.look_timer = timer.delay(0.1, true, add_move_time)
+
+		-- Only add time back to the movement timer if Ursaluna isn't at the door
+		if self.location ~= "office" then
+			-- set a looping timer that adds time back onto the movement timer
+			self.look_timer = timer.delay(0.1, true, add_move_time)
+			print(self.name .. ": setting the look_timer. self.remaining_move_time was " .. tostring(self.remaining_move_time))
+		end
 
 	else
 
@@ -160,16 +175,12 @@ local function update_visibility(self)
 		print(self.name .. ": is now invisible at " .. self.location)
 
 		-- check if the movement timer is running
-		local result = timer.get_info(self.movement_timer)
+		result = timer.get_info(self.movement_timer)
 		print(self.name .. ": result of timer.get_info on movement_timer: ")
 		pprint(result)
 
 		if result == nil then
 			-- we know that the movement timer needs to be restarted
-
-			-- stop adding time to the move timer
-			result = timer.cancel(self.look_timer)
-			print("Result of cancelling " .. self.name .. "'s look timer: " .. tostring(result))
 
 			-- restart the movement timer with however much time is left on it
 			self.movement_timer = timer.delay(self.remaining_move_time, false, driver)
@@ -265,16 +276,20 @@ local function restart_path(self)
 	
 	-- reset movement to step 0
 	self.movement_step = 0
+
+	-- run the driver function
+	driver(self)
+	
 	-- go to the first room in the path (this function will increment the movement step to 1, which is the 
 	-- show stage in both paths)
-	progress_movement(self)
-	-- recalculate this character's movement interval
-	self.interval = cu.calculate_interval(self.non_random, math)
-	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
-	-- start the timer for the next movement
-	self.movement_timer = timer.delay(self.interval, false, driver)
-
-	print(self.name .. ": just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
+-- 	progress_movement(self)
+-- 	-- recalculate this character's movement interval
+-- 	self.interval = cu.calculate_interval(self.non_random, math)
+-- 	msg.post(".", "update_displayed_time", {timer_name = "move_time", time_remaining = self.interval, is_running = true})
+-- 	-- start the timer for the next movement
+-- 	self.movement_timer = timer.delay(self.interval, false, driver)
+-- 
+-- 	print(self.name .. ": just moved to " .. self.location .. "; New interval = " .. self.interval .. " sec")
 end
 
 
@@ -437,7 +452,7 @@ local function start_night(self)
 	self.location = "Cam 03"
 
 	-- reset he variable tracking what step of his path he's on
-	self.movement_step = 1
+	self.movement_step = 0
 
 	-- reset values to track if the player is in the cameras
 	self.is_in_camera = false
@@ -492,7 +507,7 @@ local function start_night(self)
 
 		-- start the timer for a new night if the character's level is above 0
 		print(self.name .. "'s initial interval: " .. self.interval)
-		self.movement_timer = timer.delay(self.interval, false, driver)
+		driver(self)
 	end
 	
 
